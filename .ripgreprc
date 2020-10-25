@@ -1,0 +1,16 @@
+--max-columns=150
+--max-columns-preview
+
+--type-add
+web:*.{pug,js}*
+
+# --glob=!{.git,node_modules,plugged}/**
+--glob=!.git/*
+--glob=!node_modules/*
+
+--smart-case
+
+# skip .gitignore files even if not using :GitFiles search
+--hidden
+
+--follow

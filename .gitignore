@@ -1,0 +1,6 @@
+.git-blame-ignore-revs
+jsconfig.json
+.vimspector.json
+.solargraph.yml
+Session.vim
+yarn-error.log
