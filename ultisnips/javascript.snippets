@@ -1,0 +1,582 @@
+priority -50
+
+snippet for "for (...) {...} (counting up)" b
+for (let ${1:i} = 0, ${2:len} = ${3:Things.length}; $1 < $2; $1++) {
+	${VISUAL}$0
+}
+endsnippet
+
+snippet if "if statement"
+if (${1:true}) {
+	${0}
+}
+endsnippet
+
+snippet if "if statement"
+if (${1:true}) {
+	${0}
+}
+endsnippet
+
+snippet ife "if/else statement"
+if (${1:true}) {
+	${2}
+} else {
+	${0}
+}
+endsnippet
+
+# tertiary conditional
+snippet ter
+${1:/* condition */} ? ${2:/* if true */} : ${0:/* if false */}
+
+endsnippet
+
+# switch
+snippet switch
+switch (${1:expression}) {
+	case "${3:case}":
+		${4}
+		break
+	${0}
+	default:
+		${2}
+}
+endsnippet
+
+# try
+snippet try
+try {
+	${1}
+} catch (${2:e}) {
+	${0:/* handle error */}
+}
+endsnippet
+
+# try finally
+snippet tryf
+try {
+	${1}
+} catch (${2:e}) {
+	${0:/* handle error */}
+} finally {
+	${3:/* be executed regardless of the try / catch result*/}
+}
+endsnippet
+
+snippet fun "function (fun)"
+function ${1:function_name}(${2:argument}) {
+	${VISUAL}$0
+}
+endsnippet
+
+snippet iife "Immediately-Invoked Function Expression (iife)"
+((${1:window}) => {
+	${VISUAL}$0
+}(${2:$1}))
+endsnippet
+
+snippet timeout "setTimeout function"
+setTimeout(() => {
+	${VISUAL}$0
+}, ${1:10})
+endsnippet
+
+snippet fi "for prop in obj using hasOwnProperty" b
+for (${1:prop} in ${2:obj}){
+	if ($2.hasOwnProperty($1)) {
+		${VISUAL}$0
+	}
+}
+endsnippet
+
+# Snippets for Console Debug Output
+snippet de
+debugger
+endsnippet
+
+snippet ca "console.assert" b
+console.assert(${1:assertion}, ${2:'${3:message}'})
+endsnippet
+
+snippet cclear "console.clear" b
+console.clear()
+endsnippet
+
+snippet cdir "console.dir" b
+console.dir(${1:object})
+endsnippet
+
+snippet ce "console.error" b
+console.error(${1:"${2:value}"})
+endsnippet
+
+snippet cgroup "console.group" b
+console.group("${1:label}")
+${VISUAL}$0
+console.groupEnd()
+endsnippet
+
+snippet cgroupc "console.groupCollapsed" b
+console.groupCollapsed("${1:label}")
+${VISUAL}$0
+console.groupEnd()
+endsnippet
+
+snippet ci "console.info" b
+console.info(${1:"${2:value}"})
+endsnippet
+
+snippet cl "console.log" b
+console.log(${1:"${2:value}"})
+endsnippet
+
+snippet cd "console.debug" b
+console.debug(${1:"${2:value}"})
+endsnippet
+
+snippet cprof "console.profile" b
+console.profile("${1:label}")
+${VISUAL}$0
+console.profileEnd()
+endsnippet
+
+snippet ctable "console.table" b
+console.table(${1:"${2:value}"})
+endsnippet
+
+snippet ctime "console.time" b
+console.time("${1:label}")
+${VISUAL}$0
+console.timeEnd("$1")
+endsnippet
+
+snippet ctimestamp "console.timeStamp" b
+console.timeStamp("${1:label}")
+endsnippet
+
+snippet ctrace "console.trace" b
+console.trace()
+endsnippet
+
+snippet cw "console.warn" b
+console.warn(${1:"${2:value}"})
+endsnippet
+
+# html (JSX)
+
+snippet div "<div>" w
+<div>
+	$0
+</div>
+endsnippet
+
+snippet divcn "<div> with class" w
+<div className={${1}}>
+	$0
+</div>
+endsnippet
+
+# snippet divcn "<div> with class" w
+# <div`!p snip.rv=' className="' if t[1] else ""`${1:name}`!p snip.rv = '"' if t[1] else ""`>
+# 	$0
+# </div>
+# endsnippet
+
+snippet div# "<div> with ID & class" w
+<div`!p snip.rv=' id="' if t[1] else ""`${1:name}`!p snip.rv = '"' if t[1] else ""``!p snip.rv=' className="' if t[2] else ""`${2:name}`!p snip.rv = '"' if t[2] else ""`>
+	$0
+</div>
+endsnippet
+
+snippet h1 "XHTML <h1>" w
+<h1>$0</h1>
+endsnippet
+
+snippet h2 "XHTML <h2>" w
+<h2>$0</h2>
+endsnippet
+
+snippet h3 "XHTML <h3>" w
+<h3>$0</h3>
+endsnippet
+
+snippet h4 "XHTML <h4>" w
+<h4>$0</h4>
+endsnippet
+
+snippet a "Link" w
+<a href="${1:http://www.${2:url.com}}"${3: target="_blank"}>${4:Anchor Text}</a>
+endsnippet
+
+snippet p "paragraph" w
+<p>$0</p>
+endsnippet
+
+snippet li "list item" w
+<li>$0</li>
+endsnippet
+
+snippet ul "unordered list" w
+<ul>
+$0
+</ul>
+endsnippet
+
+snippet td "table cell" w
+<td>$0</td>
+endsnippet
+
+snippet th "table header" w
+<th>$0</th>
+endsnippet
+
+snippet tr "table row" w
+<tr>$0</tr>
+endsnippet
+
+snippet form "XHTML <form>" w
+<form>
+	$0
+</form>
+endsnippet
+
+snippet label_and_input
+<label for="${2:$1}">${1}</label>
+<input type="${3:text}" name="${4:$2}"${5: id="${6:$2}"} value="${7}" />${8}
+endsnippet
+
+snippet input
+<input type="${1:text}" value="${2}" name="${3}"${4: id="${5:$3}"}/>${7}
+endsnippet
+
+snippet submit
+<input type="submit" value="${2}" ${3}/>${7}
+endsnippet
+
+snippet textarea
+<textarea name="$2"${3: id="$4"}>$5</textarea>
+endsnippet
+
+snippet img
+<img src="$1"${2: alt="$3"}/>
+endsnippet
+
+snippet const
+const ${1} = ${0};
+endsnippet
+
+snippet constf "Function assigned to const"
+const ${1} = (${2}) => {
+	${VISUAL}$0
+};
+endsnippet
+
+snippet let
+let ${1} = ${0};
+endsnippet
+
+snippet im
+import ${1} from '${0}';
+endsnippet
+
+snippet cla
+class ${1} {
+	${0}
+}
+endsnippet
+
+snippet af 
+(${1}) => {
+	${0}
+}
+endsnippet
+
+snippet map
+.map(${1}) => {
+	${0}
+}
+endsnippet
+
+snippet ed
+export default ${0}
+endsnippet
+
+snippet =>
+(${1}) => {
+	${0}
+}
+endsnippet
+
+### React snippets ###
+snippet rfc "create functional React component using file Template" b
+import styles from "./$1.module.sass";
+import PropTypes from "prop-types";
+
+const ${1:Component} = () => {
+	return (
+		<div>$0</div>
+	)
+}
+
+$1.propTypes = {
+}
+
+export default $1
+endsnippet
+
+snippet cn
+className={${0}}
+endsnippet
+
+snippet rsc "React Styled Component" b
+import styled from 'styled-components';
+
+const ${1:`!v expand('%:t:r')`} = styled.${2:div}\`
+	$3
+\`;
+
+export default $1;
+endsnippet
+
+snippet rsci "React Styled Component Interpolation" b
+import styled, { css } from 'styled-components';
+
+const ${1:`!v expand('%:t:r')`} = styled.${2:div}\`${props => css\`
+	${3:${props.$4 && \`
+		$5
+	\`}}
+\`}\`;
+
+export default $1;
+endsnippet
+
+snippet pt "propTypes" b
+${1}: PropTypes.${2:string},
+endsnippet
+
+snippet pta "PropTypes array"
+PropTypes.array,
+endsnippet
+
+snippet pts "PropTypes.string"
+PropTypes.string,
+endsnippet
+
+snippet pto "PropTypes.object"
+PropTypes.object,
+endsnippet
+
+snippet ptb "PropTypes.bool"
+PropTypes.bool,
+endsnippet
+
+snippet ptsh "PropTypes.shape"
+PropTypes.shape({
+	${1:shape},
+}),
+endsnippet
+
+snippet uses "useState" w
+const [$1, set${2}] = useState(${3:""})${0:;}
+endsnippet
+
+snippet usee "useEffect" w
+useEffect(() => {
+  $1
+})${0:;}
+endsnippet
+
+snippet useer "useEffect with return" w
+useEffect(() => {
+  $1
+	return () => {
+    $2
+	};
+})${0:;}
+endsnippet
+
+snippet usec "useContext" w
+const $1 = useContext($2)${0:;}
+endsnippet
+
+snippet user "useReducer" w
+const [$1, dispatch] = useReducer($1Reducer, ${2:${VISUAL:initialState}})
+const $1Reducer = (state, action) => {
+	switch (action.type) {
+		default:
+			return state;
+	}
+}${0:;}
+endsnippet
+
+snippet usecb "useCallback" w
+useCallback(
+	() => {
+		$1
+	},
+	[$2],
+)${0:;}
+endsnippet
+
+snippet usem "useMemo" w
+const $1 = useMemo(() => {
+	$2
+}, [$3])${0:;}
+endsnippet
+
+snippet userf "useRef" w
+const $1 = useRef($2)${0:;}
+endsnippet
+
+# TESTS
+snippet exp "expect" b
+expect($1).$2;
+endsnippet
+
+snippet rtf "React Test File" b
+import { render } from "@testing-library/react";
+import { axe } from "jest-axe";
+import { ${1:`!v expand('%:t:r')`} } from "../$1";
+
+describe("$1", () => {
+	const defaultProps = {}
+
+	test("renders the component", async () => {
+		const { container } = render(<$1 {...defaultProps} />);
+		expect(container).toBeInTheDocument();
+	});
+
+	test("should have no accessibility violations", async () => {
+		const { container } = render(<$1 {...defaultProps} />);
+		const results = await axe(container);
+		expect(results).toHaveNoViolations();
+	});
+});
+endsnippet
+
+snippet rhtf "React Hooks Test File" b
+import { renderHook } from '@testing-library/react-hooks';
+
+import $2 from '../${1:`!v expand('%:t:r')`}';
+
+describe("$1", () => {
+	it('should $3', () => {
+		$4
+	});
+});
+endsnippet
+
+snippet desc "describe a test" b
+describe("$1", () => {
+	it("should $2", () => {
+		$3
+	});
+});
+endsnippet
+
+snippet test "create a test block" b
+test("should $1", () => {
+	$2
+});
+endsnippet
+
+snippet it "create a test block" b
+it("should $1", () => {
+	$2
+});
+endsnippet
+
+snippet be "beforeEach" b
+beforeEach(() => {
+	${0}
+});
+endsnippet
+
+snippet ae "afterEach" b
+afterEach(() => {
+	${0}
+});
+endsnippet
+
+snippet todo "it.todo()" b
+it.todo("should $1");
+endsnippet
+
+snippet es "expect(container).toMatchSnapshot()" b
+expect(${1:container}).toMatchSnapshot();$0
+endsnippet
+
+### Nextjs Snippets ###
+snippet np "create Nextjs page file" b
+import prismicGraphQLQuery from "@tuftandneedle/cms/graphql/prismic-graphql-query";
+import globalSchema from "cms/graphql/schema/global";
+import $3Schema from "cms/graphql/schema/$2/$3";
+import { $1 } from "src/components/$3/$1";
+
+function ${1:Page}Page(props) {
+  return (
+    <>
+      <$1 {...props} />
+    </>
+  );
+}
+$0
+export async function getStaticProps() {
+  const {
+    pageData: { $4 },
+    promotion,
+    site_footer,
+    site_navigation,
+  } = await prismicGraphQLQuery($3Schema, globalSchema);
+
+  return {
+    props: {
+      cmsData: {
+        ...$4,
+        promotion,
+      },
+      cmsGlobals: {
+        site_footer,
+        promotion,
+        site_navigation,
+      },
+    },
+    revalidate: 300,
+  };
+}
+
+export default $1Page;
+endsnippet
+
+snippet nc "create React nextjs component" b
+import PropTypes from "prop-types";
+import BasicLayout from "src/components/layouts/Basic";
+import styles from "./$1.module.sass";
+
+export const ${1:Component} = ({ cmsData }) => {
+  const {
+    page_header,
+    meta_title: title,
+    meta_description: description,
+  } = cmsData || {};
+
+  return (
+    <BasicLayout {...{ title, description }}>
+      <div>
+        <h1>{page_header}</h1>
+	$0
+      </div>
+    </BasicLayout>
+  );
+};
+
+$1.propTypes = {
+  cmsData: PropTypes.shape({
+    page_header: PropTypes.string.isRequired,
+    meta_title: PropTypes.string,
+    meta_description: PropTypes.string,
+  }).isRequired,
+};
+endsnippet
+# vim:ft=snippets:
