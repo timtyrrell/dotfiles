@@ -20,9 +20,6 @@
     "line_length": false,
     "spelling": false
   },
-  "coc.preferences.extensionUpdateCheck": "daily",
-  "coc.preferences.currentFunctionSymbolAutoUpdate": true,
-  "coc.preferences.silentAutoupdate": false,
   "cssmodules.camelCase": true,
   "cssmodules.hintMessage": "cssmodule",
   "prettier.requireConfig": true,
@@ -42,38 +39,31 @@
     "typescript",
     "typescriptreact"
   ],
-  // select the first completed item
-  "suggest.noselect": false,
-  "suggest.enablePreselect": false,
-  "suggest.enablePreview": true,
-  // Ignore patterns of matcher module
+  "coc.preferences.currentFunctionSymbolAutoUpdate": true,
+  "coc.preferences.hoverTarget": "float",
   "coc.source.file.ignorePatterns": [],
-  "javascript.suggestionActions.enabled": false,
-  "javascript.preferences.quoteStyle": "double",
-  // visual helpers
-  "diagnostic.warningSign": "",
+  "codeLens.enable": false,
+  "codeLens.separator": "|->",
+  "diagnostic.checkCurrentLine": true,
+  "diagnostic.enable": false,
   "diagnostic.errorSign": "",
   "diagnostic.hintSign": "",
   "diagnostic.infoSign": "",
-  // debug
-  //"diagnostic.enable": true,
-  //"tsserver.trace.server": "verbose",
-  // show error when cursor on line without needing to be on the exact word
-  "diagnostic.checkCurrentLine": true,
-  "tsserver.npm": "/usr/local/bin/npm",
-  // ADD JIRA BACK IN
-  "signature.target": "float",
-  "signature.preferShownAbove": false,
-  "coc.preferences.hoverTarget": "float",
+  "diagnostic.messageTarget": "echo",
   "diagnostic.virtualText": true,
   "diagnostic.virtualTextCurrentLineOnly": true,
-  "suggest.floatEnable": true,
-  "diagnostic.messageTarget": "echo",
+  "diagnostic.warningSign": "",
   "git.addGBlameToVirtualText": false,
-  "codeLens.enable": false,
-  "suggest.snippetIndicator": "+",
-  "codeLens.separator": "|->",
+  "javascript.preferences.quoteStyle": "double",
+  "javascript.suggestionActions.enabled": false,
+  "signature.preferShownAbove": true,
+  "signature.target": "float",
+  "suggest.enablePreselect": false,
+  "suggest.enablePreview": true,
+  "suggest.floatEnable": true,
+  "suggest.noselect": false,
   "suggest.removeDuplicateItems": true,
+  "suggest.snippetIndicator": "+",
   "suggest.completionItemKindLabels": {
     "keyword": "\uf1de",
     "variable": "\ue79b",
@@ -100,5 +90,7 @@
     "snippet": "\ue60b",
     "typeParameter": "\uf728",
     "default": "\uf29c"
-  }
+  },
+  "tsserver.npm": "/usr/local/bin/npm",
+  "tsserver.trace.server": "off"
 }
