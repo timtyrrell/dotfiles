@@ -22,8 +22,6 @@ brew "coreutils"
 brew "cpanminus"
 # Reimplementation of ctags(1)
 brew "ctags"
-# Good-lookin' diffs with diff-highlight and more
-brew "diff-so-fancy"
 # Load/unload environment variables based on $PWD
 brew "direnv"
 # Docker Credential Helper for Amazon ECR
@@ -36,6 +34,8 @@ brew "exa"
 brew "fd"
 # Command-line fuzzy finder written in Go
 brew "fzf"
+# Syntax-highlighting pager for git and diff output
+brew "git-delta"
 # GitHub command-line tool
 brew "gh"
 # Compare two HTTP(S) responses
