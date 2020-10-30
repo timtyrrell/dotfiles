@@ -271,6 +271,7 @@ Plug 'tpope/vim-fugitive' |
            \ Plug 'tpope/vim-rhubarb' | "GitHub extension for fugitive.vim
 
 " 0Glog " see history of current file
+" Gedit " go back to normal file from read-only view
 " in Gstatus window
 " <C-N> or <C-P> to jump to the next/previous file (as mentioned above)
 " - on a file, stages (or unstages) the entire file.
@@ -333,7 +334,7 @@ Plug 'preservim/nerdtree' |
 let g:WebDevIconsOS = 'Darwin'
 
 Plug 'itchyny/lightline.vim' |
-          \ Plug 'josa42/vim-lightline-coc' |
+          \ Plug 'konart/vim-lightline-coc' |
           \ Plug 'timtyrrell/apprentice-lightline-experimental'
 Plug 'mhinz/vim-startify'
 Plug 'romainl/Apprentice'
@@ -558,15 +559,14 @@ let g:projectionist_heuristics = {
 " lightline
 let g:lightline = {
     \ 'active': {
-    \   'left': [ [ 'coc_errors', 'coc_warnings', 'coc_ok', 'paste' ],
-    \             [ 'gitbranch', 'filename', 'modified', 'currentfunction'] ],
+    \   'left': [ [  'coc_info', 'coc_hints', 'coc_errors', 'coc_warnings', 'coc_ok'],
+    \             [ 'paste', 'gitbranch', 'filename', 'modified'] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
     \            [ 'filetype' ] ],
     \ },
     \ 'component_function': {
     \   'gitbranch': 'LightlineBranchformat',
-    \   'currentfunction': 'CocCurrentFunction',
     \   'filename': 'LightlineFilenameDisplay',
     \   'fileformat': 'LightlineFileformat',
     \   'filetype': 'LightlineFiletype',
@@ -583,13 +583,10 @@ let g:lightline = {
     \ }
 let g:lightline#coc#indicator_warnings = ''
 let g:lightline#coc#indicator_errors = ''
+let g:lightline#coc#indicator_info = ''
 
 " Use autocmd to force lightline update.
-autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
-
-function! CocCurrentFunction()
-  return get(b:, 'coc_current_function', '')
-endfunction
+" autocmd User CocDiagnosticChange call lightline#update()
 
 function! LightlineFilenameDisplay()
   return winwidth(0) > 40 ? WebDevIconsGetFileTypeSymbol() . ' '. LightlineFilename() : expand('%:t')
@@ -642,10 +639,10 @@ function! LightlineBranchformat()
 " return winwidth(0) > 70 ? FugitiveHead() : ''
 endfunction
 
+let g:lightline.colorscheme = 'apprentice'
+
 " register compoments:
 call lightline#coc#register()
-
-let g:lightline.colorscheme = 'apprentice'
 
 let g:vimspector_enable_mappings = 'HUMAN'
 
