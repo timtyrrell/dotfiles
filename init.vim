@@ -159,7 +159,6 @@ let g:coc_global_extensions = [
           \ 'coc-actions',
           \ 'coc-css',
           \ 'coc-eslint',
-          \ 'coc-explorer',
           \ 'coc-git',
           \ 'coc-html',
           \ 'coc-jest',

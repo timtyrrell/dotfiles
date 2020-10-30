@@ -408,7 +408,6 @@ alias gnap='git add -N --ignore-removal . && gap && gref'
 alias gb='git branch'
 alias gc='git commit -v'
 alias gca='git commit -a -v'
-alias gcp='git cherry-pick'
 alias gcl='git clean -f -d'
 alias gd='git diff'
 alias gds='git diff --staged'
@@ -424,12 +423,16 @@ alias gr='git rebase'
 alias grc='git rebase --continue'
 alias gra='git rebase --abort'
 alias grs='git rebase --skip'
+alias gcp='git cherry-pick'
+alias gcpa='git cherry-pick --abort'
+alias gcps='git cherry-pick --skip'
+alias gcpc='git cherry-pick --continue'
 alias gco='git checkout'
 alias gres='git restore --staged .'
 alias gappend='git add . && git commit --amend -C HEAD'
 alias unstage='git restore --staged .'
 alias grestore="git restore --staged . && git restore ."
-alias reset-authors='git commit --amend --reset-author -C HEAD'
+alias reset_authors='git commit --amend --reset-author -C HEAD'
 alias wip="git add . && LEFTHOOK=0 gc -m 'wip [ci skip]'"
 alias unwip="git reset --soft 'HEAD^' && git restore --staged ."
 alias undo="unwip"
@@ -456,8 +459,8 @@ alias start="npm run start:next"
 # brew cask install neovim-nightly
 alias update-neovim-nightly="brew reinstall neovim-nightly"
 alias install-tmux-head="brew install --HEAD tmux"
-# alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
-alias brew-outdated="brew bundle --global"
+alias brew-install="brew bundle install --global"
+alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
 alias zinit-update="zinit self-update"
 alias zinit-plugin-update="zinit update --all"
 
