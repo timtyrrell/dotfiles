@@ -11,5 +11,5 @@ ln -sv ~/code/timtyrrell/dotfiles/bin/preview_file_or_folder.sh ~/bin/preview_fi
 ln -sv ~/code/timtyrrell/dotfiles/bin/tmux-spotify-info ~/bin/tmux-spotify-info
 ln -sv ~/code/timtyrrell/dotfiles/bin/tmux_chooser ~/bin/tmux_chooser
 ln -sv ~/code/timtyrrell/dotfiles/bin/truecolor-test ~/bin/truecolor-test
-ln -sv ~/code/timtyrrell/dotfiles/Brewfile ~/Brewfile
+ln -sv ~/code/timtyrrell/dotfiles/Brewfile ~/.Brewfile
 ln -sv ~/code/timtyrrell/dotfiles/KittyApprentice.conf ~/.config/kitty/themes/Apprentice.conf
