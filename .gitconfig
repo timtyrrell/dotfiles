@@ -60,10 +60,20 @@
 	editor = nvim 
 	whitespace = warn
 	excludesfile = ~/.gitignore
-	pager = diff-so-fancy | less --tabs=4 -RFX
+	pager = delta
+	ignorecase = true
 [diff]
 	algorithm = patience
 	compactionHeuristic = true
+	colorMoved = default
+[delta]
+  commit-decoration-style = bold yellow box ul
+  file-style = bold yellow ul
+  hunk-header-decoration-style = yellow box
+  line-numbers = true
+  minus-color = "#340001"
+  plus-color = "#012800"
+  whitespace-error-style = 22 reverse
 [fetch]
 	prune = true
 [help]
@@ -72,6 +82,7 @@
 	path = ~/.gitconfig.local
 [interactive]
 	singlekey = true
+	diffFilter = delta --color-only
 [merge]
 	summary = true
 	tool = nvim +Conflicted
