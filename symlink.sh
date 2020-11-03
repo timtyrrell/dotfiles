@@ -13,3 +13,5 @@ ln -sv ~/code/timtyrrell/dotfiles/bin/tmux_chooser ~/bin/tmux_chooser
 ln -sv ~/code/timtyrrell/dotfiles/bin/truecolor-test ~/bin/truecolor-test
 ln -sv ~/code/timtyrrell/dotfiles/Brewfile ~/.Brewfile
 ln -sv ~/code/timtyrrell/dotfiles/KittyApprentice.conf ~/.config/kitty/themes/Apprentice.conf
+ln -sv ~/code/timtyrrell/dotfiles/pre-commit ~/code/timtyrrell/dotfiles/.git/hooks/pre-commit
+ln -sv ~/code/timtyrrell/dotfiles/tidy_config.txt ~/.config/tidy_config.txt
