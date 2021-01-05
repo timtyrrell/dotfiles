@@ -1062,27 +1062,38 @@ noremap <Leader>h :e <C-R>=expand("%:p:h") . "/" <CR>
 " open markdown preview when entering file
 let g:mkdp_auto_start = 0 ":MarkdownPreview
 
-" vim-test
-nnoremap <silent> <Leader>tt :TestNearest<CR>
-nnoremap <silent> <Leader>tf :TestFile<CR>
-nnoremap <silent> <Leader>ts :TestSuite<CR>
-nnoremap <silent> <Leader>tl :TestLast<CR>
-let test#strategy = 'neovim'
-let test#javascript#jest#options = '--no-watchman'
-tmap <C-o> <C-\><C-n> " easier switch to normal mode to scroll
-
-" coc-jest
+"""""""" coc-jest
 " Run jest for current project
 command! -nargs=0 Jest :call  CocActionAsync('runCommand', 'jest.projectTest')
-
 " Run jest for current file
 command! -nargs=0 JestCurrent :call  CocActionAsync('runCommand', 'jest.fileTest', ['%'])
-
-" Run jest for current test
-nnoremap <leader>te :call CocActionAsync('runCommand', 'jest.singleTest')<CR>
-
 " Init jest in current cwd, require global jest command exists
 command! JestInit :call CocActionAsync('runCommand', 'jest.init')
+
+" Run jest for current file
+nnoremap <leader>tf :JestCurrent <CR>
+" Run jest for current test
+nnoremap <leader>tt :call CocAction('runCommand', 'jest.singleTest')<CR>
+"""""""" coc-jest
+
+"""""""" vim-test
+" nnoremap <silent> <Leader>tt :TestNearest<CR>
+" nnoremap <silent> <Leader>tf :TestFile<CR>
+" nnoremap <silent> <Leader>ts :TestSuite<CR>
+" nnoremap <silent> <Leader>tl :TestLast<CR>
+" nnoremap <silent> <Leader>tv :TestVisit<CR>
+" let test#strategy = 'neovim'
+" let test#javascript#jest#options = '--no-watchman'
+" tmap <C-o> <C-\><C-n> " easier switch to normal mode to scroll
+
+" npx jest 2>&1 | grep 'FAIL' | sort -t: -u -k1,1 " only display failed
+" https://github.com/vim-test/vim-test/issues/331
+" autocmd FileType typescript compiler jest
+" let test#strategy = 'dispatch'
+" let g:dispatch_compilers = { 'jest': 'jest-cli' }
+" let test#javascript#jest#options = '--no-watchman --reporters jest-vim-reporter'
+" let test#javascript#jest#options = '--no-watchman --reporters $HOME/code/timtyrrell/jest-quickfix-reporter/index.js'
+"""""""" vim-test
 
 " startify
 
