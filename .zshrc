@@ -377,6 +377,34 @@ ch() {
   fzf-tmux -p 90%,90% --ansi --multi --preview-window=:hidden | sed 's#.*\(https*://\)#\1#' | xargs open -a "Chromium"
 }
 
+# Default `fold` to screen width and break at spaces
+function fold {
+  if [ $# -eq 0 ]; then
+    /usr/bin/fold -w $COLUMNS -s
+  else
+    /usr/bin/fold $*
+  fi
+}
+
+# Use `fzf` against system dictionary
+function spell {
+  cat /usr/share/dict/words | fzf --preview 'wn {} -over | fold' --preview-window=up:60%
+}
+
+# Lookup definition of word using `wn $1 -over`.
+# If $1 is not provided, we'll use the `spell` command to pick a word.
+#
+# Requires:
+#   brew install wordnet
+#   brew install fzf
+function dic {
+  if [ $# -eq 0 ]; then
+    wn `spell` -over | fold
+  else
+    wn $1 -over | fold
+  fi
+}
+
 # git aliases
 alias ga='git add'
 alias gap='git add -p'
