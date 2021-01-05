@@ -406,6 +406,7 @@ Plug 'danilamihailov/beacon.nvim'
 Plug 'google/vim-searchindex'
 Plug 'junegunn/vim-peekaboo'
 Plug 'kshenoy/vim-signature' " marks
+" displays colors for words/hex
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 let g:Hexokinase_highlighters = ['backgroundfull']
 
