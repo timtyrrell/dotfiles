@@ -32,8 +32,8 @@ else
 fi
 
 # Completion for kill-like commands
-zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
-zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
+# zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
+# zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
 zstyle ':completion:*:ssh:*' tag-order hosts users
 zstyle ':completion:*:ssh:*' group-order hosts-domain hosts-host users hosts-ipaddr
 
@@ -56,32 +56,62 @@ bindkey  "^[[F"   end-of-line # End key
 
 export KEYTIMEOUT=5 # remove normal/insert mode switch delay
 
-# fzf-tab
-# only show preview for specified commands below
-export FZF_TAB_OPTS='--preview-window=:hidden'
-
-local extract="
-# trim input(what you select)
-local in=\${\${\"\$(<{f})\"%\$'\0'*}#*\$'\0'}
-# get ctxt for current completion(some thing before or after the current word)
-local -A ctxt=(\"\${(@ps:\2:)CTXT}\")
-# real path
-local realpath=\${ctxt[IPREFIX]}\${ctxt[hpre]}\$in
-realpath=\${(Qe)~realpath}
-"
-local sanitized_in='${~ctxt[hpre]}"${${in//\\ / }/#\~/$HOME}"'
 zstyle ':completion:*' special-dirs true
-zstyle ':fzf-tab:complete:cd:*' extra-opts --preview=$extract'preview_file_or_folder.sh $realpath' --preview-window=right:40%
-zstyle ':fzf-tab:complete:exa:*' extra-opts --preview=$extract'preview_file_or_folder.sh $realpath' --preview-window=right:40%
-zstyle ':fzf-tab:complete:bat:*' extra-opts --preview=$extract'preview_file_or_folder.sh $realpath' --preview-window=right:70%
-zstyle ':fzf-tab:complete:cat:*' extra-opts --preview=$extract'preview_file_or_folder.sh $realpath' --preview-window=right:70%
-zstyle ':fzf-tab:complete:nvim:*' extra-opts --preview=$extract'preview_file_or_folder.sh $realpath' --preview-window=right:70%
-zstyle ':fzf-tab:complete:git:*' extra-opts --preview=$extract'preview_file_or_folder.sh $realpath' --preview-window=right:70%
+
+# disable sort when completing options of any command
+zstyle ':completion:complete:*:options' sort false
+zstyle ":completion:*:git-checkout:*" sort false
+
+# use input as query string when completing zlua
+zstyle ':fzf-tab:complete:_zlua:*' query-string input
+
+# set cd autocompletion to commonly visited directories
+cdpath=(~/code/tuftandneedle)
+# don't display the common ones with `cd` command
+zstyle ':completion:*:complete:cd:*' tag-order \
+    'local-directories named-directories'
+
+# fzf-tab
+zstyle ':fzf-tab:*' fzf-bindings 'alt-k:preview-half-page-up' 'alt-j:preview-half-page-down'
+
+# local fzf_tab_preview_debug='
+# echo "word: $word"
+# echo "group: $group"
+# echo "desc: $desc"
+# echo "realpath: $realpath"
+# '
+# zstyle ':fzf-tab:complete:*' fzf-preview $fzf_tab_preview_debug
+
+local preview_command='
+if [[ -d $realpath ]]; then
+    exa -a --icons --tree --level=1 --color=always $realpath 
+elif [[ -f $realpath ]]; then
+    bat --pager=never --color=always --line-range :80 $realpath
+else
+    exit 1
+fi
+'
+# https://github.com/junegunn/fzf#settings
+#
+# zstyle ':completion:*:*:vim:*:*files'
+zstyle ':fzf-tab:complete:*' fzf-preview $preview_command
+zstyle ':fzf-tab:complete:git-checkout:argument-rest' fzf-preview '
+[[ $group == "[recent branches]" || $group == "[local head]" ]] && git log --max-count=3 -p $word | delta
+'
+# use gig-git-status-branch.sh to display upstream differences? ./git-status-branch -d $word
+
+
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':fzf-tab:*' show-group brief
+
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+zstyle ':fzf-tab:*' popup-pad 200 200
 
 # Change cursor shape for different vi modes.
 function zle-keymap-select {
   if [[ ${KEYMAP} == vicmd ]] ||
-     [[ $1 = 'block' ]]; then
+     [[ $2 = 'block' ]]; then
     echo -ne '\e[1 q'
   elif [[ ${KEYMAP} == main ]] ||
        [[ ${KEYMAP} == viins ]] ||
