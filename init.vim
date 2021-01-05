@@ -210,25 +210,27 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'} |
            \ Plug 'antoinemadec/coc-fzf' |
            \ Plug 'wellle/tmux-complete.vim' " coc completion from open tmux panes
 let g:coc_global_extensions = [
-          \ 'coc-actions',
           \ 'coc-css',
+          \ 'coc-cssmodules',
           \ 'coc-eslint',
           \ 'coc-git',
           \ 'coc-html',
+          \ 'coc-import-cost',
           \ 'coc-jest',
           \ 'coc-jira-complete',
           \ 'coc-json',
-          \ 'coc-marketplace',
           \ 'coc-markdownlint',
+          \ 'coc-marketplace',
           \ 'coc-pairs',
           \ 'coc-prettier',
           \ 'coc-react-refactor',
-          \ 'coc-scssmodules',
           \ 'coc-snippets',
           \ 'coc-solargraph',
           \ 'coc-spell-checker',
+          \ 'coc-styled-components',
           \ 'coc-stylelintplus',
           \ 'coc-svg',
+          \ 'coc-tslint-plugin',
           \ 'coc-tsserver',
           \ 'coc-webpack',
           \ 'coc-yaml',
@@ -249,11 +251,18 @@ Plug 'tpope/vim-obsession' " session management
 
 " syntax
 Plug 'sheerun/vim-polyglot'
+" let g:polyglot_disabled = ['typescript', 'javascript']
+" Plug 'leafgarland/typescript-vim'
+" Plug 'peitalin/vim-jsx-typescript'
+" let g:typescript_indent_disable = 1
 " https://github.com/sheerun/vim-polyglot/issues/432
 Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
-Plug 'kkoomen/vim-doge' "generate jsdoc: <leader>d
-Plug 'Yggdroot/indentLine'  "show indentation lines
-Plug 'alvan/vim-closetag' "close html/jsx tags
+Plug 'kkoomen/vim-doge'
+"generate jsdoc: <leader>d
+Plug 'Yggdroot/indentLine'
+"show indentation lines
+Plug 'alvan/vim-closetag'
+"close html/jsx tags
 Plug 'AndrewRadev/splitjoin.vim'
 " gS to split a one-liner into multiple lines
 " gJ (with the cursor on the first line of a block) to join a block into a single-line statement.
@@ -268,8 +277,8 @@ Plug 'justinmk/vim-sneak'
 "s{char}{char} motion - ; to go to next match
 "dz{char}{char} - delete until
 "ysz{char}{char}] - surround in ]
-Plug 'christoomey/vim-sort-motion' " gsi{
-Plug 'itchyny/vim-qfedit'
+Plug 'christoomey/vim-sort-motion'
+" gsi{
 Plug 'drmingdrmer/vim-toggle-quickfix'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'tmux-plugins/vim-tmux-focus-events'
@@ -280,17 +289,23 @@ Plug 'christoomey/vim-system-copy'
 " cvi' => paste inside single quotes from system clipboard
 " cP is mapped to copy the current line directly.
 " cV is mapped to paste the content of system clipboard to the next line.
-Plug 'tpope/vim-bundler' "bundle bopen
+Plug 'tpope/vim-bundler'
+"bundle bopen
 Plug 'tpope/vim-commentary' "gcc comment out
-Plug 'tpope/vim-eunuch' "Vim sugar for the UNIX shell commands
-Plug 'tpope/vim-jdaddy' "json motions
+Plug 'tpope/vim-eunuch'
+"Vim sugar for the UNIX shell commands
+Plug 'tpope/vim-jdaddy'
+"json motions
 Plug 'tpope/vim-projectionist'
-Plug 'tpope/vim-apathy' "gf support
+Plug 'tpope/vim-apathy'
+"gf support
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rake'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-sleuth' "automatically adjusts 'shiftwidth' and 'expandtab' heuristically based on the current file
-Plug 'tpope/vim-surround' "quoting/parenthesizing made simple
+Plug 'tpope/vim-sleuth'
+"automatically adjusts 'shiftwidth' and 'expandtab' heuristically based on the current file
+Plug 'tpope/vim-surround'
+"quoting/parenthesizing made simple
 " {{{
     " mappings to quickly modify surrounding chars like ",],),},',<tag>
     " NORMAL MODE:
@@ -303,13 +318,15 @@ Plug 'tpope/vim-surround' "quoting/parenthesizing made simple
     " INSERT MODE:
     "   <C-g>s<SURROUND>
   " }}}
-Plug 'tpope/vim-unimpaired' "prev conflict/patch: [n , next conflict/patch: ]n , paste toggle: yop
+Plug 'tpope/vim-unimpaired'
+"prev conflict/patch: [n , next conflict/patch: ]n , paste toggle: yop
 Plug 'terryma/vim-expand-region'
-vmap v <Plug>(expand_region_expand)
-vmap <C-v> <Plug>(expand_region_shrink)
+" vmap + <Plug>(expand_region_expand)
+" vmap - <Plug>(expand_region_shrink)
 Plug 'AndrewRadev/tagalong.vim'
 let g:tagalong_filetypes = ['javascript', 'html', 'xml', 'jsx', 'eruby', 'ejs', 'javascriptreact', 'typescriptreact']
-Plug 'wincent/scalpel' " replace all instances of the word currently under the cursor throughout a file. <Leader>e mnemonic: edit)
+Plug 'wincent/scalpel'
+" replace all instances of the word currently under the cursor throughout a file. <Leader>e mnemonic: edit)
 Plug 'tommcdo/vim-exchange'
 " cxw - set word, . to swap
 " cxx - set line, . to swap
@@ -318,6 +335,7 @@ Plug 'tommcdo/vim-exchange'
 Plug 'kana/vim-textobj-user' | Plug 'kana/vim-textobj-line'
 " adds 'al' and 'il' motions for a line
 " 'il' ignores leading and trailing spaces. 'al' ignoes EOL
+Plug 'stefandtw/quickfix-reflector.vim'
 
 " git
 Plug 'tpope/vim-fugitive' |
