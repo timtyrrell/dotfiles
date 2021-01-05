@@ -1190,7 +1190,7 @@ let g:indentLine_fileTypeExclude = ['startify']
 let g:indentLine_char_list = ['┊']
 
 " get highlight info
-" :call GetSyntax() to find hi group
+" :call GetSyntax() to find highlight group
 function! GetSyntaxID()
     return synID(line('.'), col('.'), 1)
 endfunction
@@ -1267,6 +1267,7 @@ let g:nv_search_paths = ['~/Documents/notes']
 let g:nv_create_note_key = 'ctrl-x'
 
 nmap <Leader>wv :NV!<CR>
+nmap <Leader>wl :SearchNotes<CR>
 nmap <Leader>wdn <Plug>VimwikiMakeDiaryNote
 nmap <Leader>wdy <Plug>VimwikiMakeYesterdayDiaryNote
 nmap <Leader>wdt <Plug>VimwikiMakeTomorrowDiaryNote
@@ -1286,7 +1287,6 @@ endfunction
 nmap <Leader>wa :call VimwikiFindAllIncompleteTasks()<CR>
 nmap <Leader>wx :call VimwikiFindIncompleteTasks()<CR>
 
-" other ones to try
 command! -bang -nargs=* SearchNotes
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
@@ -1301,6 +1301,9 @@ autocmd FileType markdown nmap <buffer><silent> <leader>p :call mdip#MarkdownCli
 autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 expandtab
 autocmd FileType markdown nmap <buffer> <silent> gf <Plug>VimwikiFollowLink<CR>
 " autocmd Filetype purescript nmap <buffer> <silent> K :Ptype<CR>
+" nnoremap o o<Esc> nnoremap O O<Esc>
+" nnoremap <buffer> o o<esc>
+" nnoremap <buffer> O O<esc>
 
 " map <cr> to A <cr> ?
 " augroup VimwikiKeyMap
@@ -1319,7 +1322,7 @@ augroup end
 " try these out?
 " nnoremap <leader>wf :FilesWithPreview ~/Dropbox/vimwiki/md<cr>
 " nnoremap <leader>wF :call VimWikiLines()<cr>
-" " nnoremap <leader>wF :call fzf#vim#grep('rg --column --line-number --no-heading --color=always . ~/Documents/notes \| tr -d "\017"', 1, 0)<cr>
+" nnoremap <leader>wF :call fzf#vim#grep('rg --column --line-number --no-heading --color=always . ~/Documents/notes \| tr -d "\017"', 1, 0)<cr>
 
 " command! -bang -nargs=? -complete=dir FilesWithPreview
 "       \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
@@ -1336,3 +1339,10 @@ augroup end
 "   endfor
 "   Lines
 " endfunc
+
+au BufNewFile ~/Documents/notes/*.md
+      \ call append(0,[
+      \ "# " . split(expand('%:r'),'/')[-1], "",
+      \ "## Daily checklist", "",
+      \ "## Todo",  "",
+      \ "## Notes", "" ])
