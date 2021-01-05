@@ -405,6 +405,17 @@ function dic {
   fi
 }
 
+:e() {
+    if [[ -z $VIM_TERMINAL ]]; then
+        # maybe something like this instead? nvim **'\t'
+        nvim "$@"
+    else
+        for f; do
+            echo -e "\033]51;[\"drop\", \"$f\"]\007"
+        done
+    fi
+}
+
 # git aliases
 alias ga='git add'
 alias gap='git add -p'
