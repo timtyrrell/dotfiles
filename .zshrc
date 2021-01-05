@@ -100,7 +100,6 @@ zstyle ':fzf-tab:complete:git-checkout:argument-rest' fzf-preview '
 '
 # use gig-git-status-branch.sh to display upstream differences? ./git-status-branch -d $word
 
-
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':fzf-tab:*' show-group brief
