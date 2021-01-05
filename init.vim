@@ -85,6 +85,33 @@ set completeopt+=noselect,menuone,preview
 nnoremap * *``
 nnoremap * m`:keepjumps normal! *``<cr>
 
+" why do I have both of these?
+let mapleader = ","
+" remap leader to ,
+:nmap , \
+
+" faster keyword complete with <c-n>/<c-p>
+set complete-=t " disable searching tags
+
+" Toggle spell checking on and off with `,s`
+nmap <silent> <leader>s :set spell!<CR>
+set spelllang=en_us
+set complete+=kspell
+" z=, to get a suggestion
+" ]s means go to next misspelling,
+" [s is back. When you land on the word
+" zw to add it to your Private dictionary
+" zuw if you make a mistake to remove it from you dictionary
+function! FzfSpellSink(word)
+  exe 'normal! "_ciw'.a:word
+endfunction
+
+function! FzfSpell()
+  let suggestions = spellsuggest(expand("<cword>"))
+  return fzf#run({'source': suggestions, 'sink': function("FzfSpellSink"), 'options': '--preview-window hidden', 'down': 20})
+endfunction
+nnoremap z= :call FzfSpell()<CR>
+
 " Unhighlight search results
 map <Leader><space> :nohl<cr>
 
