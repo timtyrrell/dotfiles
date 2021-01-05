@@ -537,7 +537,7 @@ autocmd BufWritePre *.js exec "%s/class=/className=/eg"
 " autocmd CheckHealth * call OnCheckHealth()
 
 " quickfix
-nmap <Leader>q <Plug>window:quickfix:loop
+nmap <Leader>qq <Plug>window:quickfix:loop
 
 " vim-mundo
 nmap <Leader>mt :MundoToggle<CR>
@@ -546,9 +546,6 @@ let g:mundo_right=1
 " maximizer
 let g:maximizer_set_default_mapping = 0
 nnoremap <C-w>o :MaximizerToggle<cr>
-
-" set graphql filetype based on dir
-autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
 
 " vim-smoothie
 let g:smoothie_base_speed = 20
@@ -626,20 +623,17 @@ augroup PlugGx
  autocmd FileType vim-plug nnoremap <buffer> <silent> o :call <sid>plug_gx()<cr>
 augroup end
 
-" function! MyHighlights() abort
-"     " highlight string cterm=Cyan ctermfg=108 guifg=#d70000
-"     highlight string cterm=Cyan ctermfg=108 guifg=#d70000
-"     " highlight mkdCode ctermfg=108 guifg=#d70000
-"     " highlight Visual     cterm=NONE ctermbg=76  ctermfg=16  gui=NONE guibg=#5fd700 guifg=#000000
-"     " highlight StatusLine cterm=NONE ctermbg=231 ctermfg=160 gui=NONE guibg=#ffffff guifg=#d70000
-"     " highlight Normal     cterm=NONE ctermbg=17              gui=NONE guibg=#00005f
-"     " highlight NonText    cterm=NONE ctermbg=17              gui=NONE guibg=#00005f
-" endfunction
+" https://gist.github.com/romainl/379904f91fa40533175dfaec4c833f2f
+function! MyHighlights() abort
+  " match codelens to Comment color so it stands out less
+  highlight CocCodeLens guifg=#585858
+  " Overwrite the highlight groups `CocHighlightText`, `CocHighlightRead` and `CocHighlightWrite` for customizing the colors.
+endfunction
 
-" augroup MyColors
-"     autocmd!
-"     autocmd ColorScheme * call MyHighlights()
-" augroup END
+augroup MyColors
+  autocmd!
+  autocmd ColorScheme * call MyHighlights()
+augroup END
 
 let base16colorspace=256
 set background=dark
@@ -656,12 +650,22 @@ let g:projectionist_heuristics = {
     \    "alternate": "{dirname}/__tests__/{basename}.test.js",
     \    "type": "source"
     \  },
-    \  "**/__tests__/*.js": {
-    \    "alternate": "{dirname}/{basename}.js",
-    \    "type": "test"
-    \  },
     \  "package.json" : { "alternate": "package-lock.json" },
     \  "package-lock.json" : { "alternate": "package.json" },
+    \},
+    \"src/*.js": {
+    \    "type": "component",
+    \    "alternate": [
+    \        "src/{}.scss",
+    \        "src/{dirname}/__tests__/{basename}.test.js"
+    \    ]
+    \},
+    \"src/**/__tests__/*.test.js": {
+    \    "type": "test",
+    \    "alternate": "src/{}.js"
+    \},
+    \"src/*.module.scss": {
+    \    "type": "styles"
     \}
 \ }
 
@@ -771,6 +775,18 @@ let g:lightline.colorscheme = 'apprentice'
 call lightline#coc#register()
 
 let g:vimspector_enable_mappings = 'HUMAN'
+let g:vimspector_install_gadgets = ['debugger-for-chrome', 'force-enable-node']
+nmap <leader>vc <Plug>VimspectorContinue
+nmap <leader>vs <Plug>VimspectorStop
+" <Plug>VimspectorRestart
+" <Plug>VimspectorPause
+" <Plug>VimspectorToggleBreakpoint
+" <Plug>VimspectorToggleConditionalBreakpoint
+" <Plug>VimspectorAddFunctionBreakpoint
+" <Plug>VimspectorStepOver
+" <Plug>VimspectorStepInto
+" <Plug>VimspectorStepOut
+" <Plug>VimspectorRunToCursor
 
 let g:closetag_filetypes = 'html,xhtml,jsx,javascript'
 let g:closetag_emptyTags_caseSensitive = 1
@@ -871,6 +887,8 @@ omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
 
+nmap <leader>cl <Plug>(coc-codelens-action)
+
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
 
@@ -902,18 +920,18 @@ let g:coc_snippet_next = '<tab>'
 let g:coc_fzf_opts= ['--layout=reverse']
 let g:coc_fzf_preview='right:50%'
 
-nnoremap <silent><nowait> <space>a  :<C-u>CocFzfList actions<CR>
+nnoremap <silent><nowait> <space>a :<C-u>CocFzfList actions<CR>
 " nnoremap <silent><nowait> <space><space> :<C-u>CocFzfList<CR>
 " nnoremap <silent><nowait> <space>a       :<C-u>CocFzfList diagnostics<CR>
-nnoremap <silent><nowait> <space>b       :<C-u>CocFzfList diagnostics --current-buf<CR>
-nnoremap <silent><nowait> <space>c       :<C-u>CocFzfList commands<CR>
-nnoremap <silent><nowait> <space>e       :<C-u>CocFzfList extensions<CR>
-nnoremap <silent><nowait> <space>l       :<C-u>CocFzfList location<CR>
-nnoremap <silent><nowait> <space>o       :<C-u>CocFzfList outline<CR>
-nnoremap <silent><nowait> <space>s       :<C-u>CocFzfList symbols<CR>
-nnoremap <silent><nowait> <space>S       :<C-u>CocFzfList services<CR>
-nnoremap <silent><nowait> <space>p       :<C-u>CocFzfListResume<CR>
-nnoremap <silent><nowait> <space>y       :<C-u>CocFzfList yank<CR>
+nnoremap <silent><nowait> <space>b :<C-u>CocFzfList diagnostics --current-buf<CR>
+nnoremap <silent><nowait> <space>c :<C-u>CocFzfList commands<CR>
+nnoremap <silent><nowait> <space>e :<C-u>CocFzfList extensions<CR>
+nnoremap <silent><nowait> <space>l :<C-u>CocFzfList location<CR>
+nnoremap <silent><nowait> <space>o :<C-u>CocFzfList outline<CR>
+nnoremap <silent><nowait> <space>s :<C-u>CocFzfList symbols<CR>
+nnoremap <silent><nowait> <space>S :<C-u>CocFzfList services<CR>
+nnoremap <silent><nowait> <space>p :<C-u>CocFzfListResume<CR>
+nnoremap <silent><nowait> <space>y :<C-u>CocFzfList yank<CR>
 
 " Start multiple cursors session
 " nmap <silent> <C-c> <Plug>(coc-cursors-position)
