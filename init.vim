@@ -150,6 +150,8 @@ xnoremap > >gv
 " split windows
 nnoremap <C-w>_ :spl<cr>
 nnoremap <C-w><bar> :vsp<cr>
+" open file under cursor in vertical split
+map <C-w>f <C-w>vgf
 
 " simplify split navigation
 map <C-j> <C-W>j
@@ -192,9 +194,14 @@ nnoremap <silent> <Leader>jj :%!python -m json.tool<CR>
 " format html
 nnoremap <silent> <Leader>th :%!tidy -config ~/.config/tidy_config.txt %<CR>
 
+" remove smart quotes
+" %!iconv -f utf-8 -t ascii//translit
+
 " save with Enter *except* in quickfix buffers
 " https://vi.stackexchange.com/questions/3127/how-to-map-enter-to-custom-command-except-in-quick-fix
-nnoremap <expr> <CR> &buftype ==# 'quickfix' ? "\<CR>" : ":write!<CR>"
+" nnoremap <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':write!<CR>'
+" don't write unless changed
+nnoremap <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':update<CR>'
 
 call plug#begin('~/.config/nvim/plugged')
 
