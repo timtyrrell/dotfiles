@@ -1045,10 +1045,17 @@ function! g:FzfFilesSource()
   endif
 endfunction
 
-" auto complete file path in insert mode
-inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
-" inoremap <expr> <c-x><c-f> fzf#vim#complete#path('fd')
-"
+" Find and Replace in all files
+function! FindAndReplace( ... )
+  if a:0 != 2
+    echo "Need two arguments"
+    return
+  endif
+  execute printf('args `rg --files-with-matches ''%s'' .`', a:1)
+  execute printf('argdo %%substitute/%s/%s/g | update', a:1, a:2)
+endfunction
+command! -nargs=+ FindAndReplaceAll call FindAndReplace(<f-args>)
+
 " open :e based on current file path
 noremap <Leader>h :e <C-R>=expand("%:p:h") . "/" <CR>
 
