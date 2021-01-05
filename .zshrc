@@ -215,7 +215,8 @@ function tree-git-ignore {
 # default apps
 export PAGER='less'
 export EDITOR='nvim'
-export MANPAGER='nvim +Man!'
+# export MANPAGER='nvim +Man!'
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANWIDTH=999
 
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
