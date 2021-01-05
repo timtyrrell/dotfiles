@@ -949,16 +949,19 @@ nnoremap <silent><nowait> <space>y :<C-u>CocFzfList yank<CR>
 " endfun
 
 " NERDTree configuration
-let g:NERDTreeIgnore=['\~$', 'tmp', '.git$', '.bundle', '.DS_Store', '.swp', '.git-blame-ignore-revs']
+let g:NERDTreeIgnore=['\~$', 'tmp', '.git$', '.bundle', '.DS_Store', '.swp', '.git-blame-ignore-revs', '.vim']
 let g:NERDTreeShowHidden=1
-let g:NERDTreeQuitOnOpen=1
+" let g:NERDTreeQuitOnOpen=1
 let g:NERDTreeDirArrowExpandable = ''
 let g:NERDTreeDirArrowCollapsible = ''
 let g:NERDTreeMinimalUI = 1
-let g:NERDTreeAutoDeleteBuffer = 1 " delete buffer of file deleted with NerdTree
+" delete buffer of file deleted with NerdTree
+let g:NERDTreeAutoDeleteBuffer = 1
 let g:NERDTreeStatusline = ''
 let g:DevIconsEnableFoldersOpenClose = 1
-map <Leader>n :NERDTreeToggle<CR>
+let g:NERDTreeMinimalMenu=1
+
+map <silent> <Leader>n :NERDTreeToggle<CR>:wincmd =<CR>
 map <Leader>fnt :NERDTreeFind<CR>
 " close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
