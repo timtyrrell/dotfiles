@@ -981,37 +981,43 @@ cnoreabbrev Ack Ack!
 " use ripgrep for grep
 set grepprg=rg\ --vimgrep\ --no-heading
 set grepformat=%f:%l:%c:%m
+" https://jdhao.github.io/2020/02/16/ripgrep_cheat_sheet/
 
 " grep word under cursor
-nnoremap <leader><bs> :Ack! '\b<c-r><c-w>\b'<cr>
+nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
 
 " fzf.vim
-map <C-c> :Files<CR>
-noremap <C-p> :call fzf#vim#files('', {
-      \ 'source': g:FzfFilesSource(),
-      \ 'options': '--tiebreak=index'})<CR>
-map <C-b> :Buffers<CR>
-map <C-g> :Re<CR>
-map <C-e> :Rg<CR>
-map <C-t> :History:<CR>
-map <C-s> :GFiles?<CR>
+map <Leader>ff :Files<CR>
+map <silent> <Leader>fp :call fzf#vim#files('', { 'source': g:FzfFilesSource(), 'options': '--tiebreak=index'})<CR>
+map <Leader>fb :Buffers<CR>
+" [Buffers] Jump to the existing window if possible
+let g:fzf_buffers_jump = 1
+map <Leader>fe :Rg<CR>
+map <Leader>fl :Lines<CR>
+map <Leader>fc :BLines<CR>
+map <Leader>fh :HistoryCmds<CR>
+map <Leader>fH :History<CR>
+map <Leader>fS :HistorySearch<CR>
+map <Leader>fg :GFiles?<CR>
+map <Leader>fC :BCommits<CR>
 " start search from current dir
-nnoremap <silent> <Leader>rf :Files <C-R>=expand('%:h')<CR><CR>
+nnoremap <silent> <Leader>fd :Files <C-R>=expand('%:h')<CR><CR>
+" Rg current word
+nnoremap <silent> <Leader>rg :Lines <C-R><C-W><CR>
 
-" nnoremap <localleader>f :GFiles --others --exclude-standard<CR>
-" nnoremap <localleader>F :Files<CR>
-" nnoremap <Leader>f :GFiles<CR>
-" nnoremap <Leader>F :GFiles?<CR>
-" nnoremap <Leader>t :Tags<CR>
-" nnoremap <Leader>T :BTags<CR>
-" nnoremap <Leader>l :BLines<CR>
-" nnoremap <Leader>L :Lines<CR>
-" nnoremap <Leader>b :Buffers<CR>
-" nnoremap <Leader>w :Windows<CR>
-" nnoremap <Leader>h :History<CR>
-" nnoremap <Leader>/ :Rg<space>
-" nnoremap <Leader>* :Rg<space><C-R>=expand("<cword>")<CR><CR>
-" nnoremap <Leader>? :Help<CR>
+command! -bang -nargs=* BLines
+    \ call fzf#vim#grep(
+    \   'rg --with-filename --column --line-number --no-heading --smart-case . '.fnameescape(expand('%:p')), 1,
+    \   fzf#vim#with_preview({'options': '--layout reverse --query '.shellescape(<q-args>).' --with-nth=4.. --delimiter=":"'}))
+
+" do not search filename, just file contents
+command! -bang -nargs=* Lines
+  \ call fzf#vim#grep(
+  \   'rg --column --line-number --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" --smart-case  -- '.shellescape(<q-args>), 1,
+  \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..', '--color', 'hl:123,hl+:222'] }), <bang>0)
+
+command! -bang -nargs=* HistoryCmds call fzf#vim#command_history(fzf#vim#with_preview({'options': ['--preview-window', 'hidden']}))
+command! -bang -nargs=* HistorySearch call fzf#vim#search_history(fzf#vim#with_preview({'options': ['--preview-window', 'hidden']}))
 
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
@@ -1019,15 +1025,13 @@ let g:fzf_action = {
   \ 'ctrl-v': 'vsplit' }
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 
-" do not search filename, just file contents
-command! -bang -nargs=* Re
-  \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" --smart-case  -- '.shellescape(<q-args>), 1,
-  \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..', '--color', 'hl:123,hl+:222'] }), <bang>0)
-" ctrl-s:select-all, tab:select, shift-tab:unselect, enter:quickfixlist
-
-" Rg current word
-nnoremap <silent> <Leader>rg :Re <C-R><C-W><CR>
+" Insert mode completion
+imap <c-x><c-k> <plug>(fzf-complete-word)
+imap <c-x><c-f> <plug>(fzf-complete-path)
+imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+imap <c-x><c-l> <plug>(fzf-complete-line)
+" inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
+" inoremap <expr> <c-x><c-f> fzf#vim#complete#path('fd')
 
 " sort a list of files by the proximity to a given file
 function! g:FzfFilesSource()
