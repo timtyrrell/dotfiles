@@ -499,8 +499,42 @@ let g:rnvimr_presets = [
 
 call plug#end()
 
-au BufNewFile,BufRead .eslintrc,.prettierrc,.lintstagedrc set filetype=json
+" set graphql filetype based on dir
+autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
+au BufNewFile,BufRead .eslintrc,.prettierrc,.lintstagedrc set filetype=jsonc
+au BufNewFile,BufRead *.bak set filetype=javascript
+au BufNewFile,BufRead *.build,.env* set filetype=sh
+" how to automatically rename things based on filetype
+autocmd BufWritePre *.js exec "%s/class=/className=/eg"
+" styles.something-blah -> styles[something-blah]
+" :%s/styles[\S\+\]/
+" /styles[\[a-zA-Z0-9].\+?(?=dir)/
 " autocmd BufWritePre *.js exec "%s/class=/className=/eg"
+
+" https://www.reddit.com/r/vim/comments/kmup3z/is_it_possibAle_to_make_hitting_one_tab_goes_to/ghhbaw9/?context=3
+" inoremap <expr> <tab> getline('.') =~ '^\s*$' ? '<esc>cc' : '<tab>'
+
+" https://github.com/fannheyward/coc-markdownlint/issues/203
+" find a way to make :checkhealth not be checked by coc-markdownlint
+" also look here :e $VIMRUNTIME/scripts.vim
+" health#coc#check is the 2nd line
+" https://github.com/neovim/neovim/commit/2bcae2024230eb4dd1013779ec1b69dc104c4021#
+" au BufNewFile,BufReadPost *.ts
+" 	\ if getline(1) =~ '<?xml' |
+" 	\   setf xml |
+" 	\ else |
+" 	\   setf typescript |
+" 	\ endif
+"
+" function! OnCheckHealth() abort
+" 	\ if getline(1) =~ '<?xml' |
+" 	\   setf xml |
+" 	\ else |
+" 	\   setf typescript |
+" 	\ endif
+" endfunction
+
+" autocmd CheckHealth * call OnCheckHealth()
 
 " quickfix
 nmap <Leader>q <Plug>window:quickfix:loop
