@@ -422,10 +422,19 @@ Plug 'itchyny/lightline.vim' |
           \ Plug 'timtyrrell/apprentice-lightline-experimental'
 Plug 'mhinz/vim-startify'
 Plug 'romainl/Apprentice'
+Plug 'keith/investigate.vim'
+let g:investigate_use_dash=1
+" gK to open word in Dash
+Plug 'meain/vim-package-info', { 'do': 'npm install' }
+Plug 'dstein64/nvim-scrollview'
+let g:scrollview_excluded_filetypes = ['nerdtree']
+let g:scrollview_current_only = 1
+let g:scrollview_winblend = 80
 
 " life
 Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
 Plug 'mattn/calendar-vim'
+" <Leader>cal " Brings up the calendar in a vertical split.
 Plug 'alok/notational-fzf-vim'
 Plug 'ferrine/md-img-paste.vim'
 
@@ -487,7 +496,6 @@ let g:rnvimr_presets = [
             \ {'width': 1.000, 'height': 0.500, 'col': 0, 'row': 0},
             \ {'width': 1.000, 'height': 0.500, 'col': 0, 'row': 0.5}
             \ ]
-
 
 call plug#end()
 
