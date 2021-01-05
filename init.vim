@@ -138,14 +138,14 @@ autocmd VimResized * wincmd =
 " always paste from 0 register to avoid pasting deleted text
 xnoremap <silent> p p:let @"=@0<CR>
 
-"0p
-"nnoremap R "_d
-" nnoremap d "xd
-" vnoremap d "xd
-" nnoremap y "xy
-" vnoremap y "xy
-" nnoremap p "xp
-" vnoremap p "xp
+" Indent/dedent what you just pasted
+nnoremap <leader>< V`]<
+nnoremap <leader>> V`]>
+
+" Don't lose selection when shifting sidewards
+" seems to remove the ability to '.'
+xnoremap < <gv
+xnoremap > >gv
 
 " split windows
 nnoremap <C-w>_ :spl<cr>
