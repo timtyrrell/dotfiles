@@ -10,6 +10,7 @@
 	squash = commit --squash
 	ri = rebase --interactive
 	br = branch
+	open = browse
 	pruneremote = remote prune origin
 	tree = log --graph --oneline --decorate --color --all
 	tr = log --graph --oneline --decorate --color
@@ -100,14 +101,14 @@
 [rebase]
 	autosquash = true
 [rerere]
-        enabled = true
-        autoupdate = true
+  enabled = true
+  autoupdate = true
 [user]
 	useconfigonly = true
 	name = Tim Tyrrell
 	email = tim@tyrrell.io
 [web]
-	browser = google-chrome
+	browser = chromium
 [commit]
 	verbose = true
 [filter "lfs"]
