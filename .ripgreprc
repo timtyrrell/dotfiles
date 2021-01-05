@@ -4,9 +4,11 @@
 --type-add
 web:*.{pug,js}*
 
-# --glob=!{.git,node_modules,plugged}/**
+# --glob=!{.git,node_modules,plugged,.next}/**
 --glob=!.git/*
 --glob=!node_modules/*
+--glob=!.next/*
+--glob=!vendor/*
 
 --smart-case
 
