@@ -4,3 +4,4 @@ jsconfig.json
 .solargraph.yml
 Session.vim
 yarn-error.log
+.vim
