@@ -1,0 +1,66 @@
+* media keys
+[F12]>[play]
+[scroll]>[vol-]
+[prtscr]>[mute]
+[pause]>[vol+]
+
+* thumb remaps
+[lctrl]>[lwin]
+[rctrl]>[lwin]
+[rwin]>[ralt]
+[delete]>[lctrl]
+
+* key location swap
+[`]>[=]
+[~]>[+]
+[=]>[`]
+[+]>[~]
+[up]>[down]
+[down]>[up]
+
+* screenshot
+{F1}>{-lshift}{-lwin}{4}{+lshift}{+lwin}
+
+* chrome dev tools
+{F2}>{-lalt}{-lwin}{j}{+lalt}{+lwin}
+
+* clipboard manager and copy/paste actions
+{F3}>{-lalt}{-lwin}{c}{+lalt}{+lwin}
+{F4}>{-lwin}{x}{+lwin}
+{F5}>{-lwin}{c}{+lwin}
+{F6}>{-lwin}{v}{+lwin}
+
+* undo/redo
+{F7}>{-lwin}{z}{+lwin}
+{F8}>{-lshift}{-lwin}{z}{+lshift}{+lwin}
+
+* move window on screen
+{f9}>{-lwin}{-lalt}{left}{+lalt}{+lwin}
+{f10}>{-lwin}{-lalt}{right}{+lalt}{+lwin}
+
+* move window to other screen
+{f11}>{-lwin}{-lalt}{-lctrl}{left}{+lalt}{+lwin}{+lctrl}
+{f12}>{-lwin}{-lalt}{-lctrl}{right}{+lalt}{+lwin}{+lctrl}
+
+* maximize window
+{lctrl}{f}>{-lwin}{-lctrl}{f}{+lctrl}{+lwin}
+
+* add another Alfred default trigger
+{lctrl}{space}>{-lwin}{space}{+lwin}
+
+* application tab remap
+{pup}>{speed9}{-rwin}{-lshift}{obrack}{+lshift}{+rwin}
+{pdown}>{speed9}{-rwin}{-lshift}{cbrack}{+lshift}{+rwin}
+
+* Alfred hotkey sync
+{lctrl}{b}>{-lwin}{-lctrl}{b}{+lctrl}{+lwin}
+{lctrl}{x}>{-lwin}{-lctrl}{x}{+lctrl}{+lwin}
+{lctrl}{c}>{-lwin}{-lctrl}{c}{+lctrl}{+lwin}
+{lctrl}{i}>{-lwin}{-lctrl}{i}{+lctrl}{+lwin}
+{lctrl}{l}>{-lwin}{-lctrl}{l}{+lctrl}{+lwin}
+{lctrl}{e}>{-lwin}{-lctrl}{e}{+lctrl}{+lwin}
+{lctrl}{t}>{-lwin}{-lctrl}{t}{+lctrl}{+lwin}
+{rctrl}{t}>{-lwin}{-lctrl}{t}{+lctrl}{+lwin}
+{lctrl}{z}>{-lwin}{-lctrl}{z}{+lctrl}{+lwin}
+{lctrl}{s}>{-lwin}{-lctrl}{s}{+lctrl}{+lwin}
+{lctrl}{p}>{-lwin}{-lctrl}{p}{+lctrl}{+lwin}
