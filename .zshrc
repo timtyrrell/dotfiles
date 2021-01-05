@@ -236,12 +236,15 @@ export FZF_DEFAULT_OPTS="
 --height=80%
 --multi
 --preview '([[ -f {} ]] && (bat --style=full --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200'
+--preview-window cycle
 --color='dark'
 --prompt='∼ ' --pointer='▶' --marker='✓'
 --bind '?:toggle-preview'
 --bind 'ctrl-s:select-all'
 --bind 'ctrl-u:page-up'
 --bind 'ctrl-d:page-down'
+--bind 'alt-k:preview-half-page-up'
+--bind 'alt-j:preview-half-page-down'
 --bind 'ctrl-y:execute-silent(echo {+} | pbcopy)'
 --bind 'ctrl-v:execute(nvim {} < /dev/tty > /dev/tty 2>&1)+accept'
 "
