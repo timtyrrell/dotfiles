@@ -135,15 +135,8 @@ set sessionoptions-=help
 " resize panes the host window is resized
 autocmd VimResized * wincmd =
 
-" remap leader to ,
-:nmap , \
-
-" yank until end of line
-nnoremap Y y$
-nnoremap D d$
-
 " always paste from 0 register to avoid pasting deleted text
-" xnoremap <silent> p p:let @"=@0<CR>
+xnoremap <silent> p p:let @"=@0<CR>
 
 "0p
 "nnoremap R "_d
