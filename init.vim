@@ -342,9 +342,20 @@ Plug 'tpope/vim-fugitive' |
            \ Plug 'junegunn/gv.vim' |
            \ Plug 'tpope/vim-rhubarb' | "GitHub extension for fugitive.vim
 
+" Fugitive mapping
+nmap <leader>gb :Gblame<cr>
+nmap <leader>gd :Gdiff<cr>
+nmap <leader>gl :Glog<cr>
+nmap <leader>gs :Gstatus<cr>
+nmap <leader>ge :Gedit<cr>
+nmap <leader>gc :Gcommit<cr>
+" nmap <leader>gw :Gbrowse<cr> " add visual select command, also
+" xnoremap <leader>gw :<c-u>call MarkCodeBlock()<CR>
+xnoremap <leader>gw :<C-u>Gbrowse!
+nmap <leader>gg :Ggrep
+
 " 0Glog " see history of current file
-" Gedit " go back to normal file from read-only view
-" in Gstatus window
+" Gedit " go back to normal file from read-only view in Gstatus window
 " <C-N> or <C-P> to jump to the next/previous file (as mentioned above)
 " - on a file, stages (or unstages) the entire file.
 " = shows the git diff of the file your cursor is on.
@@ -367,20 +378,20 @@ Plug 'rhysd/git-messenger.vim' "git blame: <Leader>gm
 " q 	Close the popup window
 " o/O 	older commit/newer commit
 " d/D 	Toggle diff hunks only related to current file in the commit/All Diffs
-Plug 'stsewd/fzf-checkout.vim'
-let g:fzf_checkout_git_options = '--sort=-committerdate'
-let g:fzf_checkout_previous_ref_first = v:true
-" :GBranches
-" ctrl-e to merge a branch
-" ctrl-r to rebase a branch
 Plug 'rhysd/committia.vim' " more pleasant editing of commit message
 Plug 'sodapopcan/vim-twiggy'
 let g:twiggy_group_locals_by_slash = 0
 let g:twiggy_local_branch_sort = 'mru'
 let g:twiggy_remote_branch_sort = 'date'
 
-" commit viewer, :Flog
-Plug 'rbong/vim-flog'
+Plug 'APZelos/blamer.nvim'
+let g:blamer_enabled = 0
+let g:blamer_delay = 5000
+let g:blamer_show_in_insert_modes = 0
+let g:blamer_prefix = '|-> '
+let g:blamer_template = '<author>, <committer-time> • <summary>'
+let g:blamer_date_format = '%Y-%d-%m'
+let g:blamer_relative_time = 1
 
 " testing/debugging
 Plug 'vim-test/vim-test'
