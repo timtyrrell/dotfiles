@@ -319,45 +319,6 @@ bcp() {
   fi
 }
 
-# Install or open the webpage for the selected application 
-# using brew cask search as input source
-# and display a info quickview window for the currently marked application
-install_cask() {
-  local token
-  token=$(brew search --casks | fzf-tmux --query="$1" +m --preview 'brew cask info {}')
-
-  if [ "x$token" != "x" ]
-  then
-      echo "(I)nstall or open the (h)omepage of $token"
-      read input
-      if [ $input = "i" ] || [ $input = "I" ]; then
-          brew cask install $token
-      fi
-      if [ $input = "h" ] || [ $input = "H" ]; then
-          brew cask home $token
-      fi
-  fi
-}
-# Uninstall or open the webpage for the selected application 
-# using brew list as input source (all brew cask installed applications) 
-# and display a info quickview window for the currently marked application
-uninstall_cask() {
-  local token
-  token=$(brew cask list | fzf-tmux --query="$1" +m --preview 'brew cask info {}')
-
-  if [ "x$token" != "x" ]
-  then
-      echo "(U)ninstall or open the (h)omepage of $token"
-      read input
-      if [ $input = "u" ] || [ $input = "U" ]; then
-          brew cask uninstall $token
-      fi
-      if [ $input = "h" ] || [ $token = "h" ]; then
-          brew cask home $token
-      fi
-  fi
-}
-
 # fbr - checkout git branch (including remote branches), sorted by most recent commit, limit 30 last branches
 fbr() {
   local branches branch
