@@ -35,6 +35,11 @@ set splitbelow
 set autoread " do not prompt and reload file system changes
 au FocusGained * :checktime " make it work with neovim
 set hidden " allows you to abandon a buffer without saving
+nnoremap <C-N> :bnext<CR>
+nnoremap <C-P> :bprev<CR>
+" leave tabs?
+" https://github.com/ap/vim-buftabline#why-this-and-not-vim-tabs
+" https://joshldavis.com/2014/04/05/vim-tab-madness-buffers-vs-tabs/
 set smartindent " Keep indentation from previous line
 set expandtab " Use softtabstop spaces instead of tab characters
 set softtabstop=2 " Indent by 2 spaces when pressing <TAB>
@@ -53,10 +58,28 @@ set undodir=~/.vim/undo
 " search highlighting/behavior
 set hlsearch
 set incsearch
-" set ignorecase
+" Also / then C-r C-w inserts the word under the cursor
+" C-r C-l inserts the entire line
+" /res then C-l will add the next character, can keep hitting
+
+" allow tab/s-tab to filter with incsearch in-progress
+cnoremap <expr> <Tab>   getcmdtype() =~ '[?/]' ? "<c-g>" : "<Tab>"
+cnoremap <expr> <S-Tab> getcmdtype() =~ '[?/]' ? "<c-t>" : "<S-Tab>"
+
+" juggling with jumps
+nnoremap ' `
+
+set ignorecase
 set infercase "better than ignorecase?
 set smartcase
 set inccommand=nosplit "highlight :s in realtime
+set completeopt+=noselect,menuone,preview
+
+" hide cmdline entry after 3 seconds
+" augroup cmdline
+"   autocmd!
+"   autocmd CmdlineLeave : lua vim.defer_fn(function() vim.cmd('echo ""') end, 3000)
+" augroup END
 
 " do not jump from item on * search
 nnoremap * *``
