@@ -343,7 +343,7 @@ fcoc_preview() {
 
 # aliases
 alias ls="exa"
-alias ll="exa -lah --icons --git"
+alias ll="exa -alh --icons --git -t=mod --time-style=long-iso"
 alias md='mkdir -p'
 alias vi='nvim'
 alias vim='nvim'
@@ -400,7 +400,7 @@ alias ga='git add'
 alias gap='git add -p'
 alias gnap='git add -N --ignore-removal . && gap && gref'
 # alias gnap='git add $(git ls-files -o --exclude-standard) || git add -N --ignore-removal . && gap && gref'
-alias gb='git branch'
+alias gb="git branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate"
 alias gc='git commit -v'
 alias gca='git commit -a -v'
 alias gcl='git clean -f -d'
@@ -410,7 +410,15 @@ alias gdc='git diff --cached'
 alias glod='git log --oneline --decorate'
 alias gp='git push'
 alias gpr='git pull --rebase'
+alias pulls='git browse -- pulls'
+alias branches='git browse -- branches'
+alias open-tn-web='git browse tuftandneedle/tn-web'
+alias open-br-web='git browse tuftandneedle/br-web'
+alias open-js='git browse tuftandneedle/js-monorepo'
+alias open-qa='git browse tuftandneedle/QA-Blackbox'
+alias open-platform='git browse tuftandneedle/platform'
 alias gst='git status'
+alias ghpr='gh pr list | fzf --preview "gh pr diff --color=always {+1}" | awk "{print $1}" | xargs gh pr checkout'
 alias gs='fbr'
 alias gfb='git fuzzy branch'
 alias gfpr='git fuzzy pr'
@@ -423,14 +431,16 @@ alias gcpa='git cherry-pick --abort'
 alias gcps='git cherry-pick --skip'
 alias gcpc='git cherry-pick --continue'
 alias gco='git checkout'
+alias gcob='git checkout -b'
 alias gres='git restore --staged .'
 alias gappend='git add . && git commit --amend -C HEAD'
 alias unstage='git restore --staged .'
 alias grestore="git restore --staged . && git restore ."
 alias reset_authors='git commit --amend --reset-author -C HEAD'
+alias undo="git reset HEAD~1 --mixed"
 alias wip="git add . && LEFTHOOK=0 gc -m 'wip [ci skip]'"
-alias unwip="git reset --soft 'HEAD^' && git restore --staged ."
-alias undo="unwip"
+alias unwip="undo"
+# alias unwip="git reset --soft 'HEAD^' && git restore --staged ."
 alias nuke="unwip && grestore"
 alias pokey="gco master && gpr && gco - && gr -"
 alias hokey="pokey"
@@ -442,13 +452,11 @@ alias nvm="fnm"
 alias strat="start"
 alias barf="rm -rf node_modules && npm i"
 alias stash="git add . && git add stash"
+
+
 alias tmux_plugins_install="~/.tmux/plugins/tpm/bin/install_plugins"
 alias tmux_plugins_update="~/.tmux/plugins/tpm/bin/update_plugins all"
 alias tmux_plugins_clean="~/.tmux/plugins/tpm/bin/clean_plugins"
-
-# temp:
-alias release="gco release/nextjs"
-alias start="npm run start:next"
 
 # brew tap jason0x43/homebrew-neovim-nightly
 # brew cask install neovim-nightly
@@ -458,22 +466,16 @@ alias brew-install="brew bundle install --global"
 alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
 alias zinit-update="zinit self-update"
 alias zinit-plugin-update="zinit update --all"
+alias crate-update="cargo install-update -a"
 
 ZSH_AUTOSUGGEST_USE_ASYNC=true
 alias reload='source ~/.zshrc; echo -e "\n\u2699  \e[33mZSH config reloaded\e[0m \u2699"'
-
-# set cd autocompletion to commonly visited directories
-cdpath=(~/code/tuftandneedle)
-# don't display the common ones with `cd` command
-zstyle ':completion:*:complete:cd:*' tag-order \
-    'local-directories named-directories'
 
 # remove duplicates in $PATH
 typeset -aU path
 
 export PATH="$HOME/Library/Python/2.7/bin:$PATH"
 export PATH="$(yarn global bin):$PATH"
-export PATH="$HOME/bin/git-fuzzy/bin:$PATH"
 export PATH="$HOME/bin:$PATH"
 
 eval "$(direnv hook zsh)"
