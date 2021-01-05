@@ -527,13 +527,13 @@ autoload -Uz _zinit
 ### End of Zinit's installer chunk
 
 # plugins - zinit update # to update all
+zinit ice as"program" pick"bin/git-fuzzy"
+zinit light bigH/git-fuzzy
 zinit ice depth=1; zinit light romkatv/powerlevel10k
-zinit light aloxaf/fzf-tab
 zinit light zsh-users/zsh-autosuggestions
 zinit light zdharma/fast-syntax-highlighting
 zinit light zsh-users/zsh-completions
-# zinit light kazhala/dotbare
-# zinit light wfxr/forgit
+zinit light aloxaf/fzf-tab
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
