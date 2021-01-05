@@ -115,10 +115,14 @@ nnoremap z= :call FzfSpell()<CR>
 " Unhighlight search results
 map <Leader><space> :nohl<cr>
 
-set cursorline " highlight cursorline
-" only highlight cursorline in current active buffer
-autocmd WinEnter * setlocal cursorline
-autocmd WinLeave * setlocal nocursorline
+ " highlight cursorline
+set cursorline
+" only highlight cursorline in current active buffer, when not in insert mode
+autocmd InsertLeave,WinEnter * set cursorline
+autocmd InsertEnter,WinLeave * set nocursorline
+
+" source $MYVIMRC when saving $MYVIMRC
+autocmd BufWritePost $MYVIMRC source $MYVIMRC
 
 "sessions
 " Don't save hidden and unloaded buffers in sessions
