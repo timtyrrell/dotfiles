@@ -355,45 +355,27 @@ alias tree='tree-git-ignore'
 alias tmn='tmux new -s'
 alias tma='tmux attach -t'
 
+# used in 'gnap' alias
 gref() {
   command git --no-pager diff --cached --stat | command grep "|\s*0$" | awk '{system("command git reset " $1)}'
 }
 
-# https://dev.to/hotoolong/make-git-status-and-gh-easier-to-use-with-fzf-4pl3
-# fzf_git_pull_request() {
-  # local query (commandline --current-buffer)
-  # if [[test -n $query]]; then
-  #   set fzf_query --query "$query"
-  # fi
+ch() {
+  local cols sep
+  cols=$(( COLUMNS / 3 ))
+  sep='{::}'
 
-  # local base_command gh pr list --limit 100
-  # local bind_commands "ctrl-a:reload($base_command --state all)"
-  # set bind_commands $bind_commands "ctrl-o:reload($base_command --state open)"
-  # set bind_commands $bind_commands "ctrl-c:reload($base_command --state closed)"
-  # set bind_commands $bind_commands "ctrl-g:reload($base_command --state merged)"
-  # set bind_commands $bind_commands "ctrl-a:reload($base_command --state all)"
-  # local bind_str (string join ',' $bind_commands)
+  # Chrome search
+  # cp -f ~/Library/Application\ Support/Google/Chrome/Default/History /tmp/h
+  # Chromium search https://github.com/Eloston/ungoogled-chromium
+  cp -f ~/Library/ApplicationSupport/Chromium/Default/History /tmp/h
 
-  # local out ( \
-  #   command $base_command | \
-  #   fzf $fzf_query \
-  #       --prompt='Select Pull Request>' \
-  #       --preview="gh pr view {1}" \
-  #       --expect=ctrl-k,ctrl-m \
-  #       --header='enter: open in browser, C-k: checkout, C-a: all, C-o: open, C-c: closed, C-g: merged, C-a: all' \
-  # )
-  # if [[test -z $out]]; then
-  #   return
-  # fi
-  # local pr_id (echo $out[2] | awk '{ print $1 }')
-  # if [[test $out[1] = 'ctrl-k']]; then
-  #   commandline "gh pr checkout $pr_id"
-  #   commandline -f execute
-  # elif [[test $out[1] = 'ctrl-m']]; then
-  #   commandline "gh pr view --web $pr_id"
-  #   commandline -f execute
-  # fi
-# }
+  sqlite3 -separator $sep /tmp/h \
+    "select substr(title, 1, $cols), url
+     from urls order by last_visit_time desc" |
+  awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
+  fzf-tmux -p 90%,90% --ansi --multi --preview-window=:hidden | sed 's#.*\(https*://\)#\1#' | xargs open -a "Chromium"
+}
 
 # git aliases
 alias ga='git add'
@@ -453,7 +435,6 @@ alias strat="start"
 alias barf="rm -rf node_modules && npm i"
 alias stash="git add . && git add stash"
 
-
 alias tmux_plugins_install="~/.tmux/plugins/tpm/bin/install_plugins"
 alias tmux_plugins_update="~/.tmux/plugins/tpm/bin/update_plugins all"
 alias tmux_plugins_clean="~/.tmux/plugins/tpm/bin/clean_plugins"
@@ -484,7 +465,6 @@ eval "$(rbenv init -)"
 # ruby-build installs a non-Homebrew OpenSSL for each Ruby version installed and these are never upgraded.
 # To link Rubies to Homebrew's OpenSSL 1.1 (which is upgraded) add the following to your ~/.zshrc:
 export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
-
 
 [ -f $HOME/.cargo/env ] && source $HOME/.cargo/env
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
