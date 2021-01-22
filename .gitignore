@@ -5,3 +5,4 @@ jsconfig.json
 Session.vim
 yarn-error.log
 .vim
+.nvimlog
