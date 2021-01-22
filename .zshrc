@@ -437,6 +437,7 @@ alias open-br-web='git browse tuftandneedle/br-web'
 alias open-js='git browse tuftandneedle/js-monorepo'
 alias open-qa='git browse tuftandneedle/QA-Blackbox'
 alias open-platform='git browse tuftandneedle/platform'
+alias dotfiles='cd ~/code/timtyrrell/dotfiles'
 alias gst='git status'
 alias ghpr='gh pr list | fzf --preview "gh pr diff --color=always {+1}" | awk "{print $1}" | xargs gh pr checkout'
 alias gs='fbr'
@@ -446,6 +447,9 @@ alias gr='git rebase'
 alias grc='git rebase --continue'
 alias gra='git rebase --abort'
 alias grs='git rebase --skip'
+alias gmc='git merge --continue'
+alias gma='git merge --abort'
+alias gms='git merge --skip'
 alias gcp='git cherry-pick'
 alias gcpa='git cherry-pick --abort'
 alias gcps='git cherry-pick --skip'
@@ -454,6 +458,8 @@ alias gco='git checkout'
 alias gcob='git checkout -b'
 alias gres='git restore --staged .'
 alias gappend='git add . && git commit --amend -C HEAD'
+alias gappendyolo='git add . && LEFTHOOK=0 git commit --amend -C HEAD'
+alias clean 'git clean -fd'
 alias unstage='git restore --staged .'
 alias grestore="git restore --staged . && git restore ."
 alias reset_authors='git commit --amend --reset-author -C HEAD'
@@ -465,7 +471,9 @@ alias nuke="unwip && grestore"
 alias pokey="gco master && gpr && gco - && gr -"
 alias hokey="pokey"
 alias sha="git rev-parse HEAD"
+alias SHA="sha"
 alias cannonball="git add . && git commit --amend -C HEAD && git push --force-with-lease"
+alias cannonballyolo="git add . && LEFTHOOK=0 git commit --amend -C HEAD && git push --force-with-lease"
 alias fix='nvim +/HEAD `git diff --name-only | uniq`'
 alias be="bundle exec"
 alias nvm="fnm"
