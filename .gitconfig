@@ -95,8 +95,12 @@
 	driver = bundle
 [mergetool "vim-conflicted"]
 	cmd = nvim +Conflicted
+[pull]
+	abbreviateCommands = true
+	rebase = true
+	instructionFormat = true
 [push]
-	default = upstream
+	default = tracking
 	followTags = true
 [rebase]
 	autosquash = true
