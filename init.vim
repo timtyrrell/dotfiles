@@ -339,7 +339,18 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'rondale-sc/vim-spacejam' "removes trailing whitespace on save
 let g:spacejam_filetypes = 'ruby,javascript,vim,perl,sass,scss,css,haml,python,vimwiki,markdown'
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
+Plug 'npxbr/glow.nvim', {'do': ':GlowInstall'}
+" markdown preview in nvim popup
+" nmap <leader>p :Glow<CR>
+" q to quit, :Glow for current filepath
 Plug 'godlygeek/tabular'
+Plug 'arthurxavierx/vim-caser'
+let g:caser_prefix='<leader>cs'
+" MixedCase or PascalCase 	,csm or ,csp 	<Plug>CaserMixedCase/<Plug>CaserVMixedCase
+" camelCase 	,csc 	<Plug>CaserCamelCase/<Plug>CaserVCamelCase
+" snake_case 	,cs_ 	<Plug>CaserSnakeCase/<Plug>CaserVSnakeCase
+" UPPER_CASE 	,csu or ,csU 	<Plug>CaserUpperCase/<Plug>CaserVUpperCase
+" kebab-case 	,cs- or ,csk 	<Plug>CaserKebabCase/<Plug>CaserVKebabCase
 
 " movement/editing
 Plug 'mileszs/ack.vim'
@@ -422,6 +433,9 @@ Plug 'kana/vim-textobj-user' | Plug 'kana/vim-textobj-line'
 " 'il' ignores leading and trailing spaces. 'al' ignoes EOL
 Plug 'stefandtw/quickfix-reflector.vim'
 
+" neovim terminal helpers for test running, etc
+Plug 'kassio/neoterm'
+
 " git
 Plug 'tpope/vim-fugitive' |
            \ Plug 'junegunn/gv.vim' |
@@ -478,12 +492,23 @@ let g:blamer_template = '<author>, <committer-time> • <summary>'
 let g:blamer_date_format = '%Y-%d-%m'
 let g:blamer_relative_time = 1
 
+" display diff while in interactive rebase
+Plug 'hotwatermorning/auto-git-diff'
+
+Plug 'chrisbra/unicode.vim'
+let g:Unicode_ShowPreviewWindow = 1
+let g:Unicode_CompleteName = 1
+
 " testing/debugging
 Plug 'vim-test/vim-test'
+" regex explain - :ExplainPattern {pattern} or :ExplainPattern {register}
+Plug 'Houl/ExplainPattern'
 Plug 'puremourning/vimspector'
-
-" learning
-Plug 'takac/vim-hardtime'
+Plug 'tpope/vim-scriptease'
+" https://codeinthehole.com/tips/debugging-vim-by-example/#why-isn-t-syntax-highlighting-working-as-i-want
+" zS to indentify the systen region name
+" :verbose hi jsTemplateString
+" :Messages load messages into quickfix
 
 " visiblity
 Plug 'psliwka/vim-smoothie'
@@ -494,6 +519,9 @@ Plug 'kshenoy/vim-signature' " marks
 " displays colors for words/hex
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 let g:Hexokinase_highlighters = ['backgroundfull']
+" opens Mac color picker
+Plug 'KabbAmine/vCoolor.vim'
+nnoremap <leader>cp :VCoolor<CR>
 
 " appearence and insight
 Plug 'preservim/nerdtree' |
@@ -650,6 +678,14 @@ autocmd BufWritePre *.js exec "%s/class=/className=/eg"
 
 " autocmd CheckHealth * call OnCheckHealth()
 
+" kassio/neoterm
+let g:neoterm_default_mod = 'vertical'
+let g:neoterm_size = 100
+let g:neoterm_autoinsert = 1
+" nnoremap <c-f> :Ttoggle<CR>
+" inoremap <c-f> <Esc>:Ttoggle<CR>
+" tnoremap <c-f> <c-\><c-n>:Ttoggle<CR>
+
 " quickfix
 nmap <Leader>qq <Plug>window:quickfix:loop
 
@@ -737,7 +773,15 @@ augroup end
 function! MyHighlights() abort
   " match codelens to Comment color so it stands out less
   highlight CocCodeLens guifg=#585858
+
   " Overwrite the highlight groups `CocHighlightText`, `CocHighlightRead` and `CocHighlightWrite` for customizing the colors.
+  highlight CocHighlightText cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
+
+  " treesitter
+  " highlight TSConstructor guifg=#9CDCFE
+  " highlight TSVariable guifg=#9CDCFE
+  " highlight TSVariableBuiltin guifg=#9CDCFE
+  " highlight Special guifg=#9CDCFE
 endfunction
 
 augroup MyColors
@@ -749,6 +793,9 @@ let base16colorspace=256
 set background=dark
 set termguicolors
 colorscheme apprentice
+" colorscheme gruvbox
+" colorscheme OceanicNext
+" colorscheme highlite
 
 " hide line showing switch in insert/normal mode
 set noshowmode
