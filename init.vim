@@ -56,11 +56,14 @@ nnoremap <C-P> :bprev<CR>
 " https://github.com/ap/vim-buftabline#why-this-and-not-vim-tabs
 " https://joshldavis.com/2014/04/05/vim-tab-madness-buffers-vs-tabs/
 set smartindent " Keep indentation from previous line
+set breakindent
+set breakindentopt=shift:2
+set showbreak=↳
 set expandtab " Use softtabstop spaces instead of tab characters
 set softtabstop=2 " Indent by 2 spaces when pressing <TAB>
 set shiftwidth=2 " Indent by 2 spaces when using >>, <<, == etc.
-set number " show line numbers
 set showtabline=2 " always display vim tab bar
+" set number " show line numbers
 
 " backup/undo management
 set nobackup
@@ -85,16 +88,14 @@ cnoremap <expr> <S-Tab> getcmdtype() =~ '[?/]' ? "<c-t>" : "<S-Tab>"
 nnoremap ' `
 
 set ignorecase
-set infercase "better than ignorecase?
+set infercase " enhances ignorecase
 set smartcase
 set inccommand=nosplit "highlight :s in realtime
-set completeopt+=noselect,menuone,preview
-
-" hide cmdline entry after 3 seconds
-" augroup cmdline
-"   autocmd!
-"   autocmd CmdlineLeave : lua vim.defer_fn(function() vim.cmd('echo ""') end, 3000)
-" augroup END
+" set completeopt+=noselect,noinsert,menuone,preview
+set completeopt=menuone,noinsert,noselect,preview
+set diffopt+=vertical
+" allows block selections to operate across lines regardless of the underlying text
+set virtualedit=block
 
 " do not jump from item on * search
 nnoremap * *``
