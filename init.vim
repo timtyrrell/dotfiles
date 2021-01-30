@@ -171,8 +171,23 @@ xnoremap < <gv
 xnoremap > >gv
 
 " split windows
-nnoremap <C-w>_ :spl<cr>
+nnoremap <C-w>- :spl<cr>
 nnoremap <C-w><bar> :vsp<cr>
+
+" easily resize panes
+" noremap <C-w>+ :resize +10<CR>
+" noremap <C-w>- :resize -10<CR>
+" noremap <C-w>< :vertical:resize -10<CR>
+" noremap <C-w>> :vertical:resize +10<CR>
+
+" tmux mappings for  reference
+" bind -r H resize-pane -L 10
+" bind -r J resize-pane -D 10
+" bind -r K resize-pane -U 10
+" bind -r L resize-pane -R 10
+" C-a - split
+" C-a | vsplit
+
 " open file under cursor in vertical split
 map <C-w>f <C-w>vgf
 
@@ -189,12 +204,6 @@ nnoremap tk :tabnext<CR>
 nnoremap tl :tablast<CR>
 nnoremap tc :tabclose<CR>
 nnoremap tn :tabnew<CR>
-
-" easily resize panes
-noremap <C-w>+ :resize +10<CR>
-noremap <C-w>- :resize -10<CR>
-noremap <C-w>< :vertical:resize -10<CR>
-noremap <C-w>> :vertical:resize +10<CR>
 
 " hide the command history buffer. Use fzf :History instead
 nnoremap q: <nop>
@@ -304,6 +313,11 @@ Plug 'christoomey/vim-sort-motion'
 " gsi{
 Plug 'drmingdrmer/vim-toggle-quickfix'
 Plug 'christoomey/vim-tmux-navigator'
+" simplify split navigation
+" map <C-j> <C-W>j
+" map <C-k> <C-W>k
+" map <C-h> <C-W>h
+" map <C-l> <C-W>l
 Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'christoomey/vim-system-copy'
 " cp for copying and cv for pasting
