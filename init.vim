@@ -310,6 +310,9 @@ Plug 'nvim-treesitter/playground'
 " f: Focuses the language tree under the cursor in the playground. The query editor will now be using the focused language.
 " F: Unfocuses the currently focused language.
 " <cr>: Go to current node in code buffer
+let g:polyglot_disabled = ['tmux']
+autocmd FileType tmux nnoremap <silent><buffer> K :call tmux#man()<CR>
+Plug 'tmux-plugins/vim-tmux'
 " Plug 'pangloss/vim-javascript'
 " Plug 'othree/yajs.vim'
 " Plug 'yuezk/vim-js'
