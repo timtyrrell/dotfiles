@@ -670,11 +670,12 @@ EOF
 
 " set graphql filetype based on dir
 autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
+autocmd BufRead,BufNewFile */graphql/queries/*.js set syntax=graphql
 au BufNewFile,BufRead .eslintrc,.prettierrc,.lintstagedrc set filetype=jsonc
 au BufNewFile,BufRead *.bak set filetype=javascript
 au BufNewFile,BufRead *.build,.env* set filetype=sh
 " how to automatically rename things based on filetype
-autocmd BufWritePre *.js exec "%s/class=/className=/eg"
+" autocmd BufWritePre *.js exec "%s/class=/className=/eg"
 " styles.something-blah -> styles[something-blah]
 " :%s/styles[\S\+\]/
 " /styles[\[a-zA-Z0-9].\+?(?=dir)/
@@ -814,6 +815,16 @@ endfunction
 augroup MyColors
   autocmd!
   autocmd ColorScheme * call MyHighlights()
+augroup END
+
+" to do more
+" https://github.com/trapd00r/vim-syntax-todo/blob/master/syntax/todo.vim
+augroup todo
+    autocmd!
+    autocmd Syntax * call matchadd(
+                \ 'Search',
+                \ '\v\W\zs<(NOTE|INFO|TODO|FIXME|CHANGED|BUG|HACK)>'
+                \ )
 augroup END
 
 let base16colorspace=256
@@ -1353,17 +1364,6 @@ let g:tmux_navigator_disable_when_zoomed = 1
 let g:beacon_show_jumps = 0
 let g:beacon_ignore_buffers = ["NERD.*", "Mundo"]
 
-" vim-hardtime
-let g:hardtime_default_on = 0
-let g:hardtime_showmsg = 1
-let g:list_of_normal_keys = ["h", "j", "k", "l"]
-let g:list_of_visual_keys = ["h", "j", "k", "l"]
-let g:list_of_insert_keys = ["<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
-let g:list_of_disabled_keys = []
-let g:hardtime_ignore_quickfix = 1
-let g:hardtime_ignore_buffer_patterns = [ "NERD.*" ]
-let g:hardtime_maxcount = 2
-
 " christoomey/vim-sort-motion
 " make all sorts case insensitive and remove duplicates
 let g:sort_motion_flags = "ui"
@@ -1439,11 +1439,11 @@ function! SortWiki()
 endfunction
 
 let g:vimwiki_list = [{
-                      \ 'path': '~/Documents/notes/',
-                      \ 'syntax': 'markdown',
-                      \ 'ext': '.md',
-                      \ 'auto_toc': 1,
-                      \ }]
+  \ 'path': '~/Documents/notes/',
+  \ 'syntax': 'markdown',
+  \ 'ext': '.md',
+  \ 'auto_toc': 1,
+  \ }]
 " gln to toggle forward
 " glp to toggle back
 let g:coc_filetype_map = { 'vimwiki': 'markdown' } " register with coc-markdownlint
@@ -1480,7 +1480,7 @@ command! -bang -nargs=* SearchNotes
 command! -bang -nargs=* EditNote call fzf#vim#files('~/Documents/notes', <bang>0)
 
 command! -bang -nargs=0 NewNote
-            \ call vimwiki#base#edit_file(":e", strftime('~/Documents/notes/%F-%T.md'), "")
+  \ call vimwiki#base#edit_file(":e", strftime('~/Documents/notes/%F-%T.md'), "")
 
 autocmd FileType markdown nmap <buffer><silent> <leader>p :call mdip#MarkdownClipboardImage()<CR>
 autocmd FileType markdown setlocal shiftwidth=2 softtabstop=2 expandtab
@@ -1499,9 +1499,9 @@ autocmd FileType markdown nmap <buffer> <silent> gf <Plug>VimwikiFollowLink<CR>
 "
 command! Diary VimwikiDiaryIndex
 augroup vimwikigroup
-    autocmd!
-    " automatically update links on read diary
-    autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
+  autocmd!
+  " automatically update links on read diary
+  autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
 augroup end
 
 " try these out?
