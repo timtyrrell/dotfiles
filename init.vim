@@ -1246,7 +1246,7 @@ nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
 map <Leader>ff :Files<CR>
 map <silent> <Leader>fp :call fzf#vim#files('', { 'source': g:FzfFilesSource(), 'options': '--tiebreak=index'})<CR>
 map <Leader>fb :Buffers<CR>
-" [Buffers] Jump to the existing window if possible
+" :Buffers Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
 map <Leader>fe :Rg<CR>
 map <Leader>fl :Lines<CR>
@@ -1260,13 +1260,13 @@ map <Leader>fC :BCommits<CR>
 nnoremap <silent> <Leader>fd :Files <C-R>=expand('%:h')<CR><CR>
 " Rg current word
 nnoremap <silent> <Leader>rg :Lines <C-R><C-W><CR>
-
+" Search lines in _all_ buffers
 command! -bang -nargs=* BLines
     \ call fzf#vim#grep(
     \   'rg --with-filename --column --line-number --no-heading --smart-case . '.fnameescape(expand('%:p')), 1,
     \   fzf#vim#with_preview({'options': '--layout reverse --query '.shellescape(<q-args>).' --with-nth=4.. --delimiter=":"'}))
 
-" do not search filename, just file contents
+" do not search filename, just file contents of all file Lines in root dir
 command! -bang -nargs=* Lines
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" --smart-case  -- '.shellescape(<q-args>), 1,
@@ -1276,9 +1276,10 @@ command! -bang -nargs=* HistoryCmds call fzf#vim#command_history(fzf#vim#with_pr
 command! -bang -nargs=* HistorySearch call fzf#vim#search_history(fzf#vim#with_preview({'options': ['--preview-window', 'hidden']}))
 
 let g:fzf_action = {
-  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-t': 'tab',
   \ 'ctrl-x': 'split',
   \ 'ctrl-v': 'vsplit' }
+" open fzf in a floating window
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 
 " Insert mode completion
