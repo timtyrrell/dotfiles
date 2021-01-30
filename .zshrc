@@ -491,6 +491,7 @@ alias update-neovim-nightly="brew reinstall neovim-nightly"
 alias install-tmux-head="brew install --HEAD tmux"
 alias brew-install="brew bundle install --global"
 alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
+alias brewup="brew update; brew upgrade; brew cleanup"
 alias zinit-update="zinit self-update"
 alias zinit-plugin-update="zinit update --all"
 alias crate-update="cargo install-update -a"
@@ -506,7 +507,6 @@ export PATH="$(yarn global bin):$PATH"
 export PATH="$HOME/bin:$PATH"
 
 eval "$(direnv hook zsh)"
-eval "$(fnm env --use-on-cd)"
 eval "$(rbenv init -)"
 # ruby-build installs a non-Homebrew OpenSSL for each Ruby version installed and these are never upgraded.
 # To link Rubies to Homebrew's OpenSSL 1.1 (which is upgraded) add the following to your ~/.zshrc:
@@ -551,3 +551,8 @@ zinit light aloxaf/fzf-tab
 
 # zprof # zsh perf check
 eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
+
+# fnm
+export PATH=/Users/timtyrrell/.fnm:$PATH
+# eval "`fnm env --use-on-cd`"
+eval "$(fnm env)"
