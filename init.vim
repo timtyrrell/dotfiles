@@ -1025,6 +1025,7 @@ let g:git_messenger_include_diff = 'current'
 let g:git_messenger_extra_blame_args ='-w' " Ignore whitespace
 
 " vim-doge
+let g:doge_enable_mappings = 0
 let g:javascript_plugin_jsdoc = 1
 
 " DEFAULT COC.NVIM START
