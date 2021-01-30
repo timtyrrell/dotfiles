@@ -152,7 +152,14 @@ set sessionoptions-=help
 autocmd VimResized * wincmd =
 
 " always paste from 0 register to avoid pasting deleted text
-xnoremap <silent> p p:let @"=@0<CR>
+" xnoremap <silent> p p:let @"=@0<CR>
+vnoremap <silent> p p:let @"=@0 <CR>
+vnoremap <silent> P P:let @"=@0 <CR>
+" do above unless specified?
+" nnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
+" nnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
+" xnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
+" xnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
 
 " Indent/dedent what you just pasted
 nnoremap <leader>< V`]<
