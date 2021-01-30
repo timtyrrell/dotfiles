@@ -1596,9 +1596,16 @@ augroup end
 "   Lines
 " endfunc
 
-au BufNewFile ~/Documents/notes/*.md
-      \ call append(0,[
-      \ "# " . split(expand('%:r'),'/')[-1], "",
-      \ "## Daily checklist", "",
-      \ "## Todo",  "",
-      \ "## Notes", "" ])
+au BufNewFile ~/Documents/notes/diary/*.md
+  \ call append(0,[
+  \ "# " . split(expand('%:r'),'/')[-1], "",
+  \ "***POMODORO***",
+  \ "***OPEN FOCUS BAR***",
+  \ "***Visible TODOs***", "",
+  \ "## Daily checklist", "",
+  \ "- [ ] Geekbot", "",
+  \ "## Todo",  "",
+  \ "## Unplanned",  "",
+  \ "## Push",  "",
+  \ "## Near Future",  "",
+  \ "## Notes"])
