@@ -545,6 +545,15 @@ zinit light aloxaf/fzf-tab
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# if [[ "$TERM" != "screen" ]] && [[ "$SSH_CONNECTION" == "" ]]; then
+#     WHOAMI=$(whoami)
+#     if tmux has-session -t $WHOAMI 2>/dev/null; then
+#         tmux -2 attach-session -t $WHOAMI
+#     else
+#         tmux -2 new-session -s $WHOAMI
+#     fi
+# fi
+
 # if [[ ! -v TMUX ]]; then
 #   tmux_chooser && exit
 # fi

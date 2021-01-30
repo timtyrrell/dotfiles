@@ -6,7 +6,7 @@ function ctrl_c() {
 	echo -e "\renter nil to drop to normal prompt"
 }
 
-trap ctrl_c SIGINT
+# trap ctrl_c SIGINT
 
 no_of_terminals=$(tmux list-sessions | wc -l)
 IFS=$'\n'
