@@ -54,17 +54,17 @@
   "coc.source.file.ignorePatterns": [],
   "codeLens.enable": false,
   "codeLens.separator": "|->",
+  "coc.source.emoji.filetypes": [
+    "markdown", "jsonc"
+  ],
   "diagnostic.checkCurrentLine": true,
-  "diagnostic.errorSign": "",
-  "diagnostic.hintSign": ">",
-  "diagnostic.infoSign": "",
-  "diagnostic.warningSign": "",
   "diagnostic.messageTarget": "echo",
   "diagnostic.virtualText": true,
   "diagnostic.virtualTextCurrentLineOnly": true,
   "git.addGBlameToVirtualText": false,
   "javascript.preferences.quoteStyle": "double",
   "javascript.suggestionActions.enabled": false,
+  "typescript.preferences.quoteStyle": "double",
   "signature.preferShownAbove": true,
   "signature.target": "float",
   "suggest.enablePreselect": false,
@@ -102,5 +102,6 @@
   },
   "tsserver.npm": "/usr/local/bin/npm",
   "tsserver.trace.server": "off",
-  "coc.preferences.extensionUpdateCheck": "daily"
+  "coc.preferences.extensionUpdateCheck": "daily",
+  "coc.preferences.silentAutoupdate": false
 }
