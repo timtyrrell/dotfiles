@@ -22,7 +22,7 @@ set wildmenu
 set wildmode=longest:full,full
 set wildoptions+=pum
 set wildcharm=<Tab>
-nnoremap <Leader><Tab> :buffer<Space><Tab>
+" nnoremap <Leader><Tab> :buffer<Space><Tab>
 " give low priority to files matching the defined patterns.
 " set suffixes+=.sass,.scss,.pug
 
@@ -961,8 +961,9 @@ let g:NERDTreeStatusline = ''
 let g:DevIconsEnableFoldersOpenClose = 1
 let g:NERDTreeMinimalMenu=1
 
-map <silent> <Leader>n :NERDTreeToggle<CR>:wincmd =<CR>
-map <Leader>fnt :NERDTreeFind<CR>
+" map <silent> <Leader>nt :NERDTreeToggle<CR>:wincmd =<CR>
+nnoremap <silent> <Leader><Tab> :NERDTreeToggle<CR>:wincmd =<CR>
+map <Leader>nf :NERDTreeFind<CR>
 " close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
