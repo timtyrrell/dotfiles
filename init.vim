@@ -1030,34 +1030,27 @@ let g:javascript_plugin_jsdoc = 1
 
 " DEFAULT COC.NVIM START
 
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=200
+set updatetime=100
 
-" Give more space for displaying messages.
+" Give more space for displaying messages
 set cmdheight=2
 
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 
 " leave space for git, diagnostics and marks
-set signcolumn=auto:3
+set signcolumn=auto:5
 
-" use C-j, C-k to move in
+" use C-j, C-k to move in comletion list
 inoremap <expr> <C-j> pumvisible() ? "\<C-n>" : "\<C-j>"
 inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
 
-" Use <c-space> to trigger completion.
+" Use <c-space> to trigger completion
 inoremap <silent><expr> <c-space> coc#refresh()
 
 " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
 " position. Coc only does snippet and additional edit on confirm.
-" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
-if exists('*complete_info')
-  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
-else
-  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-endif
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
@@ -1115,7 +1108,14 @@ omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
 
-nmap <leader>cl <Plug>(coc-codelens-action)
+nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+
+nmap <leader>cla <Plug>(coc-codelens-action)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
@@ -1132,7 +1132,9 @@ nnoremap <silent> <leader>cr :<C-u>CocRestart<CR>
 
 " COC.SNIPPET START
 
-set pumheight=20 " max items to show in popup list
+" max items to show in popup list
+set pumheight=20
+
 " close preview when completion is done
 autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 
@@ -1140,7 +1142,8 @@ autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 autocmd VimLeavePre * if get(g:, 'coc_process_pid', 0)
 		\	| call system('kill -9 '.g:coc_process_pid) | endif
 
-let g:coc_snippet_next = '<tab>'
+let g:coc_snippet_next = '<Tab>'
+let g:coc_snippet_prev = '<S-Tab>'
 " let g:coc_node_path = '/usr/local/bin/node' " use node v14?
 " COC.SNIPPET END
 
@@ -1160,6 +1163,10 @@ nnoremap <silent><nowait> <space>s :<C-u>CocFzfList symbols<CR>
 nnoremap <silent><nowait> <space>S :<C-u>CocFzfList services<CR>
 nnoremap <silent><nowait> <space>p :<C-u>CocFzfListResume<CR>
 nnoremap <silent><nowait> <space>y :<C-u>CocFzfList yank<CR>
+" Do default action for next item.
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 
 " Start multiple cursors session
 " nmap <silent> <C-c> <Plug>(coc-cursors-position)
