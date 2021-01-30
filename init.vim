@@ -259,6 +259,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'} |
 let g:coc_global_extensions = [
           \ 'coc-css',
           \ 'coc-cssmodules',
+          \ 'coc-emoji',
           \ 'coc-eslint',
           \ 'coc-git',
           \ 'coc-html',
@@ -279,6 +280,7 @@ let g:coc_global_extensions = [
           \ 'coc-svg',
           \ 'coc-tslint-plugin',
           \ 'coc-tsserver',
+          \ 'coc-vimlsp',
           \ 'coc-webpack',
           \ 'coc-yaml',
           \ 'coc-yank'
@@ -342,7 +344,7 @@ Plug 'christoomey/vim-system-copy'
 " cV is mapped to paste the content of system clipboard to the next line.
 Plug 'tpope/vim-bundler'
 "bundle bopen
-Plug 'tpope/vim-commentary' "gcc comment out
+Plug 'tpope/vim-commentary' "gcc comment out, gcap for paragraph
 Plug 'tpope/vim-eunuch'
 "Vim sugar for the UNIX shell commands
 Plug 'tpope/vim-jdaddy'
@@ -369,11 +371,21 @@ Plug 'tpope/vim-surround'
     " INSERT MODE:
     "   <C-g>s<SURROUND>
   " }}}
+"vitSt - add inner tag
+"vatSt - add surrounding tag
+
+"wrap in console.log - yswc or yssc
+autocmd FileType javascript let b:surround_{char2nr("c")} = "console.log(\r)"
+autocmd FileType javascript let b:surround_{char2nr("e")} = "${\r}"
+" move word under cursor up or down a line wrapped in a console.log
+autocmd FileType javascript nnoremap <buffer> <leader>clO "zyiwOconsole.log(z)<Esc>
+autocmd FileType javascript nnoremap <buffer> <leader>clo "zyiwoconsole.log(z)<Esc>
+
 Plug 'tpope/vim-unimpaired'
 "prev conflict/patch: [n , next conflict/patch: ]n , paste toggle: yop
 Plug 'terryma/vim-expand-region'
-" vmap + <Plug>(expand_region_expand)
-" vmap - <Plug>(expand_region_shrink)
+vmap + <Plug>(expand_region_expand)
+vmap - <Plug>(expand_region_shrink)
 Plug 'AndrewRadev/tagalong.vim'
 let g:tagalong_filetypes = ['javascript', 'html', 'xml', 'jsx', 'eruby', 'ejs', 'javascriptreact', 'typescriptreact']
 Plug 'wincent/scalpel'
