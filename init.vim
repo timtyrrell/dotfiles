@@ -294,6 +294,7 @@ Plug 'AndrewRadev/undoquit.vim'
 "<c-w>U reopen tab with all windows
 Plug 'jmckiern/vim-venter' " focus mode keeping status bars, etc :VenterToggle
 Plug 'duff/vim-bufonly' "BuFOnfy to unload all buffers but the current one
+Plug 'artnez/vim-wipeout' " :Wipeout - close all non-open buffers
 Plug 'simnalamburt/vim-mundo' " undo tree visualizer
 Plug 'tpope/vim-obsession' " session management
 
