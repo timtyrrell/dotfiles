@@ -355,6 +355,12 @@ let g:caser_prefix='<leader>cs'
 " movement/editing
 Plug 'mileszs/ack.vim'
 Plug 'justinmk/vim-sneak'
+let g:sneak#s_next = 1 " s/S to do to next. ;, still works, also
+" replace fFtT with 1 character sneak
+map f <Plug>Sneak_f
+map F <Plug>Sneak_F
+map t <Plug>Sneak_t
+map T <Plug>Sneak_T
 "s{char}{char} motion - ; to go to next match
 "dz{char}{char} - delete until
 "ysz{char}{char}] - surround in ]
