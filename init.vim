@@ -449,11 +449,15 @@ Plug 'tpope/vim-fugitive' |
 
 " Fugitive mapping
 nmap <leader>gb :Gblame<cr>
+nmap <leader>gB :%Gblame<cr>
 nmap <leader>gd :Gdiff<cr>
 nmap <leader>gl :Glog<cr>
+nmap <leader>gL :Glog -- %<cr>
+" nmap <leader>gL :Gclog -100<cr>
 nmap <leader>gs :Gstatus<cr>
 nmap <leader>ge :Gedit<cr>
 nmap <leader>gc :Gcommit<cr>
+nmap <leader>gr :Gread<cr>:update<cr>
 " nmap <leader>gw :Gbrowse<cr> " add visual select command, also
 " xnoremap <leader>gw :<c-u>call MarkCodeBlock()<CR>
 xnoremap <leader>gw :<C-u>Gbrowse!
@@ -479,15 +483,20 @@ Plug 'christoomey/vim-conflicted'
 " `dgu` - diffget from the upstream version
 " `dgl` - diffget from the local version
 " [c and ]c to navigate conflicts in file
+
+" disable showing '------' for empty line in difftool
+" I want to set it as a blank space but space-jam deletes the space....
+" set fillchars=diff:\
+
 Plug 'rhysd/git-messenger.vim' "git blame: <Leader>gm
 " q 	Close the popup window
 " o/O 	older commit/newer commit
 " d/D 	Toggle diff hunks only related to current file in the commit/All Diffs
 Plug 'rhysd/committia.vim' " more pleasant editing of commit message
-Plug 'sodapopcan/vim-twiggy'
-let g:twiggy_group_locals_by_slash = 0
-let g:twiggy_local_branch_sort = 'mru'
-let g:twiggy_remote_branch_sort = 'date'
+" Plug 'sodapopcan/vim-twiggy'
+" let g:twiggy_group_locals_by_slash = 0
+" let g:twiggy_local_branch_sort = 'mru'
+" let g:twiggy_remote_branch_sort = 'date'
 
 Plug 'APZelos/blamer.nvim'
 let g:blamer_enabled = 0
