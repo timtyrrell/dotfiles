@@ -1429,6 +1429,16 @@ let g:beacon_ignore_buffers = ["NERD.*", "Mundo"]
 " make all sorts case insensitive and remove duplicates
 let g:sort_motion_flags = "ui"
 
+" add motions for words_like_this, etc
+" i_ i. i: i, i; i| i/ i\ i* i+ i- i#
+" a_ a. a: a, a; a| a/ a\ a* a+ a- a#
+for char in [ '_', '.', ':', ',', ';', '<bar>', '/', '<bslash>', '*', '+', '-', '#' ]
+	execute 'xnoremap i' . char . ' :<C-u>normal! T' . char . 'vt' . char . '<CR>'
+	execute 'onoremap i' . char . ' :normal vi' . char . '<CR>'
+	execute 'xnoremap a' . char . ' :<C-u>normal! F' . char . 'vf' . char . '<CR>'
+	execute 'onoremap a' . char . ' :normal va' . char . '<CR>'
+endfor
+
 " yggdroot/indentline
 let g:indentLine_faster = 1
 " let g:indentLine_setConceal = 1
