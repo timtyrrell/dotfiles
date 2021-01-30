@@ -191,11 +191,24 @@ nnoremap <C-w><bar> :vsp<cr>
 " open file under cursor in vertical split
 map <C-w>f <C-w>vgf
 
-" simplify split navigation
-map <C-j> <C-W>j
-map <C-k> <C-W>k
-map <C-h> <C-W>h
-map <C-l> <C-W>l
+"toggles whether or not the current window is automatically zoomed
+function! ToggleMaxWins()
+  if exists('g:windowMax')
+    au! maxCurrWin
+    wincmd =
+    unlet g:windowMax
+  else
+    augroup maxCurrWin
+        " au BufEnter * wincmd _ | wincmd |
+        "
+        " only max it vertically
+        au! WinEnter * wincmd _
+    augroup END
+    do maxCurrWin WinEnter
+    let g:windowMax=1
+  endif
+endfunction
+nnoremap <C-w>o :call ToggleMaxWins()<cr>
 
 " vim tab navigation
 nnoremap th :tabfirst<CR>
@@ -275,7 +288,6 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } |
 Plug 'AndrewRadev/undoquit.vim'
 "<c-w>u reopen windo
 "<c-w>U reopen tab with all windows
-Plug 'szw/vim-maximizer'
 Plug 'jmckiern/vim-venter' " focus mode keeping status bars, etc :VenterToggle
 Plug 'duff/vim-bufonly' "BuFOnfy to unload all buffers but the current one
 Plug 'simnalamburt/vim-mundo' " undo tree visualizer
@@ -579,10 +591,6 @@ nmap <Leader>qq <Plug>window:quickfix:loop
 " vim-mundo
 nmap <Leader>mt :MundoToggle<CR>
 let g:mundo_right=1
-
-" maximizer
-let g:maximizer_set_default_mapping = 0
-nnoremap <C-w>o :MaximizerToggle<cr>
 
 " vim-smoothie
 let g:smoothie_base_speed = 20
