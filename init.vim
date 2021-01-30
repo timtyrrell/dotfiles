@@ -299,13 +299,31 @@ Plug 'simnalamburt/vim-mundo' " undo tree visualizer
 Plug 'tpope/vim-obsession' " session management
 
 " syntax
-Plug 'sheerun/vim-polyglot'
-" let g:polyglot_disabled = ['typescript', 'javascript']
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-treesitter/playground'
+" R: Refreshes the playground view when focused or reloads the query when the query editor is focused.
+" o: Toggles the query editor when the playground is focused.
+" a: Toggles visibility of anonymous nodes.
+" i: Toggles visibility of highlight groups.
+" I: Toggles visibility of the language the node belongs to.
+" t: Toggles visibility of injected languages.
+" f: Focuses the language tree under the cursor in the playground. The query editor will now be using the focused language.
+" F: Unfocuses the currently focused language.
+" <cr>: Go to current node in code buffer
+" Plug 'pangloss/vim-javascript'
+" Plug 'othree/yajs.vim'
+" Plug 'yuezk/vim-js'
+" Plug 'jelera/vim-javascript-syntax'
+" Plug 'maxmellon/vim-jsx-pretty'
+" let g:vim_jsx_pretty_colorful_config = 1
+" let g:vim_jsx_pretty_highlight_close_tag = 1
+" let g:vim_jsx_pretty_template_tags = ['html', 'jsx', 'js']
+" Plug 'HerringtonDarkholme/yats.vim'
 " Plug 'leafgarland/typescript-vim'
 " Plug 'peitalin/vim-jsx-typescript'
-" let g:typescript_indent_disable = 1
-" https://github.com/sheerun/vim-polyglot/issues/432
-Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
+Plug 'sheerun/vim-polyglot'
+" let g:polyglot_disabled = ['typescript', 'javascript', 'jsx']
+Plug 'styled-components/vim-styled-components', { 'branch': 'develop' }
 Plug 'kkoomen/vim-doge'
 "generate jsdoc: <leader>d
 Plug 'Yggdroot/indentLine'
@@ -486,6 +504,12 @@ Plug 'itchyny/lightline.vim' |
           \ Plug 'timtyrrell/apprentice-lightline-experimental'
 Plug 'mhinz/vim-startify'
 Plug 'romainl/Apprentice'
+" here for treesitter color testing
+" Plug 'sainnhe/forest-night'
+" Plug 'sainnhe/edge'
+" Plug 'sainnhe/gruvbox-material'
+" Plug 'Iron-E/nvim-highlite'
+" Plug 'mhartington/oceanic-next'
 Plug 'keith/investigate.vim'
 let g:investigate_use_dash=1
 " gK to open word in Dash
@@ -562,6 +586,29 @@ let g:rnvimr_presets = [
             \ ]
 
 call plug#end()
+
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = {
+    "ruby", "json", "graphql", "css", "html", "javascript", "typescript"
+  },
+  highlight = {
+    enable = false,
+    disable = { },
+  },
+  playground = {
+    enable = false,
+    disable = {},
+    updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
+    persist_queries = false -- Whether the query persists across vim sessions
+  },
+  query_linter = {
+    enable = false,
+    use_virtual_text = true,
+    lint_events = {"BufWrite", "CursorHold"},
+  },
+}
+EOF
 
 " set graphql filetype based on dir
 autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
