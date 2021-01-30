@@ -26,9 +26,24 @@ set wildcharm=<Tab>
 " give low priority to files matching the defined patterns.
 " set suffixes+=.sass,.scss,.pug
 
-set breakindent
-set breakindentopt=shift:2
-set showbreak=↳
+" add < and > to matched pairs
+set matchpairs+=<:>
+
+" Clear cmd line message after 5 seconds
+function! s:empty_message(timer)
+  if mode() ==# 'n'
+    echon ''
+  endif
+endfunction
+
+augroup cmd_msg_cls
+    autocmd!
+    autocmd CmdlineLeave :  call timer_start(5000, funcref('s:empty_message'))
+augroup END
+" augroup cmdline
+"     autocmd!
+"     autocmd CmdlineLeave : lua vim.defer_fn(function() vim.cmd('echo ""') end, 5000)
+" augroup END
 
 set splitright
 set splitbelow
