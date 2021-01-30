@@ -246,9 +246,11 @@ nnoremap <silent> <Leader>th :%!tidy -config ~/.config/tidy_config.txt %<CR>
 " https://vi.stackexchange.com/questions/3127/how-to-map-enter-to-custom-command-except-in-quick-fix
 " nnoremap <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':write!<CR>'
 " don't write unless changed
-nnoremap <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':update<CR>'
+nnoremap <silent> <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':update<CR>'
 
 call plug#begin('~/.config/nvim/plugged')
+" if branch changes from master to main `git remote set-head origin -a` in
+" `~/config/nvim/plugged/[plugin]`
 
 " core code analysis and manipulation
 Plug 'neoclide/coc.nvim', {'branch': 'release'} |
