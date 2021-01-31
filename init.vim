@@ -1217,7 +1217,7 @@ let g:DevIconsEnableFoldersOpenClose = 1
 let g:NERDTreeMinimalMenu=1
 
 " map <silent> <Leader>nt :NERDTreeToggle<CR>:wincmd =<CR>
-nnoremap <silent> <Leader><Tab> :NERDTreeToggle<CR>:wincmd =<CR>
+nnoremap <silent> <Leader><Leader> :NERDTreeToggle<CR>:wincmd =<CR>
 map <Leader>nf :NERDTreeFind<CR>
 " close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
