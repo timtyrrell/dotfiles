@@ -108,6 +108,7 @@ let mapleader = ","
 
 " faster keyword complete with <c-n>/<c-p>
 set complete-=t " disable searching tags
+nnoremap <leader>v :call execute('source $MYVIMRC')<cr>
 
 " Toggle spell checking on and off with `,s`
 nmap <silent> <leader>ss :set spell!<CR>
@@ -1119,6 +1120,8 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
 
+nnoremap <leader>se :CocSearch <C-R><C-W><CR>
+
 augroup CocGroup
   autocmd!
   " Setup formatexpr specified filetype(s).
@@ -1349,8 +1352,6 @@ function! JsFzfImport()
 endfunction
 
 inoremap <expr> <c-x><c-f> JsFzfImport()
-
-imap <c-x><c-j> <plug>(fzf-complete-file-ag)
 
 " Global line completion (not just open buffers)
 inoremap <expr> <c-x><c-l> fzf#vim#complete(fzf#wrap({
