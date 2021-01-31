@@ -6,3 +6,4 @@ Session.vim
 yarn-error.log
 .vim
 .nvimlog
+.scratch.vim

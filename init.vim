@@ -110,7 +110,7 @@ let mapleader = ","
 set complete-=t " disable searching tags
 
 " Toggle spell checking on and off with `,s`
-nmap <silent> <leader>s :set spell!<CR>
+nmap <silent> <leader>ss :set spell!<CR>
 set spelllang=en_us
 set complete+=kspell
 " z=, to get a suggestion
@@ -571,6 +571,25 @@ Plug 'mattn/calendar-vim'
 " <Leader>cal " Brings up the calendar in a vertical split.
 Plug 'alok/notational-fzf-vim'
 Plug 'ferrine/md-img-paste.vim'
+" scratch window
+Plug 'mtth/scratch.vim'
+" persist scratch file for project session
+let g:scratch_persistence_file = '.scratch.vim'
+" don't hide when leaving window
+let g:scratch_autohide = 0
+" don't autohide when leaving insert mode
+let g:scratch_insert_autohide = 0
+let g:scratch_filetype = 'scratch'
+let g:scratch_height = 5
+let g:scratch_top = 1
+let g:scratch_horizontal = 1
+let g:scratch_no_mappings = 1
+nmap <leader>sp :ScratchPreview<CR>
+nmap <leader>se :Scratch<CR>
+nmap <leader>si <plug>(scratch-insert-reuse)
+nmap <leader>sc <plug>(scratch-insert-clear)
+xmap <leader>sr <plug>(scratch-selection-reuse)
+xmap <leader>sC <plug>(scratch-selection-clear)
 
 " learning
 " Plug 'takac/vim-hardtime'
