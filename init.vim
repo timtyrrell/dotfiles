@@ -1248,6 +1248,7 @@ map <silent> <Leader>fp :call fzf#vim#files('', { 'source': g:FzfFilesSource(), 
 map <Leader>fb :Buffers<CR>
 " :Buffers Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
+" Search file names and file contents
 map <Leader>fe :Rg<CR>
 map <Leader>fl :Lines<CR>
 map <Leader>fc :BLines<CR>
@@ -1260,6 +1261,7 @@ map <Leader>fC :BCommits<CR>
 nnoremap <silent> <Leader>fd :Files <C-R>=expand('%:h')<CR><CR>
 " Rg current word
 nnoremap <silent> <Leader>rg :Lines <C-R><C-W><CR>
+
 " Search lines in _all_ buffers
 command! -bang -nargs=* BLines
     \ call fzf#vim#grep(
@@ -1272,6 +1274,7 @@ command! -bang -nargs=* Lines
   \   'rg --column --line-number --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" --smart-case  -- '.shellescape(<q-args>), 1,
   \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..', '--color', 'hl:123,hl+:222'] }), <bang>0)
 
+" override default preview settings in zshrc
 command! -bang -nargs=* HistoryCmds call fzf#vim#command_history(fzf#vim#with_preview({'options': ['--preview-window', 'hidden']}))
 command! -bang -nargs=* HistorySearch call fzf#vim#search_history(fzf#vim#with_preview({'options': ['--preview-window', 'hidden']}))
 
@@ -1282,13 +1285,60 @@ let g:fzf_action = {
 " open fzf in a floating window
 let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 
+" Fzf display mappings
+nmap <leader><tab> <plug>(fzf-maps-n)
+xmap <leader><tab> <plug>(fzf-maps-x)
+omap <leader><tab> <plug>(fzf-maps-o)
+
 " Insert mode completion
 imap <c-x><c-k> <plug>(fzf-complete-word)
-imap <c-x><c-f> <plug>(fzf-complete-path)
-imap <c-x><c-j> <plug>(fzf-complete-file-ag)
-imap <c-x><c-l> <plug>(fzf-complete-line)
+" inoremap <expr> <c-x><c-k> fzf#vim#complete#word({'options': ['--preview-window', 'hidden']})
+
+" switch finder so ignore settings are used
 " inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
-" inoremap <expr> <c-x><c-f> fzf#vim#complete#path('fd')
+
+" scope path to current dir
+" inoremap <expr> <c-x><c-f> fzf#vim#complete#path(
+"     \ "find . -path '*/\.*' -prune -o -print \| sed '1d;s:^..::'",
+"     \ fzf#wrap({'dir': expand('%:p:h')}))
+
+function! s:generate_relative_js(path)
+  let target = getcwd() . '/' . (join(a:path))
+  let base = expand('%:p:h')
+
+  let prefix = ""
+  while stridx(target, base) != 0
+    let base = substitute(system('dirname ' . base), '\n\+$', '', '')
+    let prefix = '../' . prefix
+  endwhile
+
+  if prefix == ''
+    let prefix = './'
+  endif
+
+  let relative = prefix . substitute(target, base . '/', '', '')
+  let withJsTrunc = substitute(relative, '\.[tj]sx\=$', "", "")
+
+  return withJsTrunc
+endfunction
+
+function! JsFzfImport()
+  return fzf#vim#complete#path(
+        \ "fd",
+        \ fzf#wrap({ 'reducer': function('s:generate_relative_js')})
+        \ )
+endfunction
+
+inoremap <expr> <c-x><c-f> JsFzfImport()
+
+imap <c-x><c-j> <plug>(fzf-complete-file-ag)
+
+" Global line completion (not just open buffers)
+inoremap <expr> <c-x><c-l> fzf#vim#complete(fzf#wrap({
+  \ 'prefix': '^.*$',
+  \ 'source': 'rg -n ^ --color always',
+  \ 'options': '--ansi --delimiter : --nth 3..',
+  \ 'reducer': { lines -> join(split(lines[0], ':\zs')[2:], '') }}))
 
 " sort a list of files by the proximity to a given file
 function! g:FzfFilesSource()
