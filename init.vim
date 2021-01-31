@@ -1172,12 +1172,12 @@ let g:coc_fzf_opts= ['--layout=reverse']
 let g:coc_fzf_preview='right:50%'
 
 nnoremap <silent><nowait> <space>a :<C-u>CocFzfList actions<CR>
-" nnoremap <silent><nowait> <space><space> :<C-u>CocFzfList<CR>
-" nnoremap <silent><nowait> <space>a       :<C-u>CocFzfList diagnostics<CR>
 nnoremap <silent><nowait> <space>b :<C-u>CocFzfList diagnostics --current-buf<CR>
+nnoremap <silent><nowait> <space>B :<C-u>CocFzfList diagnostics<CR>
 nnoremap <silent><nowait> <space>c :<C-u>CocFzfList commands<CR>
 nnoremap <silent><nowait> <space>e :<C-u>CocFzfList extensions<CR>
 nnoremap <silent><nowait> <space>l :<C-u>CocFzfList location<CR>
+nnoremap <silent><nowait> <space>L :<C-u>CocFzfList<CR>
 nnoremap <silent><nowait> <space>o :<C-u>CocFzfList outline<CR>
 nnoremap <silent><nowait> <space>s :<C-u>CocFzfList symbols<CR>
 nnoremap <silent><nowait> <space>S :<C-u>CocFzfList services<CR>
@@ -1370,17 +1370,16 @@ noremap <Leader>h :e <C-R>=expand("%:p:h") . "/" <CR>
 let g:mkdp_auto_start = 0 ":MarkdownPreview
 
 """""""" coc-jest
-" Run jest for current project
-command! -nargs=0 Jest :call  CocActionAsync('runCommand', 'jest.projectTest')
-" Run jest for current file
-command! -nargs=0 JestCurrent :call  CocActionAsync('runCommand', 'jest.fileTest', ['%'])
+
 " Init jest in current cwd, require global jest command exists
 command! JestInit :call CocActionAsync('runCommand', 'jest.init')
 
 " Run jest for current file
-nnoremap <leader>tf :JestCurrent <CR>
+nnoremap <leader>tf :call CocActionAsync('runCommand', 'jest.fileTest', ['%'])<CR>
 " Run jest for current test
-nnoremap <leader>tt :call CocAction('runCommand', 'jest.singleTest')<CR>
+nnoremap <leader>tt :call CocActionAsync('runCommand', 'jest.singleTest')<CR>
+" Run jest for current project
+nnoremap <leader>tp :call CocActionAsync('runCommand', 'jest.projectTest')<CR>
 """""""" coc-jest
 
 """""""" vim-test
