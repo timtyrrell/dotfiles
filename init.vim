@@ -108,7 +108,7 @@ let mapleader = ","
 
 " faster keyword complete with <c-n>/<c-p>
 set complete-=t " disable searching tags
-nnoremap <leader>v :call execute('source $MYVIMRC')<cr>
+nnoremap <silent><leader>v :call execute('source $MYVIMRC')<cr>:echo "vim config reloaded!"<cr>
 
 " Toggle spell checking on and off with `,s`
 nmap <silent> <leader>ss :set spell!<CR>
@@ -248,6 +248,15 @@ nnoremap <silent> <Leader>th :%!tidy -config ~/.config/tidy_config.txt %<CR>
 " nnoremap <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':write!<CR>'
 " don't write unless changed
 nnoremap <silent> <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':update<CR>'
+
+" train myself to use better commands
+" ZZ - Write current file, if modified, and quit. (:x = :wq = ZZ)
+" ZQ - Quit without checking for changes (same as ':q!')
+cabbrev q! use ZQ
+cabbrev wq use x or ZZ
+cabbrev wq! use x!
+cabbrev wqa use xa
+cabbrev wqa! use xa!
 
 call plug#begin('~/.config/nvim/plugged')
 " if branch changes from master to main `git remote set-head origin -a` in
