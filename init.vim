@@ -548,6 +548,7 @@ let g:Hexokinase_highlighters = ['backgroundfull']
 Plug 'KabbAmine/vCoolor.vim'
 nnoremap <leader>cp :VCoolor<CR>
 
+
 " appearence and insight
 Plug 'preservim/nerdtree' |
           \ Plug 'Xuyuanp/nerdtree-git-plugin' |
@@ -574,6 +575,13 @@ Plug 'dstein64/nvim-scrollview'
 let g:scrollview_excluded_filetypes = ['nerdtree']
 let g:scrollview_current_only = 1
 let g:scrollview_winblend = 80
+
+" Distraction-free writing
+Plug 'junegunn/goyo.vim'
+nnoremap <leader>go :Goyo<CR>
+" let g:goyo_width (default: 80)
+" let g:goyo_height (default: 85%)
+" let g:goyo_linenr (default: 0)
 
 " life
 Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
