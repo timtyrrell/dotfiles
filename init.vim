@@ -602,75 +602,16 @@ xmap <leader>sr <plug>(scratch-selection-reuse)
 xmap <leader>sC <plug>(scratch-selection-clear)
 
 " learning
-" Plug 'takac/vim-hardtime'
-" let g:hardtime_default_on = 0
-" let g:hardtime_showmsg = 1
-" let g:list_of_normal_keys = ["h", "j", "k", "l"]
-" let g:list_of_visual_keys = ["h", "j", "k", "l"]
-" let g:list_of_insert_keys = ["<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
-" let g:list_of_disabled_keys = []
-" let g:hardtime_ignore_quickfix = 1
-" let g:hardtime_ignore_buffer_patterns = [ "NERD.*" ]
-" let g:hardtime_maxcount = 2
-
-" trial
-" Plug 'kevinhwang91/rnvimr'
-" " Make Ranger replace Netrw and be the file explorer
-" let g:rnvimr_enable_ex = 1
-" " Make Ranger to be hidden after picking a file
-" let g:rnvimr_enable_picker = 1
-" " Disable a border for floating window
-" let g:rnvimr_draw_border = 0
-" " Hide the files included in gitignore
-" let g:rnvimr_hide_gitignore = 1
-" " Change the border's color
-" let g:rnvimr_border_attr = {'fg': 14, 'bg': -1}
-" " Make Neovim wipe the buffers corresponding to the files deleted by Ranger
-" let g:rnvimr_enable_bw = 1
-" " Draw border with both
-" let g:rnvimr_ranger_cmd = 'ranger --cmd="set draw_borders both"'
-" " Link CursorLine into RnvimrNormal highlight in the Floating window
-" highlight link RnvimrNormal CursorLine
-" nnoremap <silent> <leader>rt :RnvimrToggle<CR>
-" " Map Rnvimr action
-" let g:rnvimr_action = {
-"             \ '<C-t>': 'NvimEdit tabedit',
-"             \ '<C-x>': 'NvimEdit split',
-"             \ '<C-v>': 'NvimEdit vsplit',
-"             \ 'gw': 'JumpNvimCwd',
-"             \ 'yw': 'EmitRangerCwd'
-"             \ }
-" " Add views for Ranger to adapt the size of floating window
-" let g:rnvimr_ranger_views = [
-"             \ {'minwidth': 90, 'ratio': []},
-"             \ {'minwidth': 50, 'maxwidth': 89, 'ratio': [1,1]},
-"             \ {'maxwidth': 49, 'ratio': [1]}
-"             \ ]
-" " Customize the initial layout
-" let g:rnvimr_layout = {
-"             \ 'relative': 'editor',
-"             \ 'width': float2nr(round(0.7 * &columns)),
-"             \ 'height': float2nr(round(0.7 * &lines)),
-"             \ 'col': float2nr(round(0.15 * &columns)),
-"             \ 'row': float2nr(round(0.15 * &lines)),
-"             \ 'style': 'minimal'
-"             \ }
-" " Customize multiple preset layouts
-" " '{}' represents the initial layout
-" let g:rnvimr_presets = [
-"             \ {'width': 0.600, 'height': 0.600},
-"             \ {},
-"             \ {'width': 0.800, 'height': 0.800},
-"             \ {'width': 0.950, 'height': 0.950},
-"             \ {'width': 0.500, 'height': 0.500, 'col': 0, 'row': 0},
-"             \ {'width': 0.500, 'height': 0.500, 'col': 0, 'row': 0.5},
-"             \ {'width': 0.500, 'height': 0.500, 'col': 0.5, 'row': 0},
-"             \ {'width': 0.500, 'height': 0.500, 'col': 0.5, 'row': 0.5},
-"             \ {'width': 0.500, 'height': 1.000, 'col': 0, 'row': 0},
-"             \ {'width': 0.500, 'height': 1.000, 'col': 0.5, 'row': 0},
-"             \ {'width': 1.000, 'height': 0.500, 'col': 0, 'row': 0},
-"             \ {'width': 1.000, 'height': 0.500, 'col': 0, 'row': 0.5}
-"             \ ]
+Plug 'takac/vim-hardtime'
+let g:hardtime_default_on = 0
+let g:hardtime_showmsg = 1
+let g:list_of_normal_keys = ["h", "j", "k", "l"]
+let g:list_of_visual_keys = ["h", "j", "k", "l"]
+let g:list_of_insert_keys = ["<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
+let g:list_of_disabled_keys = []
+let g:hardtime_ignore_quickfix = 1
+let g:hardtime_ignore_buffer_patterns = [ "NERD.*" ]
+let g:hardtime_maxcount = 2
 
 call plug#end()
 
@@ -704,11 +645,11 @@ au BufNewFile,BufRead .eslintrc,.prettierrc,.lintstagedrc set filetype=jsonc
 au BufNewFile,BufRead *.bak set filetype=javascript
 au BufNewFile,BufRead *.build,.env* set filetype=sh
 " how to automatically rename things based on filetype
-" autocmd BufWritePre *.js exec "%s/class=/className=/eg"
+" autocmd BufWritePre *.js exec '%s/class=/className=/eg'
 " styles.something-blah -> styles[something-blah]
 " :%s/styles[\S\+\]/
 " /styles[\[a-zA-Z0-9].\+?(?=dir)/
-" autocmd BufWritePre *.js exec "%s/class=/className=/eg"
+" autocmd BufWritePre *.js exec '%s/class=/className=/eg'
 
 " https://www.reddit.com/r/vim/comments/kmup3z/is_it_possibAle_to_make_hitting_one_tab_goes_to/ghhbaw9/?context=3
 " inoremap <expr> <tab> getline('.') =~ '^\s*$' ? '<esc>cc' : '<tab>'
@@ -754,11 +695,8 @@ let g:mundo_right=1
 let g:smoothie_base_speed = 20
 
 " vim-peekaboo
-" let g:peekaboo_window='vertical botright 50new'
 let g:peekaboo_delay='1000' " delay 1000ms
 let g:peekaboo_window="call CreateCenteredFloatingWindow()"
-" let g:peekaboo_prefix="<F12>"
-" let g:peekaboo_ins_prefix="<F12>"
 
 function! CreateCenteredFloatingWindow()
     let width = float2nr(&columns * 0.7)
@@ -846,7 +784,6 @@ augroup MyColors
   autocmd ColorScheme * call MyHighlights()
 augroup END
 
-" to do more
 " https://github.com/trapd00r/vim-syntax-todo/blob/master/syntax/todo.vim
 augroup todo
     autocmd!
