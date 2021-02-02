@@ -197,12 +197,16 @@ endfunction
 nnoremap <C-w>o :call ToggleMaxWins()<cr>
 
 " vim tab navigation
-nnoremap <leader>th :tabfirst<CR>
-nnoremap <leader>tj :tabprev<CR>
-nnoremap <leader>tk :tabnext<CR>
-nnoremap <leader>tl :tablast<CR>
-nnoremap <leader>tc :tabclose<CR>
-nnoremap <leader>tn :tabnew<CR>
+" Next tab: gt
+" Prior tab: gT
+" Numbered tab: nnngt
+
+" nnoremap th :tabfirst<CR>
+" nnoremap tj :tabprev<CR>
+" nnoremap tk :tabnext<CR>
+" nnoremap tl :tablast<CR>
+" nnoremap tc :tabclose<CR>
+" nnoremap tn :tabnew<CR>
 
 " hide the command history buffer. Use fzf :History instead
 nnoremap q: <nop>
