@@ -157,7 +157,6 @@ nnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
 nnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
 xnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
 xnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
-
 " Default VIM commands for pasting registers in insert move
 " <C-R>a pastes the contents of the `a` register
 " <C-R>" pastes the contents of the unnamed register
@@ -174,20 +173,6 @@ xnoremap > >gv
 " split windows
 nnoremap <C-w>- :spl<cr>
 nnoremap <C-w><bar> :vsp<cr>
-
-" easily resize panes
-" noremap <C-w>+ :resize +10<CR>
-" noremap <C-w>- :resize -10<CR>
-" noremap <C-w>< :vertical:resize -10<CR>
-" noremap <C-w>> :vertical:resize +10<CR>
-
-" tmux mappings for  reference
-" bind -r H resize-pane -L 10
-" bind -r J resize-pane -D 10
-" bind -r K resize-pane -U 10
-" bind -r L resize-pane -R 10
-" C-a - split
-" C-a | vsplit
 
 " open file under cursor in vertical split
 map <C-w>f <C-w>vgf
@@ -212,12 +197,12 @@ endfunction
 nnoremap <C-w>o :call ToggleMaxWins()<cr>
 
 " vim tab navigation
-nnoremap th :tabfirst<CR>
-nnoremap tj :tabprev<CR>
-nnoremap tk :tabnext<CR>
-nnoremap tl :tablast<CR>
-nnoremap tc :tabclose<CR>
-nnoremap tn :tabnew<CR>
+nnoremap <leader>th :tabfirst<CR>
+nnoremap <leader>tj :tabprev<CR>
+nnoremap <leader>tk :tabnext<CR>
+nnoremap <leader>tl :tablast<CR>
+nnoremap <leader>tc :tabclose<CR>
+nnoremap <leader>tn :tabnew<CR>
 
 " hide the command history buffer. Use fzf :History instead
 nnoremap q: <nop>
@@ -228,7 +213,7 @@ set mouse=
 " keep foreground commands in sync
 map fg <c-z>
 
-" create file, in progress
+" create file...WIP
 " map <leader>gf :e <cfile><cr>
 " map <silent> <leader>cf :!touch <c-r><c-p><cr><cr>
 " map <silent> <leader>cf :call writefile([], expand("<cfile>"), "t")<cr>
@@ -238,7 +223,7 @@ map fg <c-z>
 nnoremap <silent> <Leader>jj :%!python -m json.tool<CR>
 
 " format html
-nnoremap <silent> <Leader>th :%!tidy -config ~/.config/tidy_config.txt %<CR>
+nnoremap <silent> <Leader>ti :%!tidy -config ~/.config/tidy_config.txt %<CR>
 
 " remove smart quotes
 " %!iconv -f utf-8 -t ascii//translit
@@ -383,6 +368,7 @@ Plug 'christoomey/vim-tmux-navigator'
 " map <C-k> <C-W>k
 " map <C-h> <C-W>h
 " map <C-l> <C-W>l
+
 Plug 'tmux-plugins/vim-tmux-focus-events'
 Plug 'christoomey/vim-system-copy'
 " cp for copying and cv for pasting
