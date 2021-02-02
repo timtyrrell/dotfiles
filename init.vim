@@ -25,6 +25,23 @@ set wildcharm=<Tab>
 " nnoremap <Leader><Tab> :buffer<Space><Tab>
 " give low priority to files matching the defined patterns.
 " set suffixes+=.sass,.scss,.pug
+" nnoremap <Leader><Tab> :buffer<Space><Tab>
+nnoremap <silent> <c-n> :bnext<CR>
+nnoremap <silent> <c-p> :bprev<CR>
+nnoremap <silent> <c-x> :bdelete<CR>
+
+" vim tab navigation
+" Next tab: gt
+" Prior tab: gT
+" Numbered tab: nnngt
+
+" don't stomp t/T?
+" nnoremap th :tabfirst<CR>
+" nnoremap tj :tabprev<CR>
+" nnoremap tk :tabnext<CR>
+" nnoremap tl :tablast<CR>
+" nnoremap tc :tabclose<CR>
+" nnoremap tn :tabnew<CR>
 
 " add < and > to matched pairs
 set matchpairs+=<:>
@@ -50,11 +67,6 @@ set splitbelow
 set autoread " do not prompt and reload file system changes
 au FocusGained * :checktime " make it work with neovim
 set hidden " allows you to abandon a buffer without saving
-nnoremap <C-N> :bnext<CR>
-nnoremap <C-P> :bprev<CR>
-" leave tabs?
-" https://github.com/ap/vim-buftabline#why-this-and-not-vim-tabs
-" https://joshldavis.com/2014/04/05/vim-tab-madness-buffers-vs-tabs/
 set smartindent " Keep indentation from previous line
 set breakindent
 set breakindentopt=shift:2
@@ -153,13 +165,14 @@ set sessionoptions-=help
 autocmd VimResized * wincmd =
 
 " always paste from 0 register to avoid pasting deleted text
+" I don't love this yet...
 nnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
 nnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
 xnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
 xnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
 " Default VIM commands for pasting registers in insert move
 " <C-R>a pastes the contents of the `a` register
-" <C-R>" pastes the contents of the unnamed register
+" <C-R>" pastes the contents of the unnamed register (last delete/yank/etc)
 
 " Indent/dedent what you just pasted
 nnoremap <leader>< V`]<
@@ -195,18 +208,6 @@ function! ToggleMaxWins()
   endif
 endfunction
 nnoremap <C-w>o :call ToggleMaxWins()<cr>
-
-" vim tab navigation
-" Next tab: gt
-" Prior tab: gT
-" Numbered tab: nnngt
-
-" nnoremap th :tabfirst<CR>
-" nnoremap tj :tabprev<CR>
-" nnoremap tk :tabnext<CR>
-" nnoremap tl :tablast<CR>
-" nnoremap tc :tabclose<CR>
-" nnoremap tn :tabnew<CR>
 
 " hide the command history buffer. Use fzf :History instead
 nnoremap q: <nop>
