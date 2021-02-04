@@ -168,10 +168,10 @@ autocmd VimResized * wincmd =
 
 " always paste from 0 register to avoid pasting deleted text
 " I don't love this yet...
-nnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
-nnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
-xnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
-xnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
+" nnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
+" nnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
+" xnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
+" xnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
 " Default VIM commands for pasting registers in insert move
 " <C-R>a pastes the contents of the `a` register
 " <C-R>" pastes the contents of the unnamed register (last delete/yank/etc)
