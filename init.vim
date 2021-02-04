@@ -35,6 +35,8 @@ nnoremap <silent> <c-x> :bdelete<CR>
 " Prior tab: gT
 " Numbered tab: nnngt
 
+nnoremap <leader>tc :tabclose<CR>
+nnoremap <leader>tn :tabnew<CR>
 " don't stomp t/T?
 " nnoremap th :tabfirst<CR>
 " nnoremap tj :tabprev<CR>
