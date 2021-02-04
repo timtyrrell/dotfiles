@@ -47,8 +47,7 @@
     "typescriptreact",
     "vimwiki",
     "markdown",
-    "sass",
-    "scss"
+    "sass"
   ],
   "coc.preferences.hoverTarget": "float",
   "coc.source.file.ignorePatterns": [],
@@ -102,6 +101,7 @@
   },
   "tsserver.npm": "/usr/local/bin/npm",
   "tsserver.trace.server": "off",
+  "stylelintplus.trace.server": "off",
   "coc.preferences.extensionUpdateCheck": "daily",
   "coc.preferences.silentAutoupdate": false
 }
