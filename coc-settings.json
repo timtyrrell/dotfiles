@@ -25,7 +25,7 @@
   "cssmodules.camelCase": true,
   "cssmodules.hintName": "cssmodule",
   "prettier.requireConfig": true,
-  "prettier.onlyUseLocalVersion": true,
+  "prettier.disableSuccessMessage": true,
   "eslint.autoFixOnSave": true,
   "eslint.validate": [
     "javascript",
@@ -49,9 +49,9 @@
     "markdown",
     "sass"
   ],
-  "coc.preferences.hoverTarget": "float",
+  "hover.target": "float",
   "coc.source.file.ignorePatterns": [],
-  "codeLens.enable": false,
+  "codeLens.enable": true,
   "codeLens.separator": "|->",
   "coc.source.emoji.filetypes": [
     "markdown", "jsonc"
@@ -61,9 +61,17 @@
   "diagnostic.virtualText": true,
   "diagnostic.virtualTextCurrentLineOnly": true,
   "git.addGBlameToVirtualText": false,
+  "git.addedSign.text": "▎",
+  "git.changedSign.text": "▎",
+  "git.changeRemovedSign.text": "▎",
+  "git.removedSign.text": "▎",
   "javascript.preferences.quoteStyle": "double",
   "javascript.suggestionActions.enabled": false,
   "typescript.preferences.quoteStyle": "double",
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true,
   "signature.preferShownAbove": true,
   "signature.target": "float",
   "suggest.enablePreselect": false,
@@ -72,6 +80,7 @@
   "suggest.noselect": false,
   "suggest.removeDuplicateItems": true,
   "suggest.snippetIndicator": "+",
+  "suggest.triggerCompletionWait" : 30,
   "suggest.completionItemKindLabels": {
     "keyword": "\uf1de",
     "variable": "\ue79b",
@@ -103,5 +112,42 @@
   "tsserver.trace.server": "off",
   "stylelintplus.trace.server": "off",
   "coc.preferences.extensionUpdateCheck": "daily",
-  "coc.preferences.silentAutoupdate": false
+  "coc.preferences.silentAutoupdate": false,
+  "explorer.openAction.strategy": "previousBuffer",
+  "explorer.width": 30,
+  "explorer.file.root.template": "[icon & 1] PROJECT ([root])",
+  "explorer.file.child.template": "[git | 2] [selection | clip | 1] [indent][icon | 1] [diagnosticError & 1][filename omitCenter 1][modified][readonly] [linkIcon & 1][link growRight 1 omitCenter 5]",
+  "explorer.file.showHiddenFiles": true,
+  "explorer.git.showIgnored": false,
+  "explorer.file.autoReveal": false,
+  "explorer.icon.enableNerdfont": true,
+  "explorer.previewAction.onHover": false,
+  "explorer.sources": [
+    {
+      "name": "file",
+      "expand": true
+    }
+  ],
+  "explorer.keyMappings.global": {
+    "<cr>": [ "expandable?", ["expanded?", "collapse", "expand"], "open" ],
+    "o": [ "expandable?", ["expanded?", "collapse", "expand"], "open" ]
+  },
+  "explorer.file.hiddenRules": {
+    "extensions": [
+      "o",
+      "a",
+      "obj",
+      "pyc"
+    ],
+    "filenames": [".DS_Store", ".git"],
+    "patternMatches": [
+      "^\\."
+    ]
+  },
+  "coc.preferences.rootPatterns": [
+    ".git",
+    "jsconfig.json"
+  ],
+  "workspace.bottomUpFiletypes": [],
+  "workspace.workspaceFolderCheckCwd": true
 }

@@ -52,6 +52,10 @@
 {pup}>{speed9}{-rwin}{-lshift}{obrack}{+lshift}{+rwin}
 {pdown}>{speed9}{-rwin}{-lshift}{cbrack}{+lshift}{+rwin}
 
+ADD?
+{lctrl}{pup}>{lctrl}{pup}
+{lctrl}{pdown}>{lctrl}{down}
+
 * Alfred hotkey sync
 {lctrl}{b}>{-lwin}{-lctrl}{b}{+lctrl}{+lwin}
 {lctrl}{x}>{-lwin}{-lctrl}{x}{+lctrl}{+lwin}
