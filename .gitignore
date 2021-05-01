@@ -7,3 +7,4 @@ yarn-error.log
 .vim
 .nvimlog
 .scratch.vim
+node_modules

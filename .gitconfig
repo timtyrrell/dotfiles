@@ -17,8 +17,9 @@
 	add-untracked = !"git status --porcelain | awk '/\\?\\?/{ print $2 }' | xargs git add"
 	reset-authors = commit --amend --reset-author -CHEAD
 	rmbranch = !"git branch -d $(git branch --merged)"
-        snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
+	snapshot = !git stash save "snapshot: $(date)" && git stash apply "stash@{0}"
 	pushf = push --force-with-lease
+	pushforeal = push --force
 	append = commit --amend -C HEAD
 	amend = commit --amend
 	pnb = push -u origin HEAD
@@ -28,8 +29,14 @@
 	conflicted = !nvim +Conflicted
 	quickdiff = diff ':!package-lock.json'
 	diffs = diff --staged
+	last = log -1 HEAD --stat
+	cm = commit -m
+	rv = remote -v
+	d = diff
+	se = !git rev-list --all | xargs git grep -F
 [branch]
-	autosetuprebase = always
+	autoSetupMerge = false
+	autoSetupRebase = always
 [color]
 	ui = true
 [color "branch"]
@@ -60,7 +67,7 @@
 [core]
 	editor = nvim 
 	whitespace = warn
-	excludesfile = ~/.gitignore
+	excludesFile = ~/.gitignore
 	pager = delta
 	ignorecase = true
 [diff]
@@ -81,6 +88,8 @@
 	autocorrect = 10
 [include]
 	path = ~/.gitconfig.local
+[init]
+  defaultBranch = main
 [interactive]
 	singlekey = true
 	diffFilter = delta --color-only
@@ -95,12 +104,8 @@
 	driver = bundle
 [mergetool "vim-conflicted"]
 	cmd = nvim +Conflicted
-[pull]
-	abbreviateCommands = true
-	rebase = true
-	instructionFormat = true
 [push]
-	default = tracking
+	default = upstream
 	followTags = true
 [rebase]
 	autosquash = true
@@ -120,3 +125,5 @@
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[checkout]
+	defaultRemote = origin
