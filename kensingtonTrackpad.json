@@ -1,0 +1,153 @@
+{
+  "devices": [
+    [
+      8257,
+      {
+        "*": {
+          "config": {
+            "acceleration": true,
+            "accelerationRate": 22,
+            "commands": [
+              [
+                1,
+                {
+                  "command": "browser_back",
+                  "params": {}
+                }
+              ],
+              [
+                2,
+                {
+                  "command": "mouse_rightClick",
+                  "params": {}
+                }
+              ],
+              [
+                3,
+                {
+                  "command": "keyboard_shortcut",
+                  "params": {
+                    "keyCode": 13,
+                    "label": "Close Tab",
+                    "modifiers": "cmd"
+                  }
+                }
+              ],
+              [
+                4,
+                {
+                  "command": "mouse_leftClick",
+                  "params": {
+                    "label": "",
+                    "modifiers": ""
+                  }
+                }
+              ],
+              [
+                8,
+                {
+                  "command": "mouse_leftClick",
+                  "params": {
+                    "label": "cmd + left click",
+                    "modifiers": "cmd"
+                  }
+                }
+              ],
+              [
+                12,
+                {
+                  "command": "mouse_middleClick",
+                  "params": {
+                    "label": "",
+                    "modifiers": ""
+                  }
+                }
+              ],
+              [
+                16,
+                {
+                  "command": "mouse_button5Click",
+                  "params": {}
+                }
+              ],
+              [
+                1073741824,
+                {
+                  "command": "navigation_scrollLeft",
+                  "params": {}
+                }
+              ],
+              [
+                2147483648,
+                {
+                  "command": "navigation_scrollRight",
+                  "params": {}
+                }
+              ]
+            ],
+            "id": 0,
+            "inertialScroll": false,
+            "inertialScrollFactor": 0,
+            "inertialScrollNullSteps": 0,
+            "inertialScrollTimer": 0,
+            "scrollInvert": false,
+            "scrollLines": 1,
+            "slowDivider": 0,
+            "slowModifiers": "",
+            "snapModifiers": "",
+            "snippets": [
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              },
+              {
+                "content": "",
+                "label": ""
+              }
+            ],
+            "speed": 50
+          },
+          "fileName": "",
+          "name": "*"
+        }
+      }
+    ]
+  ],
+  "platform": "darwin",
+  "timestamp": 1614719368,
+  "trayIcon": true,
+  "versionMajor": 2,
+  "versionMinor": 0
+}

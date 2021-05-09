@@ -145,9 +145,11 @@
     ]
   },
   "coc.preferences.rootPatterns": [
-    ".git",
-    "jsconfig.json"
+    "manage.py",
+    "jsconfig.json",
+    "tsconfig.json",
+    ".git"
   ],
-  "workspace.bottomUpFiletypes": [],
-  "workspace.workspaceFolderCheckCwd": true
+  "workspace.bottomUpFiletypes": ["python"],
+  "python.linting.pylintArgs": ["--load-plugins=pylint_django"]
 }
