@@ -24,18 +24,21 @@ export LESS=FRX
 
 # make with the nice completion
 # autoload -U compinit; compinit
-autoload -U compinit
-if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
-  compinit
-else
-  compinit -C
-fi
+autoload -Uz compinit
+# if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
+#   compinit
+# else
+#   compinit -C
+# fi
 
 # Completion for kill-like commands
 # zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
 # zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
 zstyle ':completion:*:ssh:*' tag-order hosts users
 zstyle ':completion:*:ssh:*' group-order hosts-domain hosts-host users hosts-ipaddr
+
+zstyle ':completion:*:*:docker:*' option-stacking yes
+zstyle ':completion:*:*:docker-*:*' option-stacking yes
 
 # ignore completion functions (until the _ignored completer)
 zstyle ':completion:*:functions' ignored-patterns '_*'
@@ -253,7 +256,7 @@ export MANWIDTH=999
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
 # fzf settings
-export FZF_TMUX=1 # open in pop-up using unreleased tmux version
+export FZF_TMUX=1 # open in pop-up
 export FZF_TMUX_OPTS="-p -w 90% -h 60%"
 export FZF_TMUX_POP_UP_OPTS="-p 90%,90%"
 export FZF_HIDE_PREVIEW="--preview-window=:hidden"
@@ -273,7 +276,7 @@ export FZF_DEFAULT_OPTS="
 --preview-window cycle
 --color='dark'
 --prompt='∼ ' --pointer='▶' --marker='✓'
---bind '/:toggle-preview'
+--bind '\:toggle-preview'
 --bind 'ctrl-s:select-all'
 --bind 'alt-d:deselect-all'
 --bind 'ctrl-u:page-up'
@@ -503,6 +506,9 @@ gref() {
   command git --no-pager diff --cached --stat | command grep "|\s*0$" | awk '{system("command git reset " $1)}'
 }
 
+# only run lint on changes
+# "git diff --name-only | grep -E '.(js|ts|tsx)$' | xargs eslint --fix"
+
 ch() {
   local cols sep
   cols=$(( COLUMNS / 3 ))
@@ -563,8 +569,8 @@ function dic {
 alias g='git'
 alias ga='git add'
 alias gap='git add -p'
-alias gnap='git add -N --ignore-removal . && gap && gref'
-# alias gnap='git add $(git ls-files -o --exclude-standard) || git add -N --ignore-removal . && gap && gref'
+alias gnap='git -ignore-removal . && gap && gref'
+# alias gnap='git add $(git ls-files -N -add -o --exclude-standard) || git add -N --ignore-removal . && gap && gref'
 alias gb="git branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate"
 alias gc='git commit -v'
 alias gca='git commit -a -v'
@@ -604,6 +610,7 @@ alias gcps='git cherry-pick --skip'
 alias gcpc='git cherry-pick --continue'
 alias gco='git checkout'
 alias gcob='git checkout -b'
+alias gcop='git checkout -p' # interactive hunk revert
 alias gres='git restore --staged .'
 alias gappend='git add . && git commit --amend -C HEAD'
 alias gappendyolo='git add . && LEFTHOOK=0 git commit --amend -C HEAD'
@@ -689,13 +696,17 @@ zinit ice as"program" pick"bin/git-fuzzy"
 zinit light bigH/git-fuzzy
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit light aloxaf/fzf-tab
+zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions
+zinit ice wait lucid
 zinit light zdharma/fast-syntax-highlighting
 zinit light zsh-users/zsh-completions
+# use docker completion script provided by Oh-my-zsh: https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/docker
 zinit ice as"completion"
-zinit snippet https://github.com/docker/cli/blob/master/contrib/completion/zsh/_docker
+zinit snippet OMZ::plugins/docker/_docker
+# use docker completion script provided by Oh-my-zsh: https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/docker-compose
 zinit ice as"completion"
-zinit snippet https://github.com/docker/compose/tree/master/contrib/completion/zsh/_docker-compose
+zinit snippet OMZ::plugins/docker-compose/_docker-compose
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -712,6 +723,8 @@ zinit snippet https://github.com/docker/compose/tree/master/contrib/completion/z
 # if [[ ! -v TMUX ]]; then
 #   tmux_chooser && exit
 # fi
+
+compinit
 
 # zprof # zsh perf check
 eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
