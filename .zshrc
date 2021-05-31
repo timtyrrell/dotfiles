@@ -34,6 +34,12 @@ autoload -Uz compinit
 # Completion for kill-like commands
 # zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
 # zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
+
+zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
+  '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
+
 zstyle ':completion:*:ssh:*' tag-order hosts users
 zstyle ':completion:*:ssh:*' group-order hosts-domain hosts-host users hosts-ipaddr
 
@@ -245,6 +251,7 @@ function tree-git-ignore {
 }
 
 # default apps
+export DELTA_PAGER='auto'
 export PAGER='less'
 export EDITOR='nvim'
 # export MANPAGER='nvim +Man!'
@@ -569,7 +576,7 @@ function dic {
 alias g='git'
 alias ga='git add'
 alias gap='git add -p'
-alias gnap='git -ignore-removal . && gap && gref'
+alias gnap='git add -N --ignore-removal . && gap && gref'
 # alias gnap='git add $(git ls-files -N -add -o --exclude-standard) || git add -N --ignore-removal . && gap && gref'
 alias gb="git branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate"
 alias gc='git commit -v'
@@ -731,5 +738,4 @@ eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
 
 # fnm
 export PATH=/Users/timtyrrell/.fnm:$PATH
-eval "$(fnm env)"
 eval "`fnm env --use-on-cd`"

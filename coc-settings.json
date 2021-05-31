@@ -20,7 +20,12 @@
     "enableCompoundWords": true,
     "line_length": false,
     "no-bare-urls": false,
-    "spelling": false
+    "spelling": false,
+    "line-length": false,
+    "blanks-around-lists": false,
+    "blanks-around-headers": false,
+    "list-marker-space": false,
+    "no-multiple-blanks": false
   },
   "cssmodules.camelCase": true,
   "cssmodules.hintName": "cssmodule",
@@ -50,6 +55,7 @@
     "sass"
   ],
   "hover.target": "float",
+  "hover.autoHide": false,
   "coc.source.file.ignorePatterns": [],
   "codeLens.enable": true,
   "codeLens.separator": "|->",
@@ -150,6 +156,5 @@
     "tsconfig.json",
     ".git"
   ],
-  "workspace.bottomUpFiletypes": ["python"],
-  "python.linting.pylintArgs": ["--load-plugins=pylint_django"]
+  "workspace.bottomUpFiletypes": ["python"]
 }

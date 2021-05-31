@@ -44,6 +44,41 @@ switch (${1:expression}) {
 }
 endsnippet
 
+snippet fetch
+fetch("${1}")
+  .then(res => res.json())
+  .then((data) => {
+    ${0}
+  });
+endsnippet
+
+snippet fetchc
+fetch("${1}")
+  .then(res => res.json())
+  .then((data) => {
+    ${0}
+  })
+  .catch(error => {
+    console.error('There has been a problem with your fetch operation:', error);
+  });
+endsnippet
+
+snippet fetchrc
+fetch("{$1}")
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    ${0}
+  })
+  .catch(error => {
+    console.error('There has been a problem with your fetch operation:', error);
+  });
+endsnippet
+
 # try
 snippet try
 try {
@@ -293,9 +328,15 @@ snippet af
 endsnippet
 
 snippet map
-.map(${1}) => {
+${1}.map((${2}) => {
 	${0}
-}
+});
+endsnippet
+
+snippet reduce
+${1}.reduce((${2}, ${3}) => {
+	${0}
+}, ${4});
 endsnippet
 
 snippet ed

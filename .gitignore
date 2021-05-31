@@ -8,3 +8,4 @@ yarn-error.log
 .nvimlog
 .scratch.vim
 node_modules
+tags

@@ -7,10 +7,10 @@ set visualbell "kills the bell
 set t_vb= "kills the bell
 
 " folds
-set foldcolumn=2
+" set foldcolumn=2
 " Space to toggle folds.
-nnoremap <space><space> za
-vnoremap <space><space> za
+" nnoremap <space><space> za
+" vnoremap <space><space> za
 " commands
 " zf - create fold
 " zd - delete fold under cursor
@@ -19,7 +19,9 @@ vnoremap <space><space> za
 "
 " treesitter
 " set foldmethod=expr
-set foldexpr=nvim_treesitter#foldexpr()
+" set foldexpr=nvim_treesitter#foldexpr()
+" disable folding
+set nofoldenable
 
 "command line completion
 set wildmenu
@@ -214,10 +216,6 @@ nnoremap <leader>> V`]>
 " xnoremap < <gv
 " xnoremap > >gv
 
-" move lines up and down in visual mode
-"xnoremap <c-k> :move '<-2<CR>gv=gv
-"xnoremap <c-j> :move '>+1<CR>gv=gv
-
 " split windows
 nnoremap <C-w>- :new<cr>
 nnoremap <C-w><bar> :vnew<cr>
@@ -288,11 +286,11 @@ nnoremap <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':write!<CR>'
 " train myself to use better commands
 " ZZ - Write current file, if modified, and quit. (:x = :wq = ZZ)
 " ZQ - Quit without checking for changes (same as ':q!')
-" cabbrev q! use ZQ
-" cabbrev wq use x or ZZ
-" cabbrev wq! use x!
-" cabbrev wqa use xa
-" cabbrev wqa! use xa!
+cabbrev q! use ZQ
+cabbrev wq use x or ZZ
+cabbrev wq! use x!
+cabbrev wqa use xa
+cabbrev wqa! use xa!
 
 call plug#begin('~/.config/nvim/plugged')
 " if branch changes from master to main `git remote set-head origin -a` in `~/config/nvim/plugged/[plugin]`
@@ -350,7 +348,9 @@ Plug 'mfussenegger/nvim-dap'
 
 " syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'windwp/nvim-ts-autotag'
 Plug 'nvim-treesitter/playground'
+" :TSHighlightCapturesUnderCursor
 " R: Refreshes the playground view when focused or reloads the query when the query editor is focused.
 " o: Toggles the query editor when the playground is focused.
 " a: Toggles visibility of anonymous nodes.
@@ -388,9 +388,10 @@ let g:indent_blankline_show_current_context = v:false
 
 autocmd FileType tmux nnoremap <silent><buffer> K :call tmux#man()<CR>
 Plug 'tmux-plugins/vim-tmux'
+" https://github.com/nvim-treesitter/nvim-treesitter/issues/1019#issuecomment-812976740
 Plug 'sheerun/vim-polyglot', { 'tag': 'v4.16.0' }
 " let g:polyglot_disabled = ['typescript', 'javascript', 'jsx']
-" Plug 'styled-components/vim-styled-components', { 'branch': 'develop' }
+Plug 'chrisbra/csv.vim'
 Plug 'kkoomen/vim-doge'
 "generate jsdoc: <leader>d " CURRENTLY DISABLED
 Plug 'alvan/vim-closetag'
@@ -457,9 +458,9 @@ map f <Plug>Sneak_f
 map F <Plug>Sneak_F
 map t <Plug>Sneak_t
 map T <Plug>Sneak_T
-"s{char}{char} motion - ; to go to next match
-"dz{char}{char} - delete until
-"ysz{char}{char}] - surround in ]
+" s{char}{char} motion - ; to go to next match
+" dz{char}{char} - delete until
+" ysz{char}{char}] - surround in ]
 Plug 'christoomey/vim-sort-motion'
 " gsi{
 Plug 'drmingdrmer/vim-toggle-quickfix'
@@ -481,7 +482,7 @@ Plug 'christoomey/vim-system-copy'
 " cvi' => paste inside single quotes from system clipboard
 " cP is mapped to copy the current line directly.
 " cV is mapped to paste the content of system clipboard to the next line.
-Plug 'tpope/vim-bundler'
+" Plug 'tpope/vim-bundler' " use 'solargraph bundle' instead
 "bundle bopen
 Plug 'tpope/vim-commentary' "gcc comment out, gcap for paragraph
 Plug 'tpope/vim-eunuch'
@@ -492,6 +493,7 @@ Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-apathy'
 "gf support
 Plug 'tpope/vim-rails'
+let g:loaded_ruby_provider = 0 " use language server instead
 Plug 'tpope/vim-rake'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
@@ -522,11 +524,13 @@ autocmd FileType javascript nnoremap <buffer> <leader>clo "zyiwoconsole.log(z)<
 
 Plug 'tpope/vim-unimpaired'
 "prev conflict/patch: [n , next conflict/patch: ]n , paste toggle: yop
+
 Plug 'terryma/vim-expand-region'
 vmap + <Plug>(expand_region_expand)
 vmap - <Plug>(expand_region_shrink)
-Plug 'AndrewRadev/tagalong.vim'
-let g:tagalong_filetypes = ['javascript', 'html', 'xml', 'jsx', 'eruby', 'ejs', 'javascriptreact', 'typescriptreact']
+" Plug 'AndrewRadev/tagalong.vim'
+" let g:tagalong_filetypes = ['javascript', 'html', 'xml', 'jsx', 'eruby', 'ejs', 'javascriptreact', 'typescriptreact']
+
 Plug 'wincent/scalpel'
 " replace all instances of the word currently under the cursor throughout a file. <Leader>e mnemonic: edit)
 Plug 'tommcdo/vim-exchange'
@@ -647,6 +651,9 @@ noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
+" install if I ever start using telescope
+" Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+" https://github.com/nvim-telescope/telescope.nvim/wiki/Extensions
 Plug 'nvim-telescope/telescope-dap.nvim'
 Plug 'pwntester/octo.nvim'
 " https://levelup.gitconnected.com/git-worktrees-the-best-git-feature-youve-never-heard-of-9cd21df67baf
@@ -709,6 +716,8 @@ Plug 'itchyny/lightline.vim' |
 Plug 'mhinz/vim-startify'
 Plug 'romainl/Apprentice'
 Plug 'folke/tokyonight.nvim'
+" Plug 'shaunsingh/moonlight.nvim'
+
 " here for treesitter color testing
 " Plug 'christianchiarulli/nvcode-color-schemes.vim'
 " let g:nvcode_termcolors=256
@@ -769,6 +778,7 @@ xmap <leader>sr <plug>(scratch-selection-reuse)
 xmap <leader>sC <plug>(scratch-selection-clear)
 
 Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
+" Plug 'subnut/nvim-ghost.nvim', {'do': ':call nvim_ghost#installer#install()'}
 
 " learning
 Plug 'takac/vim-hardtime'
@@ -898,7 +908,7 @@ require'sniprun'.setup({
     "VirtualTextErr",          -- "display error results as virtual text
     -- "TempFloatingWindow",      -- "display results in a floating window
     "LongTempFloatingWindow",  -- "same as above, but only long results. To use with VirtualText__
-    "Terminal"                 -- "display results in a vertical split
+    --"Terminal"                 -- "display results in a vertical split
   },
 })
 
@@ -912,6 +922,15 @@ require'nvim-treesitter.configs'.setup {
   indent = {
     enable = true
   },
+  -- incremental_selection = {
+  --   enable = true,
+  --   keymaps = {
+  --     init_selection = "gnn",
+  --     node_incremental = "grn",
+  --     scope_incremental = "grc",
+  --     node_decremental = "grm",
+  --   },
+  -- },
   context_commentstring = {
     enable = true,
     config = {
@@ -935,6 +954,9 @@ require'nvim-treesitter.configs'.setup {
     use_virtual_text = true,
     lint_events = {"BufWrite", "CursorHold"},
   },
+  autotag = {
+    enable = true,
+  },
 }
 -- vim.g.tokyonight_style = "storm" -- storm, night, day
 -- vim.g.tokyonight_italic_functions = true
@@ -943,8 +965,7 @@ require'nvim-treesitter.configs'.setup {
 -- vim.g.tokyonight_sidebars = { "coc-explorer" }
 -- lua
 require('hlslens').setup({
-  calm_down = true,
-  nearest_only = true,
+  nearest_only = true
 })
 EOF
 
@@ -1231,63 +1252,6 @@ function! MyHighlights() abort
   " endif
   " overwrite floating coc-explorer group
   " highlight link CocExplorerNormalFloat Normal
-  " treesitter
-  " highlight TSConstructor guifg=#9CDCFE
-  " highlight TSVariable guifg=#9CDCFE
-  " highlight TSVariableBuiltin guifg=#9CDCFE
-  " highlight Special guifg=#9CDCFE
-  " TSNone         xxx ctermfg=250 guifg=foreground
-  " TSPunctDelimiter xxx links to Delimiter
-  " TSPunctBracket xxx links to Delimiter
-  " TSPunctSpecial xxx links to Delimiter
-  " TSConstant     xxx links to Constant
-  " TSConstBuiltin xxx links to Special
-  " TSConstMacro   xxx links to Define
-  " TSString       xxx links to String
-  " TSStringRegex  xxx links to String
-  " TSStringEscape xxx links to SpecialChar
-  " TSCharacter    xxx links to Character
-  " TSNumber       xxx links to Number
-  " TSBoolean      xxx links to Boolean
-  " TSFloat        xxx links to Float
-  " TSFunction     xxx links to Function
-  " TSFuncBuiltin  xxx links to Special
-  " TSFuncMacro    xxx links to Macro
-  " TSParameter    xxx links to Identifier
-  " TSParameterReference xxx links to TSParameter
-  " TSMethod       xxx links to Function
-  " TSField        xxx links to Identifier
-  " TSProperty     xxx links to Identifier
-  " TSConstructor  xxx links to Special
-  " TSAnnotation   xxx links to PreProc
-  " TSAttribute    xxx links to PreProc
-  " TSNamespace    xxx links to Include
-  " TSSymbol       xxx links to Identifier
-  " TSConditional  xxx links to Conditional
-  " TSRepeat       xxx links to Repeat
-  " TSLabel        xxx links to Label
-  " TSOperator     xxx links to Operator
-  " TSKeyword      xxx links to Keyword
-  " TSKeywordFunction xxx links to Keyword
-  " TSKeywordOperator xxx links to TSOperator
-  " TSException    xxx links to Exception
-  " TSType         xxx links to Type
-  " TSTypeBuiltin  xxx links to Type
-  " TSInclude      xxx links to Include
-  " TSVariableBuiltin xxx links to Special
-  " TSText         xxx links to TSNone
-  " TSStrong       xxx cterm=bold gui=bold
-  " TSEmphasis     xxx cterm=italic gui=italic
-  " TSUnderline    xxx cterm=underline gui=underline
-  " TSStrike       xxx cterm=strikethrough gui=strikethrough
-  " TSTitle        xxx links to Title
-  " TSLiteral      xxx links to String
-  " TSURI          xxx links to Underlined
-  " TSNote         xxx links to SpecialComment
-  " TSWarning      xxx links to Todo
-  " TSDanger       xxx links to WarningMsg
-  " TSTag          xxx links to Label
-  " TSTagDelimiter xxx links to Delimiter
 endfunction
 
 " hi NormalJS ctermbg=green guibg=green guifg=#87afd7 guibg=#87afd7
@@ -1307,7 +1271,7 @@ augroup todo
     autocmd!
     autocmd Syntax * call matchadd(
                 \ 'Search',
-                \ '\v\W\zs<(NOTE|INFO|TODO|FIXME|CHANGED|BUG|HACK)>'
+                \ '\v\W\zs<(NOTE|INFO|TODO|FIXME|CHANGED|BUG|HACK|LEARNINGS|TECH|IMPACT)>'
                 \ )
 augroup END
 
@@ -1586,7 +1550,6 @@ nnoremap <leader>di :lua require'dap.ui.variables'.hover(function () return vim.
 vnoremap <leader>di :lua require'dap.ui.variables'.visual_hover()<CR>
 nnoremap <leader>d? :lua require'dap.ui.variables'.scopes()<CR>
 nnoremap <leader>de :lua require'dap'.set_exception_breakpoints({"all"})<CR>
-nnoremap <leader>da :lua require'debugHelper'.attach()<CR>
 
 " theHamsta/nvim-dap-virtual-text and mfussenegger/nvim-dap
 let g:dap_virtual_text = v:true
@@ -1741,8 +1704,8 @@ nmap <silent> [G <Plug>(coc-diagnostic-prev-error)
 nmap <silent> ]G <Plug>(coc-diagnostic-next-error)
 
 " Navigate through git changes on file (overrides default sentence movement, not sure if good)
-nmap ) <Plug>(coc-git-nextchunk)
-nmap ( <Plug>(coc-git-prevchunk)
+" nmap ) <Plug>(coc-git-nextchunk)
+" nmap ( <Plug>(coc-git-prevchunk)
 nmap <leader>uc :CocCommand git.chunkUndo<cr>
 vmap <leader>uc :CocCommand git.chunkUndo<cr>
 
@@ -1837,6 +1800,10 @@ autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 autocmd VimLeavePre * if get(g:, 'coc_process_pid', 0)
 		\	| call system('kill -9 '.g:coc_process_pid) | endif
 
+" Another one to try like ^
+" autocmd VimLeavePre * :call coc#rpc#kill()
+"     autocmd VimLeave * if get(g:, 'coc_process_pid', 0) | call system('kill -9 -'.g:coc_process_pid) | endif
+
 let g:coc_snippet_next = '<Tab>'
 let g:coc_snippet_prev = '<S-Tab>'
 " let g:coc_node_path = '/usr/local/bin/node' " use node v14?
@@ -1852,20 +1819,23 @@ nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " coc-fzf remappings
 let g:coc_fzf_opts= ['--layout=reverse']
 let g:coc_fzf_preview='right:50%'
+let g:coc_fzf_preview_fullscreen='1'
+let g:coc_fzf_preview_toggle_key='\'
 
-nnoremap <silent><nowait> <leader>cfa :<C-u>CocFzfList actions<CR>
-nnoremap <silent><nowait> <leader>cfb :<C-u>CocFzfList diagnostics --current-buf<CR>
-nnoremap <silent><nowait> <leader>cfB :<C-u>CocFzfList diagnostics<CR>
-nnoremap <silent><nowait> <leader>cfc :<C-u>CocFzfList commands<CR>
-nnoremap <silent><nowait> <leader>cfe :<C-u>CocFzfList extensions<CR>
-nnoremap <silent><nowait> <leader>cfl :<C-u>CocFzfList location<CR>
-nnoremap <silent><nowait> <leader>cfL :<C-u>CocFzfList<CR>
-nnoremap <silent><nowait> <leader>cfo :<C-u>CocFzfList outline<CR>
-nnoremap <silent><nowait> <leader>cfs :<C-u>CocFzfList symbols<CR>
-nnoremap <silent><nowait> <leader>cfS :<C-u>CocFzfList snippets<CR>
-nnoremap <silent><nowait> <leader>cfv :<C-u>CocFzfList services<CR>
-nnoremap <silent><nowait> <leader>cfr :<C-u>CocFzfListResume<CR>
-nnoremap <silent><nowait> <leader>cfy :<C-u>CocFzfList yank<CR>
+nnoremap <silent><nowait> <leader>za :<C-u>CocFzfList actions<CR>
+nnoremap <silent><nowait> <leader>zb :<C-u>CocFzfList diagnostics --current-buf<CR>
+nnoremap <silent><nowait> <leader>zB :<C-u>CocFzfList diagnostics<CR>
+nnoremap <silent><nowait> <leader>zc :<C-u>CocFzfList commands<CR>
+nnoremap <silent><nowait> <leader>ze :<C-u>CocFzfList extensions<CR>
+nnoremap <silent><nowait> <leader>zl :<C-u>CocFzfList location<CR>
+nnoremap <silent><nowait> <leader>zL :<C-u>CocFzfList<CR>
+nnoremap <silent><nowait> <leader>zo :<C-u>CocFzfList outline<CR>
+nnoremap <silent><nowait> <leader>zs :<C-u>CocFzfList symbols<CR>
+nnoremap <silent><nowait> <leader>zS :<C-u>CocFzfList snippets<CR>
+nnoremap <silent><nowait> <leader>zv :<C-u>CocFzfList services<CR>
+nnoremap <silent><nowait> <leader>zr :<C-u>CocFzfListResume<CR>
+nnoremap <silent><nowait> <leader>zy :<C-u>CocFzfList yank<CR>
+" nnoremap <silent><nowait> <leader>zy :<C-u>CocList -A --normal yank<CR>
 
 " coc-explorer
 nnoremap <silent> <Leader>nf  :CocCommand explorer --position floating<CR>
@@ -2017,6 +1987,7 @@ command! BD call fzf#run(fzf#wrap({
 command! -bang Args call fzf#run(fzf#wrap('args',
     \ {'source': map([argidx()]+(argidx()==0?[]:range(argc())[0:argidx()-1])+range(argc())[argidx()+1:], 'argv(v:val)')}, <bang>0))
 
+" or here? https://github.com/junegunn/fzf.vim/pull/941
  " Enable per-command history
 " - History files will be stored in the specified directory
 " - When set, CTRL-N and CTRL-P will be bound to 'next-history' and
@@ -2447,3 +2418,5 @@ au BufNewFile ~/Documents/notes/diary/*.md
   \ "## Push",  "",
   \ "## Near Future",  "",
   \ "## Notes"])
+
+" nnoremap <expr> <C-j> winnr('j') == '1' ? ':sp<CR>' : '<C-w>j'
