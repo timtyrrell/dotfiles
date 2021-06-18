@@ -11,5 +11,4 @@ let g:coc_global_extensions = [ 'coc-yank' ]
 Plug 'antoinemadec/coc-fzf'
 call plug#end()
 
-" Mapping for CocFzfList
-nnoremap <silent> <space>y :<C-u>CocFzfList yank<CR>
+let mapleader = ','

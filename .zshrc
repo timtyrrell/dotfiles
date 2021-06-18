@@ -251,7 +251,9 @@ function tree-git-ignore {
 }
 
 # default apps
-export DELTA_PAGER='auto'
+# export DELTA_PAGER='auto'
+# I have no idea why I have to unset this but otherwise I don't get LESS paging
+unset DELTA_PAGER
 export PAGER='less'
 export EDITOR='nvim'
 # export MANPAGER='nvim +Man!'
@@ -271,7 +273,7 @@ export FZF_DEFAULT_COMMAND='rg --files'
 export FZF_CTRL_T_COMMAND="fd --hidden --follow --exclude '.git' --exclude 'node_modules'"
 export FZF_ALT_C_COMMAND="$FZF_CTRL_T_COMMAND --type d"
 export FZF_CTRL_R_OPTS="--preview-window=:hidden"
-export BAT_THEME="Nord"
+export BAT_THEME="Enki-Tokyo-Night"
 
 export FZF_DEFAULT_OPTS="
 --history=$HOME/.fzf_history
@@ -279,10 +281,11 @@ export FZF_DEFAULT_OPTS="
 --info=inline
 --height=80%
 --multi
+--border
 --preview '([[ -f {} ]] && (bat --style=full --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200'
 --preview-window cycle
---color='dark'
 --prompt='∼ ' --pointer='▶' --marker='✓'
+--header 'CTRL-s/ALT-d to select/unselect-all, CTRL-u/d page up/down, ALT-k/j preview half-page up/down, \ to toggle, CTRL-y to copy into clipboard'
 --bind '\:toggle-preview'
 --bind 'ctrl-s:select-all'
 --bind 'alt-d:deselect-all'
@@ -290,9 +293,10 @@ export FZF_DEFAULT_OPTS="
 --bind 'ctrl-d:page-down'
 --bind 'alt-k:preview-half-page-up'
 --bind 'alt-j:preview-half-page-down'
---bind 'ctrl-y:execute-silent(echo {+} | pbcopy)'
+--bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
 --bind 'ctrl-v:execute(nvim {} < /dev/tty > /dev/tty 2>&1)+accept'
 "
+
 # https://github.com/junegunn/fzf/commit/f84b3de24b63e2e26cbfa2a24e61a4173824fffd
 # tweak above nvim open?
 # ls | fzf --bind "enter:execute(vim {})"
@@ -632,7 +636,7 @@ alias wip="git add . && LEFTHOOK=0 gc -m 'wip [ci skip]'"
 alias unwip="undo"
 # alias unwip="git reset --soft 'HEAD^' && git restore --staged ."
 alias nuke="unwip && grestore"
-alias pokey="gco master && gpr && gco - && gr -"
+alias pokey="gco main && gpr && gco - && gr -"
 alias hokey="pokey"
 alias sha="git rev-parse HEAD"
 alias SHA="sha"

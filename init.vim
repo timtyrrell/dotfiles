@@ -42,10 +42,15 @@ set completeopt=menuone,noinsert,noselect,preview
 " give low priority to files matching the defined patterns.
 set suffixes+=yarn.lock,package-lock.json,.scss,.sass,.pug,.min.js
 
-" why do I have both of these?
 let mapleader = ','
-" remap leader to ,
-:nmap , \
+
+" switch back and forth with two most recent files in buffer
+" nnoremap <Leader><Leader> <C-^>
+
+" go back to last old buffer
+" nnoremap <silent> <bs> <c-o><cr>
+" go forward to next newest buffer
+" nnoremap <silent> <tab> <c-i<cr>
 
 " nnoremap <Leader><Tab> :buffer<Space><Tab>
 " nnoremap <silent> <c-n> :bnext<CR>
@@ -55,7 +60,7 @@ let mapleader = ','
 " vim tab navigation
 " Next tab: gt
 " Prior tab: gT
-" Numbered tab: nnngt
+" Numbered tab: ngt
 nnoremap <leader>tc :tabclose<CR>
 nnoremap <leader>tn :tabnew<CR>
 nnoremap <leader>tl :tablast<CR>
@@ -82,13 +87,15 @@ function! s:empty_message(timer)
 endfunction
 
 augroup cmd_msg_cls
-    autocmd!
-    autocmd CmdlineLeave :  call timer_start(5000, funcref('s:empty_message'))
+  autocmd!
+  autocmd CmdlineLeave :  call timer_start(5000, funcref('s:empty_message'))
 augroup END
 " augroup cmdline
-"     autocmd!
-"     autocmd CmdlineLeave : lua vim.defer_fn(function() vim.cmd('echo ""') end, 5000)
+"   autocmd!
+"   autocmd CmdlineLeave : lua vim.defer_fn(function() vim.cmd('echo ""') end, 5000)
 " augroup END
+" or use key to trigger like
+" noremap <C-L> :nohls<CR><C-L>
 
 set splitright
 set splitbelow
@@ -310,8 +317,8 @@ let g:coc_global_extensions = [
           \ 'coc-html',
           \ 'coc-import-cost',
           \ 'coc-jest',
-          \ 'coc-jira-complete',
           \ 'coc-json',
+          \ 'coc-lists',
           \ 'coc-lua',
           \ 'coc-markdownlint',
           \ 'coc-marketplace',
@@ -344,7 +351,12 @@ Plug 'duff/vim-bufonly' "BuFOnfy to unload all buffers but the current one
 Plug 'artnez/vim-wipeout' " :Wipeout - close all non-open buffers
 Plug 'simnalamburt/vim-mundo' " undo tree visualizer
 Plug 'tpope/vim-obsession' " session management
+
+" debugging
 Plug 'mfussenegger/nvim-dap'
+" Plug 'Pocco81/DAPInstall.nvim'
+Plug 'theHamsta/nvim-dap-virtual-text'
+" Plug 'rcarriga/nvim-dap-ui'
 
 " syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -368,7 +380,6 @@ let g:polyglot_disabled = [
             " \ 'markdown.plugin', 'ruby', 'typescript', 'tmux'
             " \]
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
-Plug 'theHamsta/nvim-dap-virtual-text'
 " Plug 'haringsrob/nvim_context_vt' " Add virtual text to show current context
 Plug 'lukas-reineke/indent-blankline.nvim', {'branch': 'lua'}
 " fix blank line color issue
@@ -523,7 +534,9 @@ autocmd FileType javascript nnoremap <buffer> <leader>clO "zyiwOconsole.log(z)<
 autocmd FileType javascript nnoremap <buffer> <leader>clo "zyiwoconsole.log(z)<Esc>
 
 Plug 'tpope/vim-unimpaired'
-"prev conflict/patch: [n , next conflict/patch: ]n , paste toggle: yop
+" prev conflict/patch: [n , next conflict/patch: ]n , paste toggle: yop
+" [<Space> and ]<Space> add newlines before and after the cursor line
+" [e and ]e exchange the current line with the one above or below it.
 
 Plug 'terryma/vim-expand-region'
 vmap + <Plug>(expand_region_expand)
@@ -577,10 +590,14 @@ nmap <leader>gr :Gread<cr>:update<cr>
 nmap <leader>gg :Ggrep
 " Add the entire file to the staging area
 nnoremap <Leader>gaf :Gw<CR>
-" Open visual selection in the browser
+" Open visual selection in browser
 vnoremap <Leader>Gb :GBrowse<CR>
 " Open current line in the browser
-nnoremap <Leader>GB :.GBrowse<CR>
+nnoremap <Leader>Gb :.GBrowse<CR>
+" Copy visual selection url to clipboard
+vnoremap <Leader>GB :GBrowse!<CR>
+" Copy current line url to clipboard
+nnoremap <Leader>GB :.GBrowse!<CR>
 " 0Glog " see history of current file
 " Gedit " go back to normal file from read-only view in Gstatus window
 " <C-N> or <C-P> to jump to the next/previous file (as mentioned above)
@@ -662,6 +679,13 @@ Plug 'ThePrimeagen/git-worktree.nvim'
 Plug 'chrisbra/unicode.vim'
 let g:Unicode_ShowPreviewWindow = 1
 let g:Unicode_CompleteName = 1
+" :Digraphs        - Search for specific digraph char
+" :UnicodeSearch   - Search for specific unicode char
+" :UnicodeSearch!  - Search for specific unicode char (and add at current cursor position)
+" :UnicodeName     - Identify character under cursor (like ga command)
+" :UnicodeTable    - Print Unicode Table in new window
+" :DownloadUnicode - Download (or update) Unicode data
+" :UnicodeCache    - Create cache file
 
 " testing/debugging
 Plug 'vim-test/vim-test'
@@ -711,13 +735,12 @@ Plug 'ryanoasis/vim-devicons'
 let g:WebDevIconsOS = 'Darwin'
 
 Plug 'itchyny/lightline.vim' |
-          \ Plug 'konart/vim-lightline-coc' |
-          \ Plug 'timtyrrell/apprentice-lightline-experimental'
+          \ Plug 'konart/vim-lightline-coc' " |
+          " \ Plug 'timtyrrell/apprentice-lightline-experimental'
 Plug 'mhinz/vim-startify'
-Plug 'romainl/Apprentice'
 Plug 'folke/tokyonight.nvim'
+" Plug 'romainl/Apprentice'
 " Plug 'shaunsingh/moonlight.nvim'
-
 " here for treesitter color testing
 " Plug 'christianchiarulli/nvcode-color-schemes.vim'
 " let g:nvcode_termcolors=256
@@ -726,12 +749,19 @@ Plug 'folke/tokyonight.nvim'
 " Plug 'sainnhe/gruvbox-material'
 " Plug 'Iron-E/nvim-highlite'
 " Plug 'mhartington/oceanic-next'
+
 Plug 'keith/investigate.vim'
 let g:investigate_use_dash=1
 " gK to open word in Dash
 Plug 'meain/vim-package-info', { 'do': 'npm install' }
 " monorepo
 Plug 'airblade/vim-rooter'
+" add git worktree to excludes
+let g:rooter_patterns = ['!.git/worktrees', '.git', 'Makefile']
+" trigger by symlinks, also
+ let g:rooter_resolve_links = 1
+" to stop echo on change
+" let g:rooter_silent_chdir = 1
 
 " Distraction-free writing
 Plug 'junegunn/goyo.vim'
@@ -743,6 +773,8 @@ nnoremap <leader>go :Goyo<CR>
 " life
 Plug 'dstein64/vim-startuptime'
 Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
+" lazy load
+" https://github.com/petertriho/dotfiles/commit/c237dfe7b48d16a24eb2fd6e493b0bb9f84e1032
 
 " Load on nothing " the dir path is not right
 " Plug 'vimwiki/vimwiki', { 'branch': 'dev', 'on': []}
@@ -781,6 +813,8 @@ Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) } }
 " Plug 'subnut/nvim-ghost.nvim', {'do': ':call nvim_ghost#installer#install()'}
 
 " learning
+Plug 'folke/which-key.nvim'
+
 Plug 'takac/vim-hardtime'
 let g:hardtime_default_on = 0
 let g:hardtime_showmsg = 1
@@ -897,6 +931,12 @@ require('telescope').setup {
   }
 }
 
+require("which-key").setup {
+  -- your configuration comes here
+  -- or leave it empty to use the default settings
+  -- refer to the configuration section below
+}
+
 require('numb').setup{
    show_numbers = true, -- Enable 'number' for the window while peeking
    show_cursorline = true -- Enable 'cursorline' for the window while peeking
@@ -958,11 +998,6 @@ require'nvim-treesitter.configs'.setup {
     enable = true,
   },
 }
--- vim.g.tokyonight_style = "storm" -- storm, night, day
--- vim.g.tokyonight_italic_functions = true
--- vim.g.tokyonight_italic_variables = true
--- vim.g.tokyonight_dark_sidebar = true
--- vim.g.tokyonight_sidebars = { "coc-explorer" }
 -- lua
 require('hlslens').setup({
   nearest_only = true
@@ -1208,9 +1243,22 @@ augroup END
 
 " https://gist.github.com/romainl/379904f91fa40533175dfaec4c833f2f
 function! MyHighlights() abort
+  if g:colors_name ==# 'tokyonight'
+	  hi default link CocHighlightText TabLineSel
+    " hi CocHighlightText cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
+    "git.addedSign.hlGroup": "GitGutterAdd",
+    "git.changedSign.hlGroup": "GitGutterChange",
+    "git.removedSign.hlGroup": "GitGutterDelete",
+    "git.topRemovedSign.hlGroup": "GitGutterDelete",
+    "git.changeRemovedSign.hlGroup": "GitGutterChangeDelete",
+	  " hi default link CocGitAddedSign
+    " hi DiffAdd ctermbg=235 ctermfg=108 cterm=reverse guifg=#262626 guibg=#87af87 gui=reverse
+    " hi DiffDelete ctermbg=235 ctermfg=131 cterm=reverse guifg=#262626 guibg=#af5f5f gui=reverse
+    " hi DiffChange ctermbg=235 ctermfg=103 cterm=reverse guifg=#262626 guibg=#8787af gui=reverse
+  end
   if g:colors_name ==# 'apprentice'
     " match codelens to Comment color so it stands out less
-    hi CocCodeLens guifg=#585858
+    " hi CocCodeLens guifg=#585858
     " hi MatchParen ctermbg=234 ctermfg=229 cterm=NONE guibg=#1c1c1c guifg=#ffffaf gui=NONE
     " hi MatchParen cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
 
@@ -1218,29 +1266,29 @@ function! MyHighlights() abort
     " hi DiffAdd ctermbg=235 ctermfg=108 cterm=reverse guifg=#262626 guibg=#87af87 gui=reverse
     " hi DiffDelete ctermbg=235 ctermfg=131 cterm=reverse guifg=#262626 guibg=#af5f5f gui=reverse
     " hi DiffChange ctermbg=235 ctermfg=103 cterm=reverse guifg=#262626 guibg=#8787af gui=reverse
-    hi LineNr ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
-    hi SignColumn ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
-    hi FoldColumn ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
-    hi Folded ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
+    " hi LineNr ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
+    " hi SignColumn ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
+    " hi FoldColumn ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
+    " hi Folded ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
 
     " 'kshenoy/vim-signature'
-    hi SignatureMarkText guibg=#262626
+    " hi SignatureMarkText guibg=#262626
 
     " 'kevinhwang91/nvim-hlslens'
     " hi CurrentSearchItem guibg=#ff8700 guifg=#262626
-    hi CurrentSearchItem cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
-    hi default link HlSearchNear CurrentSearchItem
-    hi default link HlSearchLens HlLens
-    hi default link HlSearchLensNear HlLens
-    hi default link HlSearchFloat HlLens
+    " hi CurrentSearchItem cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
+    " hi default link HlSearchNear CurrentSearchItem
+    " hi default link HlSearchLens HlLens
+    " hi default link HlSearchLensNear HlLens
+    " hi default link HlSearchFloat HlLens
 
     " random color change
     " hi IncSearch ctermbg=131 ctermfg=235 cterm=NONE guibg=#af5f5f guifg=#262626 gui=NONE
     " hi IncSearch cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
-    hi IncSearch guibg=#ff8700 guifg=#262626
+    " hi IncSearch guibg=#ff8700 guifg=#262626
 
     " Overwrite the highlight groups `CocHighlightText`, `CocHighlightRead` and `CocHighlightWrite` for customizing the colors.
-    hi CocHighlightText cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
+    " hi CocHighlightText cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
     " hi CocHighlightText ctermbg=229 ctermfg=235 cterm=NONE guibg=#ffffaf guifg=#262626 gui=NONE
     " hi CocHighlightText ctermbg=NONE ctermfg=208 cterm=undercurl guibg=NONE guifg=#ff8700 guisp=#ff8700
     " highlight CocHighlightText term=underline cterm=underline gui=underline
@@ -1333,8 +1381,27 @@ set background=dark
 if has("termguicolors")
   set termguicolors
 endif
-colorscheme apprentice
-" colorscheme tokyonight
+" colorscheme apprentice
+let g:tokyonight_style = "night"
+let g:tokyonight_italic_functions = 1
+let g:tokyonight_sidebars = [ "qf", "coc-explorer", "terminal"]
+colorscheme tokyonight
+
+" customize
+let g:fzf_colors = {
+      \ 'fg': ['fg', 'Normal'],
+      \ 'bg': ['bg', 'Normal'],
+      \ 'hl': ['fg', 'Green'],
+      \ 'fg+': ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
+      \ 'bg+': ['bg', 'CursorLine', 'CursorColumn'],
+      \ 'hl+': ['fg', 'Green'],
+      \ 'info': ['fg', 'Yellow'],
+      \ 'prompt': ['fg', 'Red'],
+      \ 'pointer': ['fg', 'Blue'],
+      \ 'marker': ['fg', 'Blue'],
+      \ 'spinner': ['fg', 'Yellow'],
+      \ 'header': ['fg', 'Blue']
+      \ }
 " colorscheme dracula
 " colorscheme nord
 " colorscheme aurora
@@ -1345,7 +1412,6 @@ colorscheme apprentice
 " hide line showing switch in insert/normal mode
 set noshowmode
 set noruler
-
 
 let g:projectionist_heuristics = {}
 let g:projectionist_heuristics['package.json'] = {
@@ -1522,7 +1588,8 @@ function! LightlineBranchformat()
 " return winwidth(0) > 70 ? FugitiveHead() : ''
 endfunction
 
-let g:lightline.colorscheme = 'apprentice'
+" let g:lightline.colorscheme = 'apprentice'
+let g:lightline.colorscheme = 'tokyonight'
 
 " register compoments:
 call lightline#coc#register()
@@ -1758,6 +1825,8 @@ nmap <leader>aff :<C-u>CocCommand eslint.executeAutofix<cr>
 nmap <leader>afo <Plug>(coc-format)
 " auto fix imports
 nmap <leader>ai :<C-u>CocCommand tsserver.organizeImports<cr>
+" find all file references
+nmap <leader>afr :<C-u>CocCommand tsserver.findAllFileReferences<cr>
 " add prettier command
 :command! -nargs=0 Prettier :CocCommand prettier.formatFile
 " Add `:Fold` command to fold current buffer.
@@ -1799,11 +1868,13 @@ autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 " make sure to kill coc pid when closing nvim (not sure if needed)
 autocmd VimLeavePre * if get(g:, 'coc_process_pid', 0)
 		\	| call system('kill -9 '.g:coc_process_pid) | endif
+" run this also?
+" :CocCommand workspace.clearWatchman
 
-" Another one to try like ^
 " autocmd VimLeavePre * :call coc#rpc#kill()
 "     autocmd VimLeave * if get(g:, 'coc_process_pid', 0) | call system('kill -9 -'.g:coc_process_pid) | endif
 
+" tell coc how to navigate to next snippet placeholder
 let g:coc_snippet_next = '<Tab>'
 let g:coc_snippet_prev = '<S-Tab>'
 " let g:coc_node_path = '/usr/local/bin/node' " use node v14?
@@ -1819,7 +1890,7 @@ nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " coc-fzf remappings
 let g:coc_fzf_opts= ['--layout=reverse']
 let g:coc_fzf_preview='right:50%'
-let g:coc_fzf_preview_fullscreen='1'
+let g:coc_fzf_preview_fullscreen=0
 let g:coc_fzf_preview_toggle_key='\'
 
 nnoremap <silent><nowait> <leader>za :<C-u>CocFzfList actions<CR>
@@ -1877,8 +1948,20 @@ set grepformat=%f:%l:%c:%m
 " grep word under cursor
 nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
 
-
 " fzf.vim
+" nnoremap <C-w>- :new<cr>
+" nnoremap <C-w><bar> :vnew<cr>
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+" open fzf in a floating window
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.7 } }
+
+" https://jdhao.github.io/2020/02/16/ripgrep_cheat_sheet/
+" https://github.com/BurntSushi/ripgrep/blob/master/GUIDE.md#common-options
+
 " 'wild	exact-match (quoted)	Items that include wild
 " ^music	prefix-exact-match	Items that start with music
 " .mp3$	suffix-exact-match	Items that end with .mp3
@@ -1906,28 +1989,23 @@ nnoremap <silent> <Leader>fd :Files <C-R>=expand('%:h')<CR><CR>
 " Rg current word
 nnoremap <silent> <Leader>rg :Lines <C-R><C-W><CR>
 
-" Search lines in _all_ buffers
+" Search lines in _all_ buffers with smart-case
 command! -bang -nargs=* BLines
     \ call fzf#vim#grep(
     \   'rg --with-filename --column --line-number --no-heading --smart-case . '.fnameescape(expand('%:p')), 1,
     \   fzf#vim#with_preview({'options': '--layout reverse --query '.shellescape(<q-args>).' --with-nth=4.. --delimiter=":"'}))
 
-" do not search filename, just file contents of all file Lines in root dir
+" do not search filename, just file contents of all file Lines in root dir with smartcase
 command! -bang -nargs=* Lines
   \ call fzf#vim#grep(
-  \   'rg --column --line-number --no-heading --color=always --colors "path:fg:190,220,255" --colors "line:fg:128,128,128" --smart-case  -- '.shellescape(<q-args>), 1,
-  \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..', '--color', 'hl:123,hl+:222'] }), <bang>0)
+  \   'rg --column --line-number --no-heading --color=always --smart-case  -- '.shellescape(<q-args>), 1,
+  \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..'] }), <bang>0)
+  " \   'rg --column --line-number --no-heading --color=always --colors 'path:fg:190,220,255' --colors 'line:fg:128,128,128' --smart-case  -- '.shellescape(<q-args>), 1,
+  " \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..', '--color', 'hl:123,hl+:222'] }), <bang>0)
 
-" override default preview settings in zshrc
+" override default preview settings in zshrc to hide previews
 command! -bang -nargs=* HistoryCmds call fzf#vim#command_history(fzf#vim#with_preview({'options': ['--preview-window', 'hidden']}))
 command! -bang -nargs=* HistorySearch call fzf#vim#search_history(fzf#vim#with_preview({'options': ['--preview-window', 'hidden']}))
-
-let g:fzf_action = {
-  \ 'ctrl-t': 'tab',
-  \ 'ctrl-x': 'split',
-  \ 'ctrl-v': 'vsplit' }
-" open fzf in a floating window
-let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 
 function! FzfIcons()
   let l:fzf_files_options = '--preview "bat --color always --style numbers {2..} | head -'.&lines.'"'
@@ -1987,12 +2065,12 @@ command! BD call fzf#run(fzf#wrap({
 command! -bang Args call fzf#run(fzf#wrap('args',
     \ {'source': map([argidx()]+(argidx()==0?[]:range(argc())[0:argidx()-1])+range(argc())[argidx()+1:], 'argv(v:val)')}, <bang>0))
 
-" or here? https://github.com/junegunn/fzf.vim/pull/941
- " Enable per-command history
+" Enable per-command history
 " - History files will be stored in the specified directory
-" - When set, CTRL-N and CTRL-P will be bound to 'next-history' and
-"   'previous-history' instead of 'down' and 'up'.
-" let g:fzf_history_dir = '~/.local/share/fzf-history'
+" - When set, CTRL-N and CTRL-P will be bound to 'next-history' and 'previous-history' instead of 'down' and 'up'.
+let g:fzf_history_dir = '~/.local/share/fzf-history'
+
+" or here? https://github.com/junegunn/fzf.vim/pull/941
 " function! GetProjectRoot(flags)
 "   let path = finddir(".git", expand("%:p:h").";")
 "   let path = fnamemodify(substitute(path, ".git", "", ""), ":p:h")
