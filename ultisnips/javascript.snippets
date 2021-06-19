@@ -550,10 +550,7 @@ endsnippet
 
 ### Nextjs Snippets ###
 snippet np "create Nextjs page file" b
-import prismicGraphQLQuery from "@tuftandneedle/cms/graphql/prismic-graphql-query";
-import globalSchema from "cms/graphql/schema/global";
-import $3Schema from "cms/graphql/schema/$2/$3";
-import { $1 } from "src/components/$3/$1";
+import { $1 } from "src/components/$2/$1";
 
 function ${1:Page}Page(props) {
   return (
@@ -564,24 +561,8 @@ function ${1:Page}Page(props) {
 }
 $0
 export async function getStaticProps() {
-  const {
-    pageData: { $4 },
-    promotion,
-    site_footer,
-    site_navigation,
-  } = await prismicGraphQLQuery($3Schema, globalSchema);
-
   return {
-    props: {
-      cmsData: {
-        ...$4,
-        promotion,
-      },
-      cmsGlobals: {
-        site_footer,
-        promotion,
-        site_navigation,
-      },
+    props: {},
     },
     revalidate: 300,
   };
