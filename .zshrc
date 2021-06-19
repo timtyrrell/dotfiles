@@ -75,7 +75,7 @@ zstyle ":completion:*:git-checkout:*" sort false
 zstyle ':fzf-tab:complete:_zlua:*' query-string input
 
 # set cd autocompletion to commonly visited directories
-cdpath=(~/code/tuftandneedle)
+# cdpath=(~/code/WORKPLACEDIR)
 # don't display the common ones with `cd` command
 zstyle ':completion:*:complete:cd:*' tag-order \
     'local-directories named-directories'
@@ -596,11 +596,7 @@ alias gpu='git pull'
 alias gpr='git pull --rebase'
 alias pulls='git browse -- pulls'
 alias branches='git browse -- branches'
-alias open-tn-web='git browse tuftandneedle/tn-web'
-alias open-br-web='git browse tuftandneedle/br-web'
-alias open-js='git browse tuftandneedle/js-monorepo'
-alias open-qa='git browse tuftandneedle/QA-Blackbox'
-alias open-platform='git browse tuftandneedle/platform'
+# alias open-PLACEHOLDER='git browse PLACEHOLDER'
 alias dotfiles='cd ~/code/timtyrrell/dotfiles'
 alias gst='git status -sb'
 alias gstl='git status'
