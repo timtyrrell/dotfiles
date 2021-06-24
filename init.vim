@@ -2406,12 +2406,15 @@ let g:coc_filetype_map = { 'vimwiki': 'markdown' } " register with coc-markdownl
 let g:nv_search_paths = ['~/Documents/notes']
 let g:nv_create_note_key = 'ctrl-x'
 
+" default 'alok/notational-fzf-vim' search
 nmap <Leader>wv :NV!<CR>
+" better line search with ripgrep
 nmap <Leader>wl :SearchNotes<CR>
+" filename search
+nmap <Leader>wf  :Files ~/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/<CR>
 nmap <Leader>wdn <Plug>VimwikiMakeDiaryNote
 nmap <Leader>wdy <Plug>VimwikiMakeYesterdayDiaryNote
 nmap <Leader>wdt <Plug>VimwikiMakeTomorrowDiaryNote
-" nmap <Leader>wp :Files ~/Documents/notes/<CR>
 
 " find incomplete items and add to quickfix
 function! VimwikiFindIncompleteTasks()

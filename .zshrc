@@ -9,7 +9,6 @@ fi
 
 fpath=(
   $fpath
-  ~/.zsh/functions
   /usr/local/share/zsh/site-functions
 )
 
@@ -625,10 +624,10 @@ alias clean 'git clean -fd'
 alias unstage='git restore --staged .'
 alias grestore="git restore --staged . && git restore ."
 alias reset_authors='git commit --amend --reset-author -C HEAD'
-alias undo="git reset HEAD~1 --mixed"
 alias grhr="git_reset_hard_remote"
 alias grhl="git_reset_hard_local"
 alias wip="git add . && LEFTHOOK=0 gc -m 'wip [ci skip]'"
+alias undo="git reset HEAD~1 --mixed"
 alias unwip="undo"
 # alias unwip="git reset --soft 'HEAD^' && git restore --staged ."
 alias nuke="unwip && grestore"
@@ -667,12 +666,18 @@ alias reload='source ~/.zshrc; echo -e "\n\u2699  \e[33mZSH config reloaded\e[0m
 # remove duplicates in $PATH
 typeset -aU path
 
-export PATH="$HOME/Library/Python/2.7/bin:$PATH"
+# export PATH="$HOME/Library/Python/2.7/bin:$PATH"
 export PATH="$(yarn global bin):$PATH"
 export PATH="$HOME/bin:$PATH"
 
-eval "$(direnv hook zsh)"
-eval "$(rbenv init -)"
+export GOPATH=$HOME/go
+export GOROOT=/usr/local/go
+export GOBIN=$GOPATH/bin
+export PATH=$PATH:$GOPATH
+export PATH=$PATH:$GOROOT/bin
+
+# eval "$(zsh)"
+# eval "$(rbenv init -)"
 # ruby-build installs a non-Homebrew OpenSSL for each Ruby version installed and these are never upgraded.
 # To link Rubies to Homebrew's OpenSSL 1.1 (which is upgraded) add the following to your ~/.zshrc:
 export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
@@ -699,8 +704,8 @@ autoload -Uz _zinit
 ### End of Zinit's installer chunk
 
 # plugins - zinit update # to update all
-zinit ice as"program" pick"bin/git-fuzzy"
-zinit light bigH/git-fuzzy
+# zinit ice as"program" pick"bin/git-fuzzy"
+# zinit light bigH/git-fuzzy
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit light aloxaf/fzf-tab
 zinit ice wait lucid atload'_zsh_autosuggest_start'
@@ -734,8 +739,7 @@ zinit snippet OMZ::plugins/docker-compose/_docker-compose
 compinit
 
 # zprof # zsh perf check
-eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
+# eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
 
 # fnm
-export PATH=/Users/timtyrrell/.fnm:$PATH
-eval "`fnm env --use-on-cd`"
+eval "$(fnm --log-level=quiet env --use-on-cd)"
