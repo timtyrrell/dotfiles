@@ -9,3 +9,4 @@ yarn-error.log
 .scratch.vim
 node_modules
 tags
+.env.local.bak

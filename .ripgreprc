@@ -2,13 +2,16 @@
 --max-columns-preview
 
 --type-add
-web:*.{pug,js}*
+web:*.{ts,tsx,js,jsx}
 
-# --glob=!{.git,node_modules,plugged,.next}/**
+--type-add
+test:*{_tests,_spec}.{ts,tsx,js,jsx}
+
 --glob=!.git/*
 --glob=!node_modules/*
 --glob=!.next/*
 --glob=!vendor/*
+--glob=!.sync
 
 --smart-case
 

@@ -61,6 +61,9 @@ bindkey -M vicmd '^r' history-incremental-search-backward
 bindkey -M viins '^r' history-incremental-search-backward
 bindkey  "^[[H"   beginning-of-line # Home key
 bindkey  "^[[F"   end-of-line # End key
+# https://github.com/zsh-users/zsh-autosuggestions#key-bindings
+bindkey '^ ' autosuggest-accept # ctrl + space to accept the current suggestion. right arrow or EOL, also works
+bindkey '^x' autosuggest-execute # ctrl + x to execute the current suggestion
 
 export KEYTIMEOUT=5 # remove normal/insert mode switch delay
 
@@ -73,14 +76,17 @@ zstyle ":completion:*:git-checkout:*" sort false
 # use input as query string when completing zlua
 zstyle ':fzf-tab:complete:_zlua:*' query-string input
 
+# TODO fix all this: https://superuser.com/questions/265547/zsh-cdpath-and-autocompletion
 # set cd autocompletion to commonly visited directories
-# cdpath=(~/code/WORKPLACEDIR)
+cdpath=($HOME/code/invitae $HOME/code/timtyrrell)
 # don't display the common ones with `cd` command
-zstyle ':completion:*:complete:cd:*' tag-order \
-    'local-directories named-directories'
+# zstyle ':completion:*:complete:cd:*' tag-order \
+#     'local-directories named-directories'
 
 # fzf-tab
-zstyle ':fzf-tab:*' fzf-bindings 'alt-k:preview-half-page-up' 'alt-j:preview-half-page-down'
+zstyle ':fzf-tab:*' fzf-bindings 'alt-k:preview-half-page-up' 'alt-j:preview-half-page-down' 'space:accept'
+zstyle ':fzf-tab:*' continuous-trigger '/'
+zstyle ':fzf-tab:*' accept-line enter
 
 # local fzf_tab_preview_debug='
 # echo "word: $word"
@@ -92,7 +98,7 @@ zstyle ':fzf-tab:*' fzf-bindings 'alt-k:preview-half-page-up' 'alt-j:preview-hal
 
 local preview_command='
 if [[ -d $realpath ]]; then
-    exa -a --icons --tree --level=1 --color=always $realpath 
+    lsd --color always --icon always --depth 2 --tree $realpath
 elif [[ -f $realpath ]]; then
     bat --pager=never --color=always --line-range :80 $realpath
 else
@@ -263,17 +269,45 @@ export MANWIDTH=999
 
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
-# fzf settings
+# FZF SETTINGS
+
+# tmux
 export FZF_TMUX=1 # open in pop-up
 export FZF_TMUX_OPTS="-p -w 90% -h 60%"
 export FZF_TMUX_POP_UP_OPTS="-p 90%,90%"
-export FZF_HIDE_PREVIEW="--preview-window=:hidden"
+
+# default fzf
 export FZF_DEFAULT_COMMAND='rg --files'
+# files
 export FZF_CTRL_T_COMMAND="fd --hidden --follow --exclude '.git' --exclude 'node_modules'"
+export FZF_CTRL_T_OPTS="$FZF_DEFAULT_OPTS $FZF_SHOW_PREVIEW --select-1"
+# directories
 export FZF_ALT_C_COMMAND="$FZF_CTRL_T_COMMAND --type d"
-export FZF_CTRL_R_OPTS="--preview-window=:hidden"
+export FZF_ALT_C_OPTS="$FZF_DEFAULT_OPTS $FZF_SHOW_PREVIEW --select-1"
+# history
+# modify keybindings.zsh or add plugin: https://github.com/junegunn/fzf/issues/477#issuecomment-230338992
+# ctrl-x to execute, enter to put in cmd line
+export FZF_CTRL_R_OPTS="$FZF_HIDE_PREVIEW"
+
+# presentation
 export BAT_THEME="Enki-Tokyo-Night"
 
+export FZF_HEADER_DEFAULT="CTRL-u/d page up/down, ALT-k/j preview half-page up/down, \ to toggle"
+export FZF_HEADER_FILES="CTRL-s/ALT-d to select/unselect-all, CTRL-v open in nvim"
+export FZF_HEADER_PASTE="CTRL-y to copy into clipboard"
+export FZF_YANK_COMMAND="--bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'"
+
+export FZF_HIDE_PREVIEW="--preview-window=:hidden"
+export FZF_SHOW_PREVIEW="
+--preview '([[ -f {} ]] && (bat --style=full --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200'
+--preview-window cycle
+--bind '\:toggle-preview'
+--bind 'alt-k:preview-half-page-up'
+--bind 'alt-j:preview-half-page-down'
+"
+
+# Sneak          xxx guifg=#292e42 guibg=#bb9af7
+# CursorLine     xxx cterm=underline guibg=#292e42
 export FZF_DEFAULT_OPTS="
 --history=$HOME/.fzf_history
 --layout=reverse
@@ -281,20 +315,25 @@ export FZF_DEFAULT_OPTS="
 --height=80%
 --multi
 --border
---preview '([[ -f {} ]] && (bat --style=full --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200'
---preview-window cycle
+--color=fg:#c0caf5,bg:#1a1b26,hl:#bb9af7
+--color=fg+:#c0caf5,bg+:#292e42,hl+:#7dcfff
+--color=info:#7aa2f7,prompt:#7dcfff,pointer:#7dcfff 
+--color=marker:#9ece6a,spinner:#9ece6a,header:#9ece6a
+--color=gutter:#1a1b26
 --prompt='∼ ' --pointer='▶' --marker='✓'
---header 'CTRL-s/ALT-d to select/unselect-all, CTRL-u/d page up/down, ALT-k/j preview half-page up/down, \ to toggle, CTRL-y to copy into clipboard'
---bind '\:toggle-preview'
+--header '$FZF_HEADER_DEFAULT'
 --bind 'ctrl-s:select-all'
 --bind 'alt-d:deselect-all'
 --bind 'ctrl-u:page-up'
---bind 'ctrl-d:page-down'
+--preview '([[ -f {} ]] && (bat --style=full --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200'
+--preview-window cycle
+--bind '\:toggle-preview'
 --bind 'alt-k:preview-half-page-up'
 --bind 'alt-j:preview-half-page-down'
---bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
+--bind 'ctrl-d:page-down'
 --bind 'ctrl-v:execute(nvim {} < /dev/tty > /dev/tty 2>&1)+accept'
 "
+# --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
 
 # https://github.com/junegunn/fzf/commit/f84b3de24b63e2e26cbfa2a24e61a4173824fffd
 # tweak above nvim open?
@@ -317,7 +356,7 @@ fzf-history-widget-accept() {
   zle accept-line
 }
 zle     -N     fzf-history-widget-accept
-bindkey '^X^R' fzf-history-widget-accept
+# bindkey '^X^R' fzf-history-widget-accept
 
 # tm - create new tmux session, or switch to existing one. Works from within tmux too. (@bag-man)
 # `tm` will allow you to select your tmux session via fzf.
@@ -330,10 +369,37 @@ tm() {
   session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf-tmux -p 90%,90% -preview-window=:hidden --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
 }
 
-# Same as above, but with previews and works correctly with man pages in different sections.
-fman() {
-    man -k . | fzf-tmux -p 90%,90% -preview-window=:hidden --prompt='Man> ' | awk '{print $1}' | xargs -r man
-}
+# fish script converting HEIC to JPG
+# function deheic --description 'Un-HEIC received pictures'
+#     if not type -q mogrify
+#         brew update
+#         brew install imagemagick
+#     end
+#     cd ~/Downloads
+#     set -l u_heic *.HEIC
+#     set -l l_heic *.heic
+#     if test (count $u_heic) -gt 0
+#         mogrify -format jpg *.HEIC
+#         rm *.HEIC
+#     end
+#     if test (count $l_heic) -gt 0
+#         mogrify -format jpg *.heic
+#         rm *.heic
+#     end
+#     cd -
+# end
+
+# would need to do a workaround like: https://newbedev.com/errors-from-whatis-command-unable-to-rebuild-database-with-makewhatis
+# fman() {
+#   man -k . | fzf-tmux -p 90%,90% -preview-window=:hidden --prompt='Man> ' | awk '{print $1}' | xargs -r man
+# }
+
+# fman() {
+#   man -k . | fzf -q "$1" --prompt='man> '  --preview $'echo {} | tr -d \'()\' | awk \'{printf "%s ", $2} {print $1}\' | xargs -r man | col -bx | bat -l man -p --color always' | tr -d '()' | awk '{printf "%s ", $2} {print $1}' | xargs -r man
+# }
+# Get the colors in the opened man page itself
+# export MANPATH="/usr/share/man"
+# export MANPAGER="sh -c 'col -bx | bat -l man -p --paging always'"
 
 # fstash - easier way to deal with stashes
 # enter shows you the contents of the stash
@@ -498,8 +564,12 @@ function gpush() {
 }
 
 # aliases
-# alias ls="exa"
-alias ll="exa -alh --icons --git -t=mod --time-style=long-iso"
+alias ls='lsd'
+alias ll='ls -l'
+alias la='ls -a'
+alias lla='ls -la'
+alias lt='ls --tree'
+alias lart='ls -lart'
 alias md='mkdir -p'
 alias vi='nvim'
 alias vim='nvim'
@@ -507,9 +577,13 @@ alias n='nvim'
 alias rd='rmdir'
 alias tweak='vim ~/.config/nvim/init.vim'
 alias tree='tree-git-ignore'
+alias cl='clear'
 
 alias tmn='tmux new -s'
 alias tma='tmux attach -t'
+
+# another option: https://github.com/natkuhn/Chrome-debug
+alias chrome-debug='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222&'
 
 # used in 'gnap' alias
 gref() {
@@ -596,10 +670,10 @@ alias gpr='git pull --rebase'
 alias pulls='git browse -- pulls'
 alias branches='git browse -- branches'
 # alias open-PLACEHOLDER='git browse PLACEHOLDER'
-alias dotfiles='cd ~/code/timtyrrell/dotfiles'
 alias gst='git status -sb'
 alias gstl='git status'
-alias ghpr='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" | awk "{print $1}" | xargs gh pr checkout'
+alias ghpr='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" |  { read first rest ; echo $first ; } | xargs gh pr checkout'
+alias ghd='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" |  { read first rest ; echo $first ; } | xargs gh pr diff'
 alias gs='fbr'
 alias gfb='git fuzzy branch'
 alias gfpr='git fuzzy pr'
@@ -619,14 +693,15 @@ alias gcob='git checkout -b'
 alias gcop='git checkout -p' # interactive hunk revert
 alias gres='git restore --staged .'
 alias gappend='git add . && git commit --amend -C HEAD'
-alias gappendyolo='git add . && LEFTHOOK=0 git commit --amend -C HEAD'
-alias clean 'git clean -fd'
+alias gamend='git commit --amend -C HEAD'
+alias gappendyolo='git add . && HUSKY_SKIP_HOOKS=1 git commit --amend -C HEAD'
+alias gclean 'git clean -fd'
 alias unstage='git restore --staged .'
 alias grestore="git restore --staged . && git restore ."
 alias reset_authors='git commit --amend --reset-author -C HEAD'
 alias grhr="git_reset_hard_remote"
 alias grhl="git_reset_hard_local"
-alias wip="git add . && LEFTHOOK=0 gc -m 'wip [ci skip]'"
+alias wip="git add . && HUSKY_SKIP_HOOKS=1 gc -m 'wip [ci skip]'"
 alias undo="git reset HEAD~1 --mixed"
 alias unwip="undo"
 # alias unwip="git reset --soft 'HEAD^' && git restore --staged ."
@@ -636,11 +711,12 @@ alias hokey="pokey"
 alias sha="git rev-parse HEAD"
 alias SHA="sha"
 alias cannonball="git add . && git commit --amend -C HEAD && git push --force-with-lease"
-alias cannonballyolo="git add . && LEFTHOOK=0 git commit --amend -C HEAD && git push --force-with-lease"
+alias cannonballyolo="git add . && HUSKY_SKIP_HOOKS=1 git commit --amend -C HEAD && git push --force-with-lease"
 alias fix='nvim +/HEAD `git diff --name-only | uniq`'
 alias be="bundle exec"
 alias nvm="fnm"
 alias strat="start"
+alias ns="npm start"
 alias barf="rm -rf node_modules && npm i"
 alias rimraf="rm -rf node_modules"
 alias stash="git add . && git add stash"
@@ -652,7 +728,7 @@ alias tmux_plugins_clean="~/.tmux/plugins/tpm/bin/clean_plugins"
 # brew tap jason0x43/homebrew-neovim-nightly
 # brew cask install neovim-nightly
 alias update-neovim-nightly="brew reinstall neovim-nightly"
-alias install-tmux-head="brew install --HEAD tmux"
+alias brew-tmux-head="brew reinstall tmux"
 alias brew-install="brew bundle install --global"
 alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
 alias brewup="brew update; brew upgrade; brew cleanup"
@@ -660,7 +736,6 @@ alias zinit-update="zinit self-update"
 alias zinit-plugin-update="zinit update --all"
 alias crate-update="cargo install-update -a"
 
-ZSH_AUTOSUGGEST_USE_ASYNC=true
 alias reload='source ~/.zshrc; echo -e "\n\u2699  \e[33mZSH config reloaded\e[0m \u2699"'
 
 # remove duplicates in $PATH
@@ -703,9 +778,10 @@ autoload -Uz _zinit
 (( ${+_comps} )) && _comps[zinit]=_zinit
 ### End of Zinit's installer chunk
 
+# add https://github.com/josa42/zsh-upgrade-all ?
 # plugins - zinit update # to update all
-# zinit ice as"program" pick"bin/git-fuzzy"
-# zinit light bigH/git-fuzzy
+zinit ice as"program" pick"bin/git-fuzzy"
+zinit light bigH/git-fuzzy
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit light aloxaf/fzf-tab
 zinit ice wait lucid atload'_zsh_autosuggest_start'

@@ -35,7 +35,7 @@
 	d = diff
 	se = !git rev-list --all | xargs git grep -F
 [branch]
-	autoSetupMerge = false
+	autoSetupMerge = always
 	autoSetupRebase = always
 [color]
 	ui = true
@@ -84,6 +84,7 @@
   whitespace-error-style = 22 reverse
 [fetch]
 	prune = true
+	pruneTags = true
 [help]
 	autocorrect = 10
 [include]
@@ -104,8 +105,10 @@
 	driver = bundle
 [mergetool "vim-conflicted"]
 	cmd = nvim +Conflicted
+[pull]
+  rebase = true
 [push]
-	default = upstream
+	default = simple
 	followTags = true
 [rebase]
 	autosquash = true

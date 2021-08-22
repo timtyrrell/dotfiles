@@ -36,7 +36,7 @@
 				<key>invisibles</key>
 				<string>#4f4f5e</string>
 				<key>lineHighlight</key>
-				<string>#00000030</string>
+				<string>#33467C</string>
 				<key>phantomCss</key>
 				<string>&lt;![CDATA[ html { position: relative; } ]]&gt;</string>
 				<key>popupCss</key>

@@ -26,24 +26,25 @@
 
 * clipboard manager and copy/paste actions
 {F3}>{-lalt}{-lwin}{c}{+lalt}{+lwin}
-{F4}>{-lwin}{x}{+lwin}
-{F5}>{-lwin}{c}{+lwin}
-{F6}>{-lwin}{v}{+lwin}
 
-* undo/redo
-{F7}>{-lwin}{z}{+lwin}
-{F8}>{-lshift}{-lwin}{z}{+lshift}{+lwin}
+* maximize
+{F4}>{speed5}{-lalt}{-lctrl}{enter}{+lalt}{+lctrl}
 
-* move window on screen
-{f9}>{-lwin}{-lalt}{left}{+lalt}{+lwin}
-{f10}>{-lwin}{-lalt}{right}{+lalt}{+lwin}
+* 2/3rds
+{F5}>{speed5}{-lalt}{-lctrl}{t}{+lalt}{+lctrl}
+{F6}>{speed5}{-lalt}{-lctrl}{e}{+lalt}{+lctrl}
+
+* 1/3s
+{F7}>{speed5}{-lalt}{-lctrl}{d}{+lalt}{+lctrl}
+{F8}>{speed5}{-lalt}{-lctrl}{g}{+lalt}{+lctrl}
+
+* 1/2s
+{F9}>{speed5}{-lalt}{-lctrl}{left}{+lalt}{+lctrl}
+{F10}>{speed5}{-lalt}{-lctrl}{right}{+lalt}{+lctrl}
 
 * move window to other screen
-{f11}>{-lwin}{-lalt}{-lctrl}{left}{+lalt}{+lwin}{+lctrl}
-{f12}>{-lwin}{-lalt}{-lctrl}{right}{+lalt}{+lwin}{+lctrl}
-
-* maximize window
-{lctrl}{f}>{-lwin}{-lctrl}{f}{+lctrl}{+lwin}
+{F11}>{speed5}{-lalt}{-lwin}{-lctrl}{left}{+lalt}{+lwin}{+lctrl}
+{F12}>{speed5}{-lwin}{-lalt}{-lctrl}{right}{+lalt}{+lwin}{+lctrl}
 
 * add another Alfred default trigger
 {lctrl}{space}>{-lwin}{space}{+lwin}
@@ -57,6 +58,7 @@ ADD?
 {lctrl}{pdown}>{lctrl}{down}
 
 * Alfred hotkey sync
+{lctrl}{f}>{-lwin}{-lctrl}{f}{+lctrl}{+lwin}
 {lctrl}{b}>{-lwin}{-lctrl}{b}{+lctrl}{+lwin}
 {lctrl}{x}>{-lwin}{-lctrl}{x}{+lctrl}{+lwin}
 {lctrl}{c}>{-lwin}{-lctrl}{c}{+lctrl}{+lwin}
@@ -68,6 +70,63 @@ ADD?
 {lctrl}{z}>{-lwin}{-lctrl}{z}{+lctrl}{+lwin}
 {lctrl}{s}>{-lwin}{-lctrl}{s}{+lctrl}{+lwin}
 {lctrl}{p}>{-lwin}{-lctrl}{p}{+lctrl}{+lwin}
+
+[=]>[`]
+[up]>[down]
+[down]>[up]
+[F12]>[play]
+[scroll]>[vol-]
+[prtscr]>[mute]
+[intl-\]>[kpshft]
+[kp-insert]>[kpshft]
+[`]>[=]
+[pause]>[vol+]
+[lctrl]>[lwin]
+[delete]>[lctrl]
+[rctrl]>[lwin]
+[kp-H]>[left]
+[kp4]>[down]
+[kp5]>[up]
+[kp6]>[right]
+[rwin]>[ralt]
+{F1}>{speed5}{-lshift}{-lwin}{4}{+lshift}{+lwin}
+{F2}>{speed5}{-lalt}{-lwin}{j}{+lalt}{+lwin}
+{F3}>{speed5}{-lalt}{-lwin}{c}{+lalt}{+lwin}
+{F4}>{speed5}{-lalt}{-lctrl}{enter}{+lalt}{+lctrl}
+{F5}>{speed5}{-lalt}{-lctrl}{t}{+lalt}{+lctrl}
+{F6}>{speed5}{-lalt}{-lctrl}{e}{+lalt}{+lctrl}
+{F7}>{speed5}{-lalt}{-lctrl}{d}{+lalt}{+lctrl}
+{F8}>{speed5}{-lalt}{-lctrl}{g}{+lalt}{+lctrl}
+{F9}>{speed5}{-lalt}{-lctrl}{left}{+lalt}{+lctrl}
+{F10}>{speed5}{-lalt}{-lctrl}{right}{+lalt}{+lctrl}
+{F11}>{speed5}{-lalt}{-lwin}{-lctrl}{left}{+lalt}{+lwin}{+lctrl}
+{F12}>{speed5}{-lwin}{-lalt}{-lctrl}{right}{+lalt}{+lwin}{+lctrl}
+{lctrl}{e}>{speed5}{-lctrl}{-lwin}{e}{+lctrl}{+lwin}
+{rctrl}{e}>{speed5}{-lctrl}{-lwin}{e}{+lctrl}{+lwin}
+{lctrl}{t}>{speed5}{-lctrl}{-lwin}{t}{+lctrl}{+lwin}
+{rctrl}{t}>{speed5}{-lctrl}{-lwin}{t}{+lctrl}{+lwin}
+{lctrl}{i}>{speed5}{-lctrl}{-lwin}{i}{+lctrl}{+lwin}
+{rctrl}{i}>{speed5}{-lctrl}{-lwin}{i}{+lctrl}{+lwin}
+{lctrl}{p}>{speed5}{-lctrl}{-lwin}{p}{+lctrl}{+lwin}
+{rctrl}{p}>{speed5}{-lctrl}{-lwin}{p}{+lctrl}{+lwin}
+{lctrl}{s}>{speed5}{-lctrl}{-lwin}{s}{+lctrl}{+lwin}
+{rctrl}{s}>{speed5}{-lctrl}{-lwin}{s}{+lctrl}{+lwin}
+{lctrl}{f}>{speed5}{-lctrl}{-lwin}{f}{+lctrl}{+lwin}
+{lctrl}{l}>{speed5}{-lctrl}{-lwin}{l}{+lctrl}{+lwin}
+{rctrl}{l}>{speed5}{-lctrl}{-lwin}{l}{+lctrl}{+lwin}
+{lctrl}{z}>{speed5}{-lctrl}{-lwin}{z}{+lctrl}{+lwin}
+{rctrl}{z}>{speed5}{-lctrl}{-lwin}{z}{+lctrl}{+lwin}
+{lctrl}{x}>{speed5}{-lctrl}{-lwin}{x}{+lctrl}{+lwin}
+{rctrl}{x}>{speed5}{-lctrl}{-lwin}{x}{+lctrl}{+lwin}
+{lctrl}{c}>{speed5}{-lctrl}{-lwin}{c}{+lctrl}{+lwin}
+{rctrl}{c}>{speed5}{-lctrl}{-lwin}{c}{+lctrl}{+lwin}
+{lctrl}{b}>{speed5}{-lctrl}{-lwin}{b}{+lctrl}{+lwin}
+{rctrl}{b}>{speed5}{-lctrl}{-lwin}{b}{+lctrl}{+lwin}
+{lctrl}{k}>{speed5}{-lctrl}{-lwin}{k}{+lctrl}{+lwin}
+{rctrl}{k}>{speed5}{-lctrl}{-lwin}{k}{+lctrl}{+lwin}
+{lctrl}{space}>{speed5}{-lwin}{space}{+lwin}
+{pup}>{speed9}{-lshift}{-rwin}{obrack}{+lshift}{+rwin}
+{pdown}>{speed9}{-lshift}{-rwin}{cbrack}{+lshift}{+rwin}
 
 JOSH MAPPINGS
 

@@ -1,5 +1,31 @@
 local dap = require('dap')
 
+local function attachToNode()
+  print("attaching to node process")
+  dap.run({
+    type = 'node2',
+    request = 'attach',
+    cwd = vim.fn.getcwd(),
+    sourceMaps = true,
+    protocol = 'inspector',
+    skipFiles = {'<node_internals>/**/*.js'},
+  })
+end
+
+local function attachToChrome()
+  print("attaching to Chrome process")
+  dap.run({
+    type = "chrome",
+    request = "attach",
+    program = "${file}",
+    cwd = vim.fn.getcwd(),
+    sourceMaps = true,
+    protocol = "inspector",
+    port = 9222,
+    webRoot = "${workspaceFolder}"
+  })
+end
+
 local function debugJest(testName, fileName)
   print("starting " .. testName .. " with file " .. fileName)
   dap.run({
@@ -15,19 +41,24 @@ local function debugJest(testName, fileName)
   })
 end
 
-local function attach()
+local function attachToRemote()
   print("attaching")
   dap.run({
-    type = 'node2',
-    request = 'attach',
-    cwd = vim.fn.getcwd(),
-    sourceMaps = true,
-    protocol = 'inspector',
-    skipFiles = {'<node_internals>/**/*.js'},
-  })
+      type = 'node2',
+      request = 'attach',
+      address = "127.0.0.1",
+      port = 9229,
+      localRoot = vim.fn.getcwd(),
+      remoteRoot = "/home/vcap/app",
+      sourceMaps = true,
+      protocol = 'inspector',
+      skipFiles = {'<node_internals>/**/*.js'},
+    })
 end
 
 return {
   debugJest = debugJest,
-  attach = attach,
+  attachToNode = attachToNode,
+  attachToChrome = attachToChrome,
+  attachToRemote = attachToRemote,
 }
