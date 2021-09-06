@@ -36,6 +36,7 @@
   "prettier.requireConfig": true,
   "prettier.disableSuccessMessage": true,
   "eslint.autoFixOnSave": true,
+  "tslint.autoFixOnSave": true,
   "eslint.validate": [
     "javascript",
     "javascriptreact",

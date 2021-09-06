@@ -112,6 +112,7 @@
 	followTags = true
 [rebase]
 	autosquash = true
+	autostash = true
 [rerere]
   enabled = true
   autoupdate = true

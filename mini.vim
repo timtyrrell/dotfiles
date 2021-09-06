@@ -13,7 +13,37 @@ call plug#begin('~/.config/nvim/plugged')
 " Plug 'antoinemadec/coc-fzf'
 " Plug 'gelguy/wilder.nvim'
 " Plug 'mattn/calendar-vim'
+Plug 'ggandor/lightspeed.nvim'
+Plug 'folke/which-key.nvim'
 call plug#end()
+
+lua << EOF
+require("which-key").setup {
+triggers_blacklist = {
+    -- n = { "f" },
+  },
+}
+require'lightspeed'.setup {
+  limit_ft_matches = 5,
+  -- For instant-repeat, pressing the trigger key again (f/F/t/T) always works
+  instant_repeat_fwd_key = ';',
+  instant_repeat_bwd_key = ':',
+}
+function repeat_ft(reverse)
+  local ls = require'lightspeed'
+  ls.ft['instant-repeat?'] = true
+  ls.ft:to(reverse, ls.ft['prev-t-like?'])
+end
+vim.api.nvim_set_keymap('n', ';', '<cmd>lua repeat_ft(false)<cr>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('x', ';', '<cmd>lua repeat_ft(false)<cr>', {noremap = true, silent = true})
+-- vim.api.nvim_set_keymap('n', ':', '<cmd>lua repeat_ft(true)<cr>', {noremap = true, silent = true})
+-- vim.api.nvim_set_keymap('x', ':', '<cmd>lua repeat_ft(true)<cr>', {noremap = true, silent = true})
+
+EOF
+nmap <expr> f reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_f" : "f"
+nmap <expr> F reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_F" : "F"
+nmap <expr> t reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_t" : "t"
+nmap <expr> T reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_T" : "T"
 
 " let g:calendar_no_mappings=0
 " nmap <Leader>cL <Plug>CalendarH

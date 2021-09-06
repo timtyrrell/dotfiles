@@ -148,14 +148,16 @@ HISTSIZE=10000000
 SAVEHIST=10000000
 
 # options https://gist.github.com/mattmc3/c490d01751d6eb80aa541711ab1d54b1#file-1-setopts-zsh-L50
-setopt appendhistory         # sessions will append their history list to the history file
+setopt inc_append_history         # sessions will append their history list to the history file
+# setopt appendhistory         # sessions will append their history list to the history file
 setopt extendedglob          # Treat the ‘#’, ‘~’ and ‘^’ characters as part of filename
 setopt auto_cd               # if a command isn't valid, but is a directory, cd to that dir
 setopt nonomatch             # tell zsh to pass the unevaluated argument like bash
 setopt interactivecomments   # Allow comments even in interactive shells.
 setopt hist_ignore_all_dups  # Delete old recorded entry if new entry is a duplicate
-setopt share_history         # Share history between all sessions.
+# setopt share_history         # Share history between all sessions.
 setopt prompt_subst          # parameter expansion, command substitution and arithmetic expansion are performed in prompts
+setopt auto_resume            # attempt to resume existing job before creating a new process
 
 # Bindings
 # external editor support
@@ -168,7 +170,7 @@ bindkey '\ep' up-line-or-search
 bindkey '\en' down-line-or-search
 bindkey '\ew' kill-region
 
-# alt-c 
+# alt-c
 bindkey "ç" fzf-cd-widget
 
 # disable in tmux
@@ -207,17 +209,17 @@ fi
 
 # fkill: npm install --global fkill-cli
 fkill_full() {
-    local pid 
+    local pid
     if [ "$UID" != "0" ]; then
         pid=$(ps -f -u $UID | sed 1d | fzf-tmux -p 90%,90% --ansi --multi --preview-window=:hidden | awk '{print $2}')
     else
         pid=$(ps -ef | sed 1d | fzf-tmux -p 90%,90% --ansi --multi --preview-window=:hidden | awk '{print $2}')
-    fi  
+    fi
 
     if [ "x$pid" != "x" ]
     then
         echo $pid | xargs kill -${1:-9}
-    fi  
+    fi
 }
 
 # find-in-file - usage: fif <SEARCH_TERM>
@@ -317,7 +319,7 @@ export FZF_DEFAULT_OPTS="
 --border
 --color=fg:#c0caf5,bg:#1a1b26,hl:#bb9af7
 --color=fg+:#c0caf5,bg+:#292e42,hl+:#7dcfff
---color=info:#7aa2f7,prompt:#7dcfff,pointer:#7dcfff 
+--color=info:#7aa2f7,prompt:#7dcfff,pointer:#7dcfff
 --color=marker:#9ece6a,spinner:#9ece6a,header:#9ece6a
 --color=gutter:#1a1b26
 --prompt='∼ ' --pointer='▶' --marker='✓'
@@ -429,7 +431,7 @@ fstash() {
   done
 }
 
-# fgst - pick files from `git status -s` 
+# fgst - pick files from `git status -s`
 is_in_git_repo() {
   git rev-parse HEAD > /dev/null 2>&1
 }
@@ -535,8 +537,6 @@ fco_preview() {
 }
 
 # change all these with these
-# https://github.com/bkuhlmann/dotfiles/blob/main/home_files/.config/bash/functions-private.sh.tt#L223-L227
-# https://github.com/bkuhlmann/dotfiles/blob/main/home_files/.config/bash/functions-public.sh.tt#L1243-L1253
 git_reset_hard_remote() {
   local commit
   commit=$( git branch --show-current ) &&
@@ -579,8 +579,15 @@ alias tweak='vim ~/.config/nvim/init.vim'
 alias tree='tree-git-ignore'
 alias cl='clear'
 
+# tmux
 alias tmn='tmux new -s'
 alias tma='tmux attach -t'
+
+# docker
+alias dc='docker-compose'
+alias dcu='docker-compose up'
+alias dcd='docker-compose down'
+alias dcps='docker-compose ps'
 
 # another option: https://github.com/natkuhn/Chrome-debug
 alias chrome-debug='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222&'
@@ -658,6 +665,7 @@ alias gnap='git add -N --ignore-removal . && gap && gref'
 alias gb="git branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate"
 alias gc='git commit -v'
 alias gca='git commit -a -v'
+alias gcf='git commit --fixup'
 alias gcl='git clean -f -d'
 alias gd='git diff'
 alias gds='git diff --staged'
@@ -701,6 +709,7 @@ alias grestore="git restore --staged . && git restore ."
 alias reset_authors='git commit --amend --reset-author -C HEAD'
 alias grhr="git_reset_hard_remote"
 alias grhl="git_reset_hard_local"
+alias stash="git add . && git add stash"
 alias wip="git add . && HUSKY_SKIP_HOOKS=1 gc -m 'wip [ci skip]'"
 alias undo="git reset HEAD~1 --mixed"
 alias unwip="undo"
@@ -713,17 +722,20 @@ alias SHA="sha"
 alias cannonball="git add . && git commit --amend -C HEAD && git push --force-with-lease"
 alias cannonballyolo="git add . && HUSKY_SKIP_HOOKS=1 git commit --amend -C HEAD && git push --force-with-lease"
 alias fix='nvim +/HEAD `git diff --name-only | uniq`'
+
+# tmux alias
+alias tmux_plugins_install="~/.tmux/plugins/tpm/bin/install_plugins"
+alias tmux_plugins_update="~/.tmux/plugins/tpm/bin/update_plugins all"
+alias tmux_plugins_clean="~/.tmux/plugins/tpm/bin/clean_plugins"
+
+# random alias
 alias be="bundle exec"
 alias nvm="fnm"
 alias strat="start"
 alias ns="npm start"
 alias barf="rm -rf node_modules && npm i"
 alias rimraf="rm -rf node_modules"
-alias stash="git add . && git add stash"
 
-alias tmux_plugins_install="~/.tmux/plugins/tpm/bin/install_plugins"
-alias tmux_plugins_update="~/.tmux/plugins/tpm/bin/update_plugins all"
-alias tmux_plugins_clean="~/.tmux/plugins/tpm/bin/clean_plugins"
 
 # brew tap jason0x43/homebrew-neovim-nightly
 # brew cask install neovim-nightly
@@ -819,3 +831,7 @@ compinit
 
 # fnm
 eval "$(fnm --log-level=quiet env --use-on-cd)"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

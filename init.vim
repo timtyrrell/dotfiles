@@ -25,6 +25,10 @@ set nofoldenable
 
 "command line completion
 set wildmenu
+
+cnoremap <expr> <c-n> wildmenumode() ? "\<c-n>" : "\<down>"
+cnoremap <expr> <c-p> wildmenumode() ? "\<c-p>" : "\<up>"
+
 set wildmode=longest:full,full
 " not as nice looking but selects first option
 " set wildmode=longest:list,full
@@ -93,6 +97,8 @@ function! s:empty_message(timer)
   endif
 endfunction
 
+" deep dive into configuring groups, commands, etc
+" https://thevaluable.dev/vim-expert/
 augroup cmd_msg_cls
   autocmd!
   autocmd CmdlineLeave :  call timer_start(5000, funcref('s:empty_message'))
@@ -146,8 +152,8 @@ inoremap <C-a> <C-o>0
 inoremap <C-e> <C-o>$
 
 " allow tab/s-tab to filter with incsearch in-progress
-cnoremap <expr> <Tab>   getcmdtype() =~ '[?/]' ? '<c-g>' : '<Tab>'
-cnoremap <expr> <S-Tab> getcmdtype() =~ '[?/]' ? '<c-t>' : '<S-Tab>'
+cnoremap <expr> <Tab>   getcmdtype() =~ "[?/]" ? "<c-g>" : "<Tab>"
+cnoremap <expr> <S-Tab> getcmdtype() =~ "[?/]" ? "<c-t>" : "<S-Tab>"
 
 " Make <C-p>/<C-n> act like <Up>/<Down> in cmdline mode, so they can be used to navigate history with partially completed commands
 cnoremap <c-p> <up>
@@ -212,13 +218,6 @@ map <Leader><space> :nohl<cr>
 " xmap n <SID>(search-forward)zzzv
 " nmap N <SID>(search-backward)zzzv
 " xmap N <SID>(search-backward)zzzv
-
-" Bring search results to midscreen
-" nnoremap n nzzzv
-" nnoremap N Nzzzv
-
-" leave lines visible above/below cursor when moving around
-set scrolloff=5
 
 " keep windows same size when opening/closing splits
 set equalalways
@@ -314,12 +313,6 @@ map fg <c-z>
 " stty susp undef
 " bind '"\C-z":"fg\n"'
 
-" create file...WIP
-" map <leader>gf :e <cfile><cr>
-" map <silent> <leader>cf :!touch <c-r><c-p><cr><cr>
-" map <silent> <leader>cf :call writefile([], expand('<cfile>'), 't')<cr>
-" nnoremap cgf :e <c-w><c-f><cr>
-
 " format json
 nnoremap <silent> <Leader>jj :%!python -m json.tool<CR>
 
@@ -331,10 +324,8 @@ nnoremap <silent> <Leader>ti :%!tidy -config ~/.config/tidy_config.txt %<CR>
 
 " save with Enter *except* in quickfix buffers
 " https://vi.stackexchange.com/questions/3127/how-to-map-enter-to-custom-command-except-in-quick-fix
-nnoremap <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':write!<CR>'
+nnoremap <expr> <CR> &buftype ==# "quickfix" ? "\<CR>" : ":write!<CR>"
 " don't write unless changed
-" nnoremap <silent> <expr> <CR> &buftype ==# 'quickfix' ? '\<CR>' : ':update<CR>'
-" autocmd BufWinEnter * if &filetype ==? 'coc-explorer' | setlocal winhighlight=Normal:NormalJS | endif
 
 " train myself to use better commands
 " ZZ - Write current file, if modified, and quit. (:x = :wq = ZZ)
@@ -390,6 +381,7 @@ let g:coc_global_extensions = [
           \ 'coc-stylelintplus',
           \ 'coc-svg',
           \ 'coc-swagger',
+          \ 'coc-tslint-plugin',
           \ 'coc-tsserver',
           \ 'coc-vimlsp',
           \ 'coc-webpack',
@@ -433,6 +425,9 @@ augroup mundoauto
 augroup END
 
 Plug 'tpope/vim-obsession' " session management
+" try nvim version and telescope session picker?
+" https://github.com/rmagatti/auto-sessiona
+" https://github.com/rmagatti/session-lens
 
 " debugging
 Plug 'mfussenegger/nvim-dap'
@@ -455,14 +450,12 @@ Plug 'nvim-treesitter/playground'
 " F: Unfocuses the currently focused language.
 " <cr>: Go to current node in code buffer
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
-" Plug 'haringsrob/nvim_context_vt' " Add virtual text to show current context
-Plug 'RRethy/nvim-treesitter-textsubjects'
-Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+" Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'mfussenegger/nvim-ts-hint-textobject'
 
 Plug 'andrewradev/sideways.vim'
-nnoremap <A-h> :SidewaysLeft<cr>
-nnoremap <A-l> :SidewaysRight<cr>
+nnoremap <A-Left> :SidewaysLeft<cr>
+nnoremap <A-Right> :SidewaysRight<cr>
 " cia - change an argument
 " daa - delete an argument
 omap aa <Plug>SidewaysArgumentTextobjA
@@ -527,8 +520,9 @@ nmap <leader>mp <Plug>MarkdownPreview
 nmap <leader>ms <Plug>MarkdownPreviewStop
 
 " markdown preview in nvim popup
-Plug 'npxbr/glow.nvim', {'do': ':GlowInstall', 'for': 'markdown'}
+Plug 'ellisonleao/glow.nvim', {'for': 'markdown'}
 nmap <leader>mv :Glow<CR>
+let g:glow_binary_path = $HOME . "/bin"
 " q to quit, :Glow for current filepath
 
 Plug 'godlygeek/tabular', { 'on': 'Tabularize'}
@@ -586,14 +580,65 @@ Plug 'mileszs/ack.vim'
 
 " enhanced matchit
 Plug 'andymass/vim-matchup'
+" ---------------------------------------------~
+"  LHS   RHS                   Mode   Module
+" -----------------------------------------------~
+"  %     |<plug>(matchup-%)|     nx     motion   - go forwards to its next matching word
+"  g%    |<plug>(matchup-g%)|    nx     motion   - go backwards to [count]th previous matching word
+"  [%    |<plug>(matchup-[%)|    nx     motion   - Go to [count]th previous outer open word
+"  ]%    |<plug>(matchup-]%)|    nx     motion   - Go to [count]th next outer close word
+"  z%    |<plug>(matchup-z%)|    nx     motion   - Go to inside [count]th nearest block
+"  a%    |<plug>(matchup-a%)|    x      text_obj - Select an |any-block|
+"  i%    |<plug>(matchup-i%)|    x      text_obj - Select the inside of an |any-block|
+"  ds%   |<plug>(matchup-ds%)|   n      surround - Delete {count}th surrounding matching words
+"  cs%   |<plug>(matchup-cs%)|   n      surround - Change {count}th surrounding matching words
 
 " tab to exit enclosing character
 Plug 'abecodes/tabout.nvim'
 
 " sneak replacement
 Plug 'ggandor/lightspeed.nvim'
+" s|S <c-x>? char1 (char2|label)? (<tab>|<s-tab>)* label?
 " s{char}{char} motion
 " dz{char}{char} - delete until
+"
+" Normal mode~
+
+" s{char}{char}              Jump to the first character of {char}{char}
+"                            in the forward direction.
+" S{char}{char}              Jump to the first character of {char}{char}
+"                            in the backward direction.
+" Visual mode~
+
+" s{char}{char}              Extend visual selection up to and including the
+"                            first character of {char}{char} in the forward
+"                            direction.
+" S{char}{char}              Extend visual selection up to and including the
+"                            first character of {char}{char} in the backward
+"                            direction.
+
+" x{char}{char}              Extend visual selection up to and including the
+"                            second character of {char}{char} in the forward
+"                            direction.
+" X{char}{char}              Extend visual selection up to the second character
+"                            of {char}{char} in the backward direction.
+" Operator-pending mode~
+
+" {operator}z{char}{char}    Perform {operator} from the cursor up to the first
+"                            character of {char}{char} in the forward direction.
+" {operator}Z{char}{char}    Perform {operator} from the cursor up to and
+"                            including the first character of {char}{char} in
+"                            the backward direction. (|exclusive| motion: the
+"                            cursor position is not included without |o_v|.)
+
+" {operator}x{char}{char}    Perform {operator} from the cursor up to and
+"                            including the second character of {char}{char} in
+"                            the forward direction.
+" {operator}X{char}{char}    Perform {operator} from the cursor up to the second
+"                            character of {char}{char} in the backward
+"                            direction. (|exclusive| motion: the cursor position
+"                            is not included without |o_v|.)
+
 
 Plug 'phaazon/hop.nvim'
 
@@ -682,11 +727,11 @@ Plug 'tpope/vim-surround'
 augroup jsconsolecmds
   autocmd!
   "wrap in console.log - yswc or yssc TODO: broken also??
-  autocmd FileType javascript let b:surround_{char2nr('c')} = 'console.log(\r)'
-  autocmd FileType javascript let b:surround_{char2nr('e')} = '${\r}'
+  " autocmd FileType typescriptreact,javascript,javascriptreact,typescript let b:surround_{char2nr('c')} = 'console.log(\r)'
+  " autocmd FileType typescriptreact,javascript,javascriptreact,typescript let b:surround_{char2nr('e')} = '${\r}'
   " move word under cursor up or down a line wrapped in a console.log
-  autocmd FileType javascript nnoremap <buffer> <leader>clO "zyiwOconsole.log(z)<Esc>
-  autocmd FileType javascript nnoremap <buffer> <leader>clo "zyiwoconsole.log(z)<Esc>
+  autocmd FileType typescriptreact,javascript,javascriptreact,typescript nnoremap <buffer> <leader>cO "zyiwOconsole.log(z)<Esc>
+  autocmd FileType typescriptreact,javascript,javascriptreact,typescript nnoremap <buffer> <leader>co "zyiwoconsole.log(z)<Esc>
 augroup END
 
 Plug 'tpope/vim-unimpaired'
@@ -699,13 +744,8 @@ vmap + <Plug>(expand_region_expand)
 vmap - <Plug>(expand_region_shrink)
 
 Plug 'wincent/scalpel'
+nmap <Leader>ew <Plug>(Scalpel)
 " replace all instances of the word currently under the cursor throughout a file. <Leader>e mnemonic: edit)
-
-Plug 'tommcdo/vim-exchange'
-" cxw - set word, . to swap
-" cxx - set line, . to swap
-" cxiw, etc
-" cxc - clear
 
 Plug 'kana/vim-textobj-user' | Plug 'kana/vim-textobj-line'
 " adds 'al' and 'il' motions for a line
@@ -769,15 +809,15 @@ nnoremap <Leader>GB :.GBrowse!<CR>
 " = shows the git diff of the file your cursor is on.
 " - on a hunk, stages (or unstages) the hunk.
 " - in a visual selection, stages (or unstages) the selected lines in the hunk.
-" cvc - commits the staged changes in verbose mode. I like the last chance it gives me to verify the right changes have been staged, and it helps inform the commit message.
-" :GV to open commit browser
-"     You can pass git log options to the command, e.g. :GV -S foobar.
+" cvc - commits the staged changes in verbose mode.
+" :GV to open commit browser, git log options to the command, e.g. :GV -S foobar.
 " :GV! will only list commits that affected the current file
 " :GV? fills the location list with the revisions of the current file
 " :Gwrite[!] write the current file to the index and exits vimdiff mode.
 " HUNKS
 " do - `diffget` (obtain)
 " dp - `diffput`
+" staging hunks: https://vi.stackexchange.com/questions/10368/git-fugitive-how-to-git-add-a-visually-selected-chunk-of-code/10369#10369
 
 " command line mergetool
 Plug 'christoomey/vim-conflicted'
@@ -866,8 +906,6 @@ let g:Unicode_CompleteName = 1
 " regex explain - :ExplainPattern {pattern} or :ExplainPattern {register}
 Plug 'Houl/ExplainPattern'
 
-" Plug 'puremourning/vimspector'
-
 Plug 'tpope/vim-scriptease'
 " https://codeinthehole.com/tips/debugging-vim-by-example/#why-isn-t-syntax-highlighting-working-as-i-want
 " zS to indentify the systen region name
@@ -877,6 +915,7 @@ Plug 'tpope/vim-scriptease'
 " visiblity
 Plug 'psliwka/vim-smoothie'
 
+" no recent updates, try this? https://github.com/edluffy/specs.nvim
 Plug 'danilamihailov/beacon.nvim'
 let g:beacon_ignore_filetypes = ['git']
 if !&diff
@@ -902,11 +941,19 @@ Plug 'junegunn/vim-peekaboo'
 
 " mark column display
 Plug 'kshenoy/vim-signature'
+" don't override mfussenegger/nvim-ts-hint-textobject mapping
+let g:SignatureMap = { 'DeleteMark' : "dM" }
+" mx           Toggle mark 'x' and display it in the leftmost column
+" dMx          Remove mark 'x' where x is a-zA-Z
+" m<Space>     Delete all marks from the current buffer
+" m<BS>        Remove all markers
+" ]'           Jump to start of next line containing a mark
+" ['           Jump to start of prev line containing a mark
 
 " displays colors for words/hex
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 let g:Hexokinase_highlighters = ['backgroundfull']
-let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'less']
+let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'less', 'vim', 'conf', 'tmux', 'gitconfig', 'xml', 'lua']
 
 " appearence and insight
 Plug 'ryanoasis/vim-devicons'
@@ -916,8 +963,7 @@ let g:WebDevIconsOS = 'Darwin'
 Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
 
 Plug 'itchyny/lightline.vim' |
-          \ Plug 'konart/vim-lightline-coc' " |
-          " \ Plug 'timtyrrell/apprentice-lightline-experimental'
+          \ Plug 'konart/vim-lightline-coc'
 Plug 'mhinz/vim-startify'
 Plug 'folke/tokyonight.nvim'
 " Plug 'EdenEast/nightfox.nvim'
@@ -932,7 +978,6 @@ nnoremap <leader>ve :VenterToggle<CR>
 " center current buffer, in neovim z-index
 Plug 'folke/zen-mode.nvim'
 nnoremap <leader>zm :ZenMode<CR>
-" Plug 'folke/twilight.nvim'
 
 Plug 'voldikss/vim-browser-search'
 nmap <silent> <Leader>bs <Plug>SearchNormal
@@ -963,10 +1008,10 @@ let g:rooter_resolve_links = 1
 " let g:rooter_silent_chdir = 1
 
 " life
-" Plug 'dstein64/vim-startuptime'
+Plug 'dstein64/vim-startuptime'
 " gf to go deeper
 " K for more info
-Plug 'tweekmonster/startuptime.vim'
+" Plug 'tweekmonster/startuptime.vim'
 
 " Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
 Plug 'vimwiki/vimwiki', { 'branch': 'dev', 'for': 'markdown', 'on': 'VimwikiMakeDiaryNote' }
@@ -975,24 +1020,10 @@ augroup load_vimwiki
   autocmd! User Vimwiki echom 'Vimwiki is now loaded!'
 augroup END
 
-" Load on nothing " the dir path is not right
-" Plug 'vimwiki/vimwiki', { 'branch': 'dev', 'on': []}
-" augroup load_vimwiki
-"   echo $HOME . '/dotfiles'
-"   autocmd!
-"   " autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
-"   autocmd BufNewFile,BufRead *.md * echo 'hi'
-"   autocmd BufNewFile,BufRead *.md * call plug#load('vimwiki')
-"   autocmd BufNewFile,BufRead $HOME . '/dotfiles'  * call plug#load('vimwiki')
-"   autocmd BufNewFile,BufRead /Users/timothy.tyrrell/code/timtyrrell/dotfiles  * call plug#load('vimwiki')
-"                      \| autocmd! load_vimwiki
-" augroup END
-
 Plug 'mattn/calendar-vim'
 let g:calendar_no_mappings=0
-" Brings up the calendar in a vertical split.
-nmap <Leader>cl <Plug>CalendarV
-nmap <Leader>cL <Plug>CalendarH
+nmap <Leader>wc <Plug>CalendarV
+nmap <Leader>wC <Plug>CalendarH
 
 Plug 'alok/notational-fzf-vim'
 Plug 'ferrine/md-img-paste.vim'
@@ -1032,7 +1063,53 @@ let g:hardtime_ignore_quickfix = 1
 let g:hardtime_ignore_buffer_patterns = ['help', 'nofile']
 let g:hardtime_ignore_quickfix = 1
 let g:hardtime_allow_different_key = 0
-let g:hardtime_maxcount = 2
+let g:hardtime_maxcount = 3
+
+"""" movements
+" w			  [count] words forward.  |exclusive| motion.
+" W			  [count] WORDS forward.  |exclusive| motion.
+" e			  Forward to the end of word [count] |inclusive|.
+" E			  Forward to the end of WORD [count] |inclusive|.
+" b			  [count] words backward.  |exclusive| motion.
+" B			  [count] WORDS backward.  |exclusive| motion.
+" ge			Backward to the end of word [count] |inclusive|.
+" gE			Backward to the end of WORD [count] |inclusive|.
+" %			  Find the next item in this line after or under the cursor and jump to its match.
+" ]m      go to next start of a method
+" ]M      go to next end of a method
+" [m      go to previous start of a method
+" [M      go to previous end of a method
+" [{      jump to beginning of code block (while, switch, if, etc)
+" [(      jump to the beginning of a parenthesis
+" ]}      jump to end of code block (while, switch, if, etc)
+" ])      jump to the end of a parenthesis
+" CTRL-O  go to [count] Older cursor position in jump list
+" CTRL-I  go to [count] newer cursor position in jump list
+" '.      go to position where last change was made (in current buffer)
+" (			  [count] sentences backward
+" )			  [count] sentences forward
+" {			  [count] paragraphs backward
+" }			  [count] paragraphs forward
+" '<			To the first line or character of the last selected Visual area
+" '>			To the last line or character of the last selected Visual area
+" g;			Go to [count] older position in change list.
+" g,			Go to [count] newer cursor position in change list.
+""""
+
+"dl"	delete character (alias: "x")
+"diw"	delete inner word
+"daw"	delete a word
+"diW"	delete inner WORD
+"daW"	delete a WORD
+"dd"	delete one line
+"dis"	delete inner sentence
+"das"	delete a sentence
+"dib"	delete inner '(' ')' block
+"dab"	delete a '(' ')' block
+"dip"	delete inner paragraph
+"dap"	delete a paragraph
+"diB"	delete inner '{' '}' block
+"daB"	delete a '{' '}' block
 
 " bugfix
 " fix CursorHold perf bug
@@ -1058,15 +1135,11 @@ call wilder#set_option('renderer', wilder#wildmenu_renderer(
       \   'separator': ' · ',
       \ })))
 
-" 'highlighter' : applies highlighting to the candidates
-call wilder#set_option('renderer', wilder#popupmenu_renderer({
-      \ 'highlighter': wilder#basic_highlighter(),
-      \ }))
-
 call wilder#set_option('pipeline', [
       \   wilder#branch(
       \     wilder#cmdline_pipeline({
       \       'fuzzy': 1,
+      \       'set_pcre2_pattern': 1,
       \     }),
       \     wilder#python_search_pipeline({
       \       'pattern': 'fuzzy',
@@ -1082,6 +1155,7 @@ let s:highlighters = [
 call wilder#set_option('renderer', wilder#renderer_mux({
       \ ':': wilder#popupmenu_renderer({
       \   'highlighter': s:highlighters,
+      \   'winblend': 25,
       \ }),
       \ '/': wilder#wildmenu_renderer({
       \   'highlighter': s:highlighters,
@@ -1093,46 +1167,41 @@ call wilder#set_option('renderer', wilder#popupmenu_renderer({
       \ 'left': [
       \   wilder#popupmenu_devicons(),
       \ ],
+      \'right': [
+      \  ' ',
+      \  wilder#popupmenu_scrollbar(),
+      \],
+      \   'winblend': 25,
       \ }))
 
+" mfussenegger/nvim-ts-hint-textobject
 " example: `vm` to visually display hints to select
 omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
 vnoremap <silent> m :lua require('tsht').nodes()<CR>
 
+" don't be multiline during macros
+nmap <expr> f reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_f" : "f"
+nmap <expr> F reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_F" : "F"
+nmap <expr> t reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_t" : "t"
+nmap <expr> T reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_T" : "T"
+
 lua << EOF
 require'lightspeed'.setup {
-  jump_to_first_match = true,
-  jump_on_partial_input_safety_timeout = 400,
-  -- This can get _really_ slow if the window has a lot of content,
-  -- turn it on only if your machine can always cope with it.
-  highlight_unique_chars = false,
-  grey_out_search_area = true,
-  match_only_the_start_of_same_char_seqs = true,
   limit_ft_matches = 5,
-  full_inclusive_prefix_key = '<c-x>',
-  -- For instant-repeat, pressing the trigger key again (f/F/t/T)
-  -- always works, but here you can specify additional keys too.
+  -- For instant-repeat, pressing the trigger key again (f/F/t/T) always works
   instant_repeat_fwd_key = ';',
   instant_repeat_bwd_key = ':',
-  -- By default, the values of these will be decided at runtime,
-  -- based on `jump_to_first_match`.
-  labels = nil,
-  cycle_group_fwd_key = nil,
-  cycle_group_bwd_key = nil,
 }
 
 require'hop'.setup()
-vim.api.nvim_set_keymap('n', '<leader>hw', "<cmd>lua require'hop'.hint_words()<cr>", {})
-vim.api.nvim_set_keymap('n', '<leader>hl', "<cmd>lua require'hop'.hint_lines()<cr>", {})
-vim.api.nvim_set_keymap('n', '<leader>hp', "<cmd>lua require'hop'.hint_patterns()<cr>", {})
--- vim.api.nvim_set_keymap('v', '<leader>hw', "<cmd>lua require'hop'.hint_words()<cr>", {})
--- vim.api.nvim_set_keymap('v', '<leader>hp', "<cmd>lua require'hop'.hint_patterns()<cr>", {})
+vim.api.nvim_set_keymap('n', '<leader><leader>', "<cmd>lua require'hop'.hint_words()<cr>", {})
+vim.api.nvim_set_keymap('n', '<leader><tab>', "<cmd>lua require'hop'.hint_lines()<cr>", {})
+vim.api.nvim_set_keymap('n', '<leader>/', "<cmd>lua require'hop'.hint_patterns()<cr>", {})
+vim.api.nvim_set_keymap('v', '<leader><leader>', "<cmd>lua require'hop'.hint_words()<cr>", {})
+vim.api.nvim_set_keymap('v', '<leader><tab>', "<cmd>lua require'hop'.hint_lines()<cr>", {})
+vim.api.nvim_set_keymap('v', '<leader>/', "<cmd>lua require'hop'.hint_patterns()<cr>", {})
 
 require("todo-comments").setup {}
-
--- example: `vd` to visually surround logical unit '.' to select more
--- vim.api.nvim_set_keymap('v', 'd', ':lua require"treesitter-unit".select()<CR>', {noremap=true})
--- vim.api.nvim_set_keymap('o', 'd', ':<c-u>lua require"treesitter-unit".select()<CR>', {noremap=true})
 
 require("zen-mode").setup {
   window = {
@@ -1142,47 +1211,7 @@ require("zen-mode").setup {
     -- * a percentage of the width / height of the editor when <= 1
     width = .5, -- width of the Zen window
     height = 1, -- height of the Zen window
-    -- by default, no options are changed for the Zen window
-    -- uncomment any of the options below, or add other vim.wo options you want to apply
-    options = {
-      -- signcolumn = "no", -- disable signcolumn
-      -- number = false, -- disable number column
-      -- relativenumber = false, -- disable relative numbers
-      -- cursorline = false, -- disable cursorline
-      -- cursorcolumn = false, -- disable cursor column
-      -- foldcolumn = "0", -- disable fold column
-      -- list = false, -- disable whitespace characters
-    },
   },
-  plugins = {
-    -- disable some global vim options (vim.o...)
-    -- comment the lines to not apply the options
-    options = {
-      enabled = true,
-      ruler = false, -- disables the ruler text in the cmd line area
-      showcmd = false, -- disables the command in the last line of the screen
-    },
-    twilight = { enabled = false },
-    gitsigns = { enabled = false }, -- disables git signs
-    tmux = { enabled = false }, -- disables the tmux statusline
-    -- this will change the font size on kitty when in zen mode
-    -- to make this work, you need to set the following kitty options:
-    -- - allow_remote_control socket-only
-    -- - listen_on unix:/tmp/kitty
-    kitty = {
-      enabled = true,
-      font = "+4", -- font size increment
-    },
-  },
-  -- callback where you can add custom code when the Zen window opens
-  on_open = function(win)
-  end,
-  -- callback where you can add custom code when the Zen window closes
-  on_close = function()
-  end,
-    -- your configuration comes here
-    -- or leave it empty to use the default settings
-    -- refer to the configuration section below
 }
 require("telescope").load_extension("git_worktree")
 
@@ -1221,13 +1250,10 @@ require"octo".setup({
       close_review_tab = "<C-c>",          -- close review tab
     },
 })
+
 require"nvim-web-devicons".setup()
 
-require("which-key").setup {
-  -- your configuration comes here
-  -- or leave it empty to use the default settings
-  -- refer to the configuration section below
-}
+require("which-key").setup()
 
 require('numb').setup {
    show_numbers = true, -- Enable 'number' for the window while peeking
@@ -1281,22 +1307,68 @@ require'nvim-treesitter.configs'.setup {
       }
     }
   },
-  textsubjects = {
-      enable = true,
-      keymaps = {
-          ['.'] = 'textsubjects-smart',
-          [';'] = 'textsubjects-container-outer',
-      }
-  },
-  textobjects = {
-    select = {
-      enable = true,
-      -- Automatically jump forward to textobj, similar to targets.vim
-      lookahead = true,
-    },
-  },
+  -- textsubjects = {
+  --     enable = true,
+  --     keymaps = {
+  --         ['.'] = 'textsubjects-smart',
+  --         [';'] = 'textsubjects-container-outer',
+  --     }
+  -- },
+  -- textobjects = {
+  --   select = {
+  --     enable = true,
+  --     -- Automatically jump forward to textobj, similar to targets.vim
+  --     lookahead = true,
+  --     keymaps = {
+  --       -- You can use the capture groups defined in textobjects.scm
+  --       ["oc"] = "@class.outer",
+  --       ["ic"] = "@class.inner",
+  --       ["of"] = "@function.outer",
+  --       ["if"] = "@function.inner",
+  --       ["ob"] = "@block.outer",
+  --       ["ib"] = "@block.inner",
+  --       ["ol"] = "@loop.outer",
+  --       ["il"] = "@loop.inner",
+  --       ["os"] = "@statement.outer",
+  --       ["is"] = "@statement.inner",
+  --       ["oC"] = "@comment.outer",
+  --       ["iC"] = "@comment.inner",
+  --       ["om"] = "@call.outer",
+  --       ["im"] = "@call.inner",
+  --     },
+  --   },
+    -- swap = {
+    --   enable = true,
+    --   swap_next = {
+    --     ["<leader>a"] = "@parameter.inner",
+    --   },
+    --   swap_previous = {
+    --     ["<leader>A"] = "@parameter.inner",
+    --   },
+    -- },
+    -- move = {
+    --   enable = true,
+    --   set_jumps = true, -- whether to set jumps in the jumplist
+    --   goto_next_start = {
+    --     ["]m"] = "@function.outer",
+    --     ["]]"] = "@class.outer",
+    --   },
+    --   goto_next_end = {
+    --     ["]M"] = "@function.outer",
+    --     ["]["] = "@class.outer",
+    --   },
+    --   goto_previous_start = {
+    --     ["[m"] = "@function.outer",
+    --     ["[["] = "@class.outer",
+    --   },
+    --   goto_previous_end = {
+    --     ["[M"] = "@function.outer",
+    --     ["[]"] = "@class.outer",
+    --   },
+    -- },
+  -- },
   playground = {
-    enable = false,
+    enable = true,
     disable = {},
     updatetime = 25, -- Debounced time for highlighting nodes in the playground from source code
     persist_queries = false -- Whether the query persists across vim sessions
@@ -1316,7 +1388,6 @@ require('hlslens').setup({
 })
 EOF
 
-
 augroup randomstuff
   autocmd!
   " Make it so that if files are changed externally (ex: changing git branches) update the vim buffers automatically
@@ -1326,12 +1397,9 @@ augroup randomstuff
   " if highlighting on big files is bad, can do similiar:
   " autocmd FileType typescript syntax sync ccomment minlines=1500
 
-  " open bug https://github.com/nvim-treesitter/nvim-treesitter/issues/1249
-  " au! BufRead,BufNewFile *.json set filetype=jsonc
-
   " set graphql filetype based on dir
-  autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
-  autocmd BufRead,BufNewFile */graphql/queries/*.js set syntax=graphql
+  " autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
+  " autocmd BufRead,BufNewFile */graphql/queries/*.js set syntax=graphql
   autocmd BufNewFile,BufRead .eslintrc,.prettierrc,.lintstagedrc set filetype=jsonc
   autocmd BufNewFile,BufRead *.bak set filetype=javascript
   autocmd BufNewFile,BufRead *.build,.env* set filetype=sh
@@ -1568,73 +1636,20 @@ function! MyHighlights() abort
   if g:colors_name ==# 'tokyonight'
 	  hi default link CocHighlightText TabLineSel
     hi IncSearch guifg=#292e42 guibg=#bb9af7
-    " hi default link IncSearch Sneak
-    " hi default link HlSearchNear Sneak
-    " hi default link HlSearchLens WildMenu
-    " hi default link HlSearchLensNear Sneak
-    " hi default link HlSearchFloat Sneak
-    " hi CocHighlightText cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
-    "git.addedSign.hlGroup": "GitGutterAdd",
-    "git.changedSign.hlGroup": "GitGutterChange",
-    "git.removedSign.hlGroup": "GitGutterDelete",
-    "git.topRemovedSign.hlGroup": "GitGutterDelete",
-    "git.changeRemovedSign.hlGroup": "GitGutterChangeDelete",
-	  " hi default link CocGitAddedSign
-    " hi DiffAdd ctermbg=235 ctermfg=108 cterm=reverse guifg=#262626 guibg=#87af87 gui=reverse
-    " hi DiffDelete ctermbg=235 ctermfg=131 cterm=reverse guifg=#262626 guibg=#af5f5f gui=reverse
-    " hi DiffChange ctermbg=235 ctermfg=103 cterm=reverse guifg=#262626 guibg=#8787af gui=reverse
+    hi CocUnderline gui=undercurl term=undercurl
+    hi default link CocErrorHighlight LspDiagnosticsUnderlineError
+    hi default link CocWarningHighlight LspDiagnosticsUnderlineWarning
+    hi default link CocInfoHighlight LspDiagnosticsUnderlineInformation
+    hi default link CocHintHighlight LspDiagnosticsUnderlineHint
+    hi default link CocErrorVirtualText LspDiagnosticsVirtualTextError
+    hi default link CocWarningVirtualText LspDiagnosticsVirtualTextWarning
+    hi default link CocInfoVirtualText LspDiagnosticsVirtualTextInformation
+    hi default link CocHintVirtualText LspDiagnosticsVirtualTextHint
+    hi default link CocCodeLens LspCodeLens
+    hi NormalFloat guifg=#c0caf5 guibg=#292e42
+    " hi Pmenu ctermfg=0 ctermbg=13 guifg=#c0caf5 guibg=#1f2335 cterm=underline
   end
-  if g:colors_name ==# 'apprentice'
-    " match codelens to Comment color so it stands out less
-    " hi CocCodeLens guifg=#585858
-    " hi MatchParen ctermbg=234 ctermfg=229 cterm=NONE guibg=#1c1c1c guifg=#ffffaf gui=NONE
-    " hi MatchParen cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
-
-    " coc-git column highlights
-    " hi DiffAdd ctermbg=235 ctermfg=108 cterm=reverse guifg=#262626 guibg=#87af87 gui=reverse
-    " hi DiffDelete ctermbg=235 ctermfg=131 cterm=reverse guifg=#262626 guibg=#af5f5f gui=reverse
-    " hi DiffChange ctermbg=235 ctermfg=103 cterm=reverse guifg=#262626 guibg=#8787af gui=reverse
-    " hi LineNr ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
-    " hi SignColumn ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
-    " hi FoldColumn ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
-    " hi Folded ctermbg=234 ctermfg=242 cterm=NONE guibg=#262626 guifg=#6c6c6c gui=NONE
-
-    " 'kshenoy/vim-signature'
-    " hi SignatureMarkText guibg=#262626
-
-    " 'kevinhwang91/nvim-hlslens'
-    " hi CurrentSearchItem guibg=#ff8700 guifg=#262626
-    " hi CurrentSearchItem cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
-    " hi default link HlSearchNear CurrentSearchItem
-    " hi default link HlSearchLens HlLens
-    " hi default link HlSearchLensNear HlLens
-    " hi default link HlSearchFloat HlLens
-
-    " random color change
-    " hi IncSearch ctermbg=131 ctermfg=235 cterm=NONE guibg=#af5f5f guifg=#262626 gui=NONE
-    " hi IncSearch cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
-    " hi IncSearch guibg=#ff8700 guifg=#262626
-
-    " Overwrite the highlight groups `CocHighlightText`, `CocHighlightRead` and `CocHighlightWrite` for customizing the colors.
-    " hi CocHighlightText cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#262626
-    " hi CocHighlightText ctermbg=229 ctermfg=235 cterm=NONE guibg=#ffffaf guifg=#262626 gui=NONE
-    " hi CocHighlightText ctermbg=NONE ctermfg=208 cterm=undercurl guibg=NONE guifg=#ff8700 guisp=#ff8700
-    " highlight CocHighlightText term=underline cterm=underline gui=underline
-    " highlight CursorLine gui=underline cterm=underline ctermfg=None guifg=None
-  end
-  " if &filetype ==# 'coc-explorer'
-    " autocmd WinEnter * call Handle_Win_Enter()
-    " setlocal winhighlight=Normal:Potato
-  " endif
-  " overwrite floating coc-explorer group
-  " highlight link CocExplorerNormalFloat Normal
 endfunction
-
-" hi NormalJS ctermbg=green guibg=green guifg=#87afd7 guibg=#87afd7
-" hi NormalJS cterm=reverse ctermfg=110 ctermbg=235 gui=reverse guifg=#87afd7 guibg=#87afd7
-" set winhighlight=Normal:MyNormal,NormalNC:MyNormalNC
-" autocmd BufEnter,BufWinEnter,WinEnter * setlocal winhighlight=Normal:NormalJS,NormalNC:NormalJS
-" autocmd BufEnter * setlocal winhighlight=Normal:NormalJS,NormalNC:NormalJS
 
 augroup MyColors
   autocmd!
@@ -1708,10 +1723,24 @@ let base16colorspace=256
 if has("termguicolors")
   set termguicolors
 endif
-" colorscheme apprentice
 let g:tokyonight_style = "night"
 let g:tokyonight_italic_functions = 1
-let g:tokyonight_sidebars = [ "qf", "coc-explorer", "terminal"]
+let g:tokyonight_sidebars = [ "qf", "coc-explorer", "terminal", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches", "dap-repl" ]
+" tokyonight_style 	"storm" 	The theme comes in three styles, storm, a darker variant night and day.
+" tokyonight_terminal_colors 	true 	Configure the colors used when opening a :terminal in Neovim
+" tokyonight_italic_comments 	true 	Make comments italic
+" tokyonight_italic_keywords 	true 	Make keywords italic
+" tokyonight_italic_functions 	false 	Make functions italic
+" tokyonight_italic_variables 	false 	Make variables and identifiers italic
+" tokyonight_transparent 	false 	Enable this to disable setting the background color
+" tokyonight_hide_inactive_statusline 	false 	Enabling this option, will hide inactive statuslines and replace them with a thin border instead. Should work with the standard StatusLine and LuaLine.
+" tokyonight_sidebars 	{} 	Set a darker background on sidebar-like windows. For example: ["qf", "vista_kind", "terminal", "packer"]
+" tokyonight_transparent_sidebar 	false 	Sidebar like windows like NvimTree get a transparent background
+" tokyonight_dark_sidebar 	true 	Sidebar like windows like NvimTree get a darker background
+" tokyonight_dark_float 	true 	Float windows like the lsp diagnostics windows get a darker background.
+" tokyonight_colors 	{} 	You can override specific color groups to use other groups or a hex color
+" tokyonight_day_brightness 	0.3 	Adjusts the brightness of the colors of the Day style. Number between 0 and 1, from dull to vibrant colors
+" tokyonight_lualine_bold 	false 	When true, section headers in the lualine theme will be bold
 colorscheme tokyonight
 
 " customize
@@ -1870,24 +1899,13 @@ let g:lightline#coc#indicator_warnings = ''
 let g:lightline#coc#indicator_errors = ''
 let g:lightline#coc#indicator_info = ''
 
-" Use autocmd to force lightline update.
-" autocmd User CocDiagnosticChange call lightline#update()
-
 function! LightlineFilenameDisplay()
   if &ft == 'coc-explorer'
     return ''
   else
-  " " if starts with term, no filename
-  " elseif bufname("term")
-  " else
-    return winwidth(0) > 90 ? WebDevIconsGetFileTypeSymbol(LightlineFilename()) . ' '. LightlineFilename() : pathshorten(fnamemodify(expand('%'), ":."))
+    return winwidth(0) > 90 ? WebDevIconsGetFileTypeSymbol(LightlineFilename()) . " ". LightlineFilename() : pathshorten(fnamemodify(expand("%"), ":."))
   endif
 endfunction
-
-  " if path[:len(root)-1] ==# root
-  "   return &filetype !~# g:tcd_blacklist && winwidth(0) > 70 ? Devicon().' '.path[len(root)+1:] : ''
-  " endif
-  " return &filetype !~# g:tcd_blacklist && winwidth(0) > 70 ? Devicon().' '.expand('%') : &filetype
 
 function! LightlineFilename()
   let root = fnamemodify(get(b:, 'git_dir'), ':h')
@@ -1937,7 +1955,6 @@ function! LightlineBranchformat()
   endtry
 endfunction
 
-" let g:lightline.colorscheme = 'apprentice'
 let g:lightline.colorscheme = 'tokyonight'
 
 " register compoments:
@@ -1968,7 +1985,48 @@ vim.fn.sign_define('DapStopped', {text='🟢', texthl='', linehl='', numhl=''})
 vim.g.dap_virtual_text = true
 
 -- dap-ui
-require("dapui").setup()
+require("dapui").setup({
+  icons = { expanded = "▾", collapsed = "▸" },
+  mappings = {
+    -- Use a table to apply multiple mappings
+    expand = { "<CR>", "<2-LeftMouse>" },
+    open = "o",
+    remove = "d",
+    edit = "e",
+    repl = "r",
+  },
+  sidebar = {
+    open_on_start = true,
+    -- You can change the order of elements in the sidebar
+    elements = {
+      -- Provide as ID strings or tables with "id" and "size" keys
+      {
+        id = "scopes", size = 0.40, -- Can be float or integer > 1
+      },
+      { id = "breakpoints", size = 0.05 },
+      { id = "stacks", size = 0.40 },
+      -- { id = "watches", size = 00.25 },
+    },
+    width = 50,
+    position = "right", -- Can be "left" or "right"
+  },
+  tray = {
+    open_on_start = true,
+    elements = { "repl",
+      { id = "watches", size = 0.25 },
+    },
+    height = 10,
+    position = "bottom", -- Can be "bottom" or "top"
+  },
+  floating = {
+    max_height = nil, -- These can be integers or a float between 0 and 1.
+    max_width = nil, -- Floats will be treated as percentage of your screen.
+    mappings = {
+      close = { "q", "<Esc>" },
+    },
+  },
+  windows = { indent = 1 },
+})
 
 -- David-Kunz/jester
 vim.api.nvim_set_keymap('n', '<leader>td', ':lua require"jester".debug({ path_to_jest = "node_modules/.bin/jest" })<cr>', {})
@@ -2190,7 +2248,7 @@ nmap <silent> gu <Plug>(coc-references-used)
 " find all file references
 nmap <leader>afr :<C-u>CocCommand tsserver.findAllFileReferences<cr>
 
-nmap <leader>co :CocOutline<cr>
+nmap <leader>cu :CocOutline<cr>
 
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
@@ -2282,12 +2340,12 @@ xmap ic <Plug>(coc-classobj-i)
 omap ic <Plug>(coc-classobj-i)
 xmap ac <Plug>(coc-classobj-a)
 omap ac <Plug>(coc-classobj-a)
-nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : '\<C-f>'
-nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : '\<C-b>'
-inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? '\<c-r>=coc#float#scroll(1)\<cr>' : '\<Right>'
-inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? '\<c-r>=coc#float#scroll(0)\<cr>' : '\<Left>'
-vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : '\<C-f>'
-vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : '\<C-b>'
+nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
 " restart when coc gets wonky
 nnoremap <silent> <leader>cr :<C-u>CocRestart<CR>
 nnoremap <silent> <leader>cs :<C-u>CocStart<CR>
@@ -2340,11 +2398,10 @@ nnoremap <silent><nowait> <leader>zS :<C-u>CocFzfList snippets<CR>
 nnoremap <silent><nowait> <leader>zv :<C-u>CocFzfList services<CR>
 nnoremap <silent><nowait> <leader>zr :<C-u>CocFzfListResume<CR>
 nnoremap <silent><nowait> <leader>zy :<C-u>CocFzfList yank<CR>
-" nnoremap <silent><nowait> <leader>zy :<C-u>CocList -A --normal yank<CR>
 
 " coc-explorer
-nnoremap <silent> <tab><tab>  :CocCommand explorer --position floating<CR>
-nnoremap <silent> <Leader><Leader> :CocCommand explorer --toggle<CR>
+nnoremap <silent> <leader>ee :CocCommand explorer --toggle<CR>
+nnoremap <silent> <leader>ef  :CocCommand explorer --position floating<CR>
 
 " display fullpath in status line, used for long filenames
 function! s:ShowFilename()
@@ -2358,7 +2415,6 @@ augroup cocexplorercmds
   autocmd BufEnter * if (winnr("$") == 1 && &filetype == 'coc-explorer') | q | endif
   autocmd CursorMoved \[coc-explorer\]* :call <SID>ShowFilename()
 augroup END
-
 
 " Start multiple cursors session
 " nmap <silent> <C-c> <Plug>(coc-cursors-position)
@@ -2465,8 +2521,8 @@ command! -bang -nargs=* RgLines
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always --smart-case  -- '.shellescape(<q-args>), 1,
   \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..'] }), <bang>0)
-  \   'rg --column --line-number --no-heading --color=always --colors 'path:fg:190,220,255' --colors 'line:fg:128,128,128' --smart-case  -- '.shellescape(<q-args>), 1,
-  \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..', '--color', 'hl:123,hl+:222'] }), <bang>0)
+  " \   'rg --column --line-number --no-heading --color=always --colors 'path:fg:190,220,255' --colors 'line:fg:128,128,128' --smart-case  -- '.shellescape(<q-args>), 1,
+  " \   fzf#vim#with_preview({ 'options': ['--delimiter', ':', '--nth', '4..', '--color', 'hl:123,hl+:222'] }), <bang>0)
 
 " override default preview settings in zshrc to hide previews
 " examples in the source: https://github.com/junegunn/fzf.vim/blob/master/plugin/fzf.vim#L48
@@ -2497,44 +2553,6 @@ command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 " autocomplete dirs
 command! -nargs=* -bang -complete=dir RGdir call RipgrepFzf(<q-args>, <bang>0)
 
-" function! FzfIcons()
-"   let l:fzf_files_options = '--preview "bat --color always --style numbers {2..} | head -'.&lines.'"'
-"    function! s:edit_devicon_prepended_file(item)
-" "    let l:file_path = a:item[4:-1]
-" "    execute 'silent e' l:file_path
-"   endfunction
-"   call fzf#run({
-"         \ 'source': $FZF_DEFAULT_COMMAND . ' | devicon-lookup --color',
-"         \ 'sink':   function('s:edit_devicon_prepended_file'),
-"         \ 'options': '-m ' . l:fzf_files_options,
-"         \ 'window': { 'width': 0.9, 'height': 0.6 }
-"         \ })
-" endfunction
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols = {}
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['js'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['jsx'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['vim'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['md'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['rb'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['rabl'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['erb'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['yaml'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['yml'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['svg'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['json'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols['elm'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols = {} " needed
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['.*vimrc.*'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['Gemfile'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['.rspec'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['Rakefile'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['application.rb'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['environment.rb'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['routes.rb'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['spring.rb'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['.keep'] = '
-" let g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols['package.json'] = '
-
 "FZF Buffer Delete
 function! s:list_buffers()
   redir => list
@@ -2560,14 +2578,6 @@ command! -bang Args call fzf#run(fzf#wrap('args',
 " - When set, CTRL-N and CTRL-P will be bound to 'next-history' and 'previous-history' instead of 'down' and 'up'.
 let g:fzf_history_dir = '~/.local/share/fzf-history'
 
-" or here? https://github.com/junegunn/fzf.vim/pull/941
-" function! GetProjectRoot(flags)
-"   let path = finddir('.git', expand('%:p:h').';')
-"   let path = fnamemodify(substitute(path, '.git', '', ''), ':p:h')
-"   " e = escape: /foo bar -> /foo\ bar
-"   let path = a:flags =~# 'e' ? fnameescape(path) : path
-"   return path
-" endfun
 " " Switch from any fzf mode to :Files on the fly and transfer the search query.
 " " Inspiration: https://github.com/junegunn/fzf.vim/issues/289#issuecomment-447369414
 " function! s:FzfFallback()
@@ -2602,9 +2612,9 @@ endfunction
 tnoremap <c-space> <c-\><c-n>c:call <sid>FzfFallback()<cr>
 
 " Fzf display mappings
-nmap <leader><tab> <plug>(fzf-maps-n)
-xmap <leader><tab> <plug>(fzf-maps-x)
-omap <leader><tab> <plug>(fzf-maps-o)
+nmap <tab><tab> <plug>(fzf-maps-n)
+xmap <tab><tab> <plug>(fzf-maps-x)
+omap <tab><tab> <plug>(fzf-maps-o)
 
 " Insert mode completion
 imap <c-x><c-p> <plug>(fzf-complete-path)
@@ -2674,23 +2684,6 @@ command! -nargs=+ FindAndReplaceAll call FindAndReplace(<f-args>)
 
 " open :e based on current file path
 " noremap <Leader>h :e <C-R>=expand('%:p:h') . '/' <CR>
-
-" " ----------------------
-" "  Tilde switches -/_
-" " ----------------------
-" function! TildeSwitch()
-"   let cursor_char = getline('.')[col('.')-1]
-"   if cursor_char == '_'
-"     normal! r-l
-"   elseif cursor_char == '-'
-"     normal! r_l
-"   else
-"     " If _ and - are not found, use the regular tilde.
-"     normal! ~
-"   endif
-" endfunction
-" nnoremap <silent> ~ :silent call TildeSwitch()<cr>
-
 
 " startify
 
@@ -2814,12 +2807,6 @@ let g:vimwiki_hl_cb_checked = 2 " highlight completed tasks and line
 let g:vimwiki_global_ext = 1 " don't hijack all .md files
 let g:vimwiki_listsyms = ' ○◐●✓'
 
-" show all uncompleted todos with FZF and preview
-command! -bang -nargs=* WikiTodos
-         \ call fzf#vim#grep(
-         \ join(['rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape('^- \[[ ]\] .+'), '~/Documents/notes']), 1,
-         \ fzf#vim#with_preview(), <bang>0)
-
 " NV-fzf floating window
 function! FloatingFZF()
   let width = float2nr(&columns * 0.9)
@@ -2883,8 +2870,8 @@ function! VimwikFindAllIncompleteTasks()
   lopen
 endfunction
 
-nmap <Leader>wa :call VimwikiFindAllIncompleteTasks()<CR>
-nmap <Leader>wx :call VimwikiFindIncompleteTasks()<CR>
+" nmap <Leader>wa :call VimwikiFindAllIncompleteTasks()<CR>
+" nmap <Leader>wx :call VimwikiFindIncompleteTasks()<CR>
 
 command! -bang -nargs=* SearchNotes
   \ call fzf#vim#grep(
@@ -2896,13 +2883,6 @@ command! -bang -nargs=* EditNote call fzf#vim#files('~/Documents/notes', <bang>0
 command! -bang -nargs=0 NewNote
   \ call vimwiki#base#edit_file(":e", strftime('~/Documents/notes/%F-%T.md'), "")
 
-" map <cr> to A <cr> ?
-" augroup VimwikiKeyMap
-"     autocmd!
-"     autocmd FileType vimwiki inoremap <silent><buffer> <CR>
-"                 \ <C-]><Esc>:VimwikiReturn 3 5<CR>
-" augroup end
-"
 command! Diary VimwikiDiaryIndex
 augroup vimwikigroup
   autocmd!
