@@ -149,6 +149,7 @@ SAVEHIST=10000000
 
 # options https://gist.github.com/mattmc3/c490d01751d6eb80aa541711ab1d54b1#file-1-setopts-zsh-L50
 setopt inc_append_history         # sessions will append their history list to the history file
+setopt always_to_end
 # setopt appendhistory         # sessions will append their history list to the history file
 setopt extendedglob          # Treat the ‘#’, ‘~’ and ‘^’ characters as part of filename
 setopt auto_cd               # if a command isn't valid, but is a directory, cd to that dir
@@ -163,7 +164,8 @@ setopt auto_resume            # attempt to resume existing job before creating a
 # external editor support
 autoload edit-command-line
 zle -N edit-command-line
-bindkey '^x^e' edit-command-line
+bindkey '^o' edit-command-line
+# bindkey '^x^e' edit-command-line
 
 # Partial word history completion
 bindkey '\ep' up-line-or-search
@@ -258,13 +260,12 @@ function tree-git-ignore {
 }
 
 # default apps
-# export DELTA_PAGER='auto'
 # I have no idea why I have to unset this but otherwise I don't get LESS paging
 unset DELTA_PAGER
 export PAGER='less'
 export EDITOR='nvim'
-# export MANPAGER='nvim +Man!'
-export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+export MANPAGER='nvim +Man!'
+# export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANWIDTH=999
 
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
@@ -669,6 +670,7 @@ alias gd='git diff'
 alias gds='git diff --staged'
 alias gdc='git diff --cached'
 alias glod='git log --oneline --decorate'
+alias glola='git log --graph --decorate --pretty=oneline --abbrev-commit --all'
 alias gp='git push'
 alias gpf='git pushf'
 alias gpu='git pull'
@@ -681,8 +683,6 @@ alias gstl='git status'
 alias ghpr='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" |  { read first rest ; echo $first ; } | xargs gh pr checkout'
 alias ghd='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" |  { read first rest ; echo $first ; } | xargs gh pr diff'
 alias gs='fbr'
-alias gfb='git fuzzy branch'
-alias gfpr='git fuzzy pr'
 alias gr='git rebase'
 alias grc='git rebase --continue'
 alias gra='git rebase --abort'
@@ -714,6 +714,7 @@ alias unwip="undo"
 # alias unwip="git reset --soft 'HEAD^' && git restore --staged ."
 alias nuke="unwip && grestore"
 alias pokey="gco main && gpr && gco - && gr -"
+alias gup="git up"
 alias hokey="pokey"
 alias sha="git rev-parse HEAD"
 alias SHA="sha"
@@ -790,8 +791,6 @@ autoload -Uz _zinit
 
 # add https://github.com/josa42/zsh-upgrade-all ?
 # plugins - zinit update # to update all
-zinit ice as"program" pick"bin/git-fuzzy"
-zinit light bigH/git-fuzzy
 zinit ice depth=1; zinit light romkatv/powerlevel10k
 zinit light aloxaf/fzf-tab
 zinit ice wait lucid atload'_zsh_autosuggest_start'

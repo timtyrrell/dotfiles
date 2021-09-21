@@ -23,7 +23,7 @@ set t_vb= "kills the bell
 " disable folding
 set nofoldenable
 
-"command line completion
+" command line completion
 set wildmenu
 
 cnoremap <expr> <c-n> wildmenumode() ? "\<c-n>" : "\<down>"
@@ -43,6 +43,7 @@ set completeopt=menuone,noinsert,noselect,preview
 " ignore case, example: :e TEST.js
 set wildignorecase
 
+" don't have vim autocomplete these ever
 set wildignore+=tags,package-lock.json
 
 " give low priority to files matching the defined patterns.
@@ -54,10 +55,8 @@ let mapleader = ','
 " nnoremap ; :
 
 " switch back and forth with two most recent files in buffer
-" nnoremap <Leader><Leader> <C-^>
+nnoremap <Backspace> <C-^>
 
-" go back to last old buffer
-" nnoremap <bs> <c-^>
 " go back to last old buffer
 " nnoremap <silent> <bs> <c-o><cr>
 " go forward to next newest buffer
@@ -103,26 +102,21 @@ augroup cmd_msg_cls
   autocmd!
   autocmd CmdlineLeave :  call timer_start(5000, funcref('s:empty_message'))
 augroup END
-" augroup cmdline
-"   autocmd!
-"   autocmd CmdlineLeave : lua vim.defer_fn(function() vim.cmd('echo ""') end, 5000)
-" augroup END
-" or use key to trigger like
-" noremap <C-L> :nohls<CR><C-L>
-
 
 augroup checktimegroup
   autocmd!
-  augroup FocusGained * :checktime " make it work with neovim
+  " make it work with neovim
+  augroup FocusGained * :checktime
 augroup END
 
+" hide line showing switch in insert/normal mode
+set noshowmode
+set noruler
 set splitright
 set splitbelow
 set autoread " do not prompt and reload file system changes
 set hidden " allows you to abandon a buffer without saving
 set smartindent " Keep indentation from previous line
-set breakindent
-set breakindentopt=shift:2
 set showbreak=↳
 set expandtab " Use softtabstop spaces instead of tab characters
 set softtabstop=2 " Indent by 2 spaces when pressing <TAB>
@@ -130,6 +124,27 @@ set shiftwidth=2 " Indent by 2 spaces when using >>, <<, == etc.
 set showtabline=2 " always display vim tab bar
 set number " show line numbers
 set relativenumber
+set breakindent
+set breakindentopt=shift:2
+" display line movements unless preceded by a count
+" also recording jump points for movements larger than five lines
+nnoremap <expr> j v:count ? (v:count > 5 ? "m'" . v:count : '') . 'j' : 'gj'
+nnoremap <expr> k v:count ? (v:count > 5 ? "m'" . v:count : '') . 'k' : 'gk'
+
+" force decimal-based arithmetic on increment/decrement
+set nrformats=
+" increment and decrement
+nnoremap + <C-a>
+nnoremap - <C-x>
+"  visual mode, also
+" xnoremap + g<C-a>
+" xnoremap - g<C-x>
+
+" dot repetition over visual line selections.
+xnoremap . :norm.<CR>
+
+" run marco over visual lines (using qq to record)
+xnoremap Q :'<,'>:normal @q<CR>
 
 " backup/undo management
 set nobackup
@@ -246,8 +261,10 @@ set sessionoptions-=options
 " don't restore help windows
 set sessionoptions-=help
 
+" send change arguments to blackhole registry
+nnoremap c "_c
+nnoremap C "_C
 " always paste from 0 register to avoid pasting deleted text
-" I don't love this yet...
 " nnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
 " nnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
 " xnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
@@ -255,6 +272,12 @@ set sessionoptions-=help
 " Default VIM commands for pasting registers in insert move
 " <C-R>a pastes the contents of the `a` register
 " <C-R>" pastes the contents of the unnamed register (last delete/yank/etc)
+
+" copy paragraph
+nnoremap cp vap:t'><CR>
+
+" insert mode paste from the clipboard just like on mac
+inoremap <C-v> <C-r>*
 
 " Indent/dedent what you just pasted
 nnoremap <leader>< V`]<
@@ -274,6 +297,9 @@ nnoremap <C-w><bar> :vnew<cr>
 
 " open file under cursor in vertical split
 map <C-w>f <C-w>vgf
+
+" Prompt to open file with same name, different extension
+map <leader>er :e <C-R>=expand("%:r")."."<CR>
 
 " open file under cursor anywhere on line
 " https://www.reddit.com/r/vim/comments/mcxha4/remapping_gf_to_open_a_file_from_anywhere_on_the/
@@ -325,7 +351,8 @@ nnoremap <silent> <Leader>ti :%!tidy -config ~/.config/tidy_config.txt %<CR>
 " save with Enter *except* in quickfix buffers
 " https://vi.stackexchange.com/questions/3127/how-to-map-enter-to-custom-command-except-in-quick-fix
 nnoremap <expr> <CR> &buftype ==# "quickfix" ? "\<CR>" : ":write!<CR>"
-" don't write unless changed
+" another option
+" autocmd FileType qf nnoremap <buffer> <cr> <cr>
 
 " train myself to use better commands
 " ZZ - Write current file, if modified, and quit. (:x = :wq = ZZ)
@@ -347,7 +374,7 @@ call plug#begin('~/.config/nvim/plugged')
 " if branch changes from master to main `git remote set-head origin -a` in `~/config/nvim/plugged/[plugin]`
 
 " core code analysis and manipulation
-Plug 'neoclide/coc.nvim', {'branch': 'release'} |
+Plug 'neoclide/coc.nvim', {'branch': 'master', 'do': 'yarn install --frozen-lockfile'} |
            \ Plug 'antoinemadec/coc-fzf' |
            \ Plug 'wellle/tmux-complete.vim' " coc completion from open tmux panes
 let g:coc_global_extensions = [
@@ -410,6 +437,7 @@ Plug 'Asheq/close-buffers.vim'
 " :Bdelete all      -	bdelete all buffers
 " :Bdelete this     -	bdelete buffer in the current window
 " :Bdelete nameless -	bdelete buffers without a name: [No Name]
+" switch some to :Bwipeout ?
 map <leader>Bdo :Bdelete other<CR>
 map <leader>Bdh :Bdelete hidden<CR>
 map <leader>Bda :Bdelete all<CR>
@@ -478,7 +506,6 @@ let g:indent_blankline_buftype_exclude = ['terminal']
 let g:indent_blankline_show_first_indent_level = v:false
 let g:indent_blankline_show_trailing_blankline_indent = v:false
 let g:indent_blankline_show_current_context = v:true
-let g:indent_blankline_space_char_blankline = ' '
 let g:indent_blankline_space_char = '⋅'
 " let g:indent_blankline_context_patterns = ['class', 'function', 'method',
 " 				\ 'if_statement', 'else_clause', 'jsx_element', 'jsx_self_closing_element',
@@ -490,7 +517,7 @@ augroup tmuxgroups
   autocmd!
   autocmd FileType tmux nnoremap <silent><buffer> K :call tmux#man()<CR>
   " automatically source tmux config when saved
-  autocmd bufwritepost .tmux.conf execute ':!tmux source-file %'
+  autocmd BufWritePost .tmux.conf execute ':!tmux source-file %'
 augroup END
 Plug 'tmux-plugins/vim-tmux'
 " https://github.com/nvim-treesitter/nvim-treesitter/issues/1019#issuecomment-812976740
@@ -650,6 +677,7 @@ let g:sort_motion_flags = 'ui'
 " gsi{ => sort inner parenthesis
 
 Plug 'drmingdrmer/vim-toggle-quickfix'
+
 Plug 'kevinhwang91/nvim-bqf'
 " https://github.com/kevinhwang91/nvim-bqf#function-table
 " zf - fzf in quickfix
@@ -664,9 +692,6 @@ Plug 'christoomey/vim-tmux-navigator'
 " map <C-k> <C-W>k
 " map <C-h> <C-W>h
 " map <C-l> <C-W>l
-
-" don't need for neovim?
-" Plug 'tmux-plugins/vim-tmux-focus-events'
 
 Plug 'christoomey/vim-system-copy'
 " cp for copying and cv for pasting
@@ -721,8 +746,14 @@ Plug 'tpope/vim-surround'
     " INSERT MODE:
     "   <C-g>s<SURROUND>
   " }}}
-"vitSt - add inner tag
-"vatSt - add surrounding tag
+" vitSt - add inner tag
+" vatSt - add surrounding tag
+" vS"    : visually surround selected text with "
+" yswt : prompt & surround with a html tag
+" yswf : prompt & surround with a function call
+" ds" : delete surrounding "
+" dst : delete surrounding tag (HTML)
+
 
 augroup jsconsolecmds
   autocmd!
@@ -739,13 +770,17 @@ Plug 'tpope/vim-unimpaired'
 " [<Space> and ]<Space> add newlines before and after the cursor line
 " [e and ]e exchange the current line with the one above or below it.
 
-Plug 'terryma/vim-expand-region'
-vmap + <Plug>(expand_region_expand)
-vmap - <Plug>(expand_region_shrink)
+Plug 'tommcdo/vim-exchange'
+" cx
 
-Plug 'wincent/scalpel'
-nmap <Leader>ew <Plug>(Scalpel)
-" replace all instances of the word currently under the cursor throughout a file. <Leader>e mnemonic: edit)
+" On the first use, define the first {motion} to exchange. On the second use, define the second {motion} and perform the exchange.
+" cxx
+
+" Like cx, but use the current line.
+" X
+
+" Like cx, but for Visual mode.
+" cxc
 
 Plug 'kana/vim-textobj-user' | Plug 'kana/vim-textobj-line'
 " adds 'al' and 'il' motions for a line
@@ -768,6 +803,14 @@ nmap <leader>snc <Plug>SnipClose
 " diff visual selections
 Plug 'andrewradev/linediff.vim'
 " :Linediff
+
+Plug 'sindrets/diffview.nvim'
+nmap <leader>dvh :DiffviewFileHistory<cr>
+nmap <leader>dvo :DiffviewOpen<cr>
+nmap <leader>dvc :DiffviewClose<cr>
+nmap <leader>dvt :DiffviewToggleFiles<cr>
+nmap <leader>dvf :DiffviewFocusFiles<cr>
+nmap <leader>dvr :DiffviewRefresh<cr>
 
 " git
 Plug 'tpope/vim-fugitive' |
@@ -828,8 +871,7 @@ Plug 'christoomey/vim-conflicted'
 " [c and ]c to navigate conflicts in file
 
 " disable showing '------' for empty line in difftool
-" I want to set it as a blank space but space-jam deletes the space....
-" set fillchars=diff:\
+set fillchars+=diff:╱
 
 Plug 'rhysd/git-messenger.vim'
 " git blame: <Leader>gm
@@ -900,9 +942,6 @@ let g:Unicode_CompleteName = 1
 " :DownloadUnicode - Download (or update) Unicode data
 " :UnicodeCache    - Create cache file
 
-" testing/debugging
-" Plug 'vim-test/vim-test'
-
 " regex explain - :ExplainPattern {pattern} or :ExplainPattern {register}
 Plug 'Houl/ExplainPattern'
 
@@ -917,7 +956,7 @@ Plug 'psliwka/vim-smoothie'
 
 " no recent updates, try this? https://github.com/edluffy/specs.nvim
 Plug 'danilamihailov/beacon.nvim'
-let g:beacon_ignore_filetypes = ['git']
+let g:beacon_ignore_filetypes = ['git', 'startify']
 if !&diff
   let g:beacon_show_jumps = 0
   let g:beacon_ignore_buffers = [
@@ -942,7 +981,10 @@ Plug 'junegunn/vim-peekaboo'
 " mark column display
 Plug 'kshenoy/vim-signature'
 " don't override mfussenegger/nvim-ts-hint-textobject mapping
-let g:SignatureMap = { 'DeleteMark' : "dM" }
+let g:SignatureMap = {
+      \ 'DeleteMark' : "dM",
+      \ }
+let g:SignatureMarkTextHL = "Todo"
 " mx           Toggle mark 'x' and display it in the leftmost column
 " dMx          Remove mark 'x' where x is a-zA-Z
 " m<Space>     Delete all marks from the current buffer
@@ -953,7 +995,7 @@ let g:SignatureMap = { 'DeleteMark' : "dM" }
 " displays colors for words/hex
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 let g:Hexokinase_highlighters = ['backgroundfull']
-let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'less', 'vim', 'conf', 'tmux', 'gitconfig', 'xml', 'lua']
+let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'less', 'vim', 'conf', 'tmux', 'gitconfig', 'xml', 'lua', 'stylus']
 
 " appearence and insight
 Plug 'ryanoasis/vim-devicons'
@@ -961,6 +1003,8 @@ let g:WebDevIconsOS = 'Darwin'
 
 " massive cmdline improvement
 Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'romgrk/fzy-lua-native', { 'do': 'make' }
+Plug 'nixprime/cpsm', { 'do': 'PY3=ON ./install.sh' }
 
 Plug 'itchyny/lightline.vim' |
           \ Plug 'konart/vim-lightline-coc'
@@ -1022,11 +1066,14 @@ augroup END
 
 Plug 'mattn/calendar-vim'
 let g:calendar_no_mappings=0
-nmap <Leader>wc <Plug>CalendarV
-nmap <Leader>wC <Plug>CalendarH
+nmap <Leader>wdc <Plug>CalendarV
+nmap <Leader>wdC <Plug>CalendarH
 
 Plug 'alok/notational-fzf-vim'
 Plug 'ferrine/md-img-paste.vim'
+
+" horizontal lines for vimwiki
+Plug 'lukas-reineke/headlines.nvim'
 
 " scratch window
 Plug 'mtth/scratch.vim'
@@ -1060,10 +1107,9 @@ let g:list_of_visual_keys = ["h", "j", "k", "l", "w", "b", "W", "B"]
 let g:list_of_insert_keys = ["<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
 let g:list_of_disabled_keys = []
 let g:hardtime_ignore_quickfix = 1
-let g:hardtime_ignore_buffer_patterns = ['help', 'nofile']
-let g:hardtime_ignore_quickfix = 1
-let g:hardtime_allow_different_key = 0
-let g:hardtime_maxcount = 3
+let g:hardtime_ignore_buffer_patterns = ['help', 'nofile', 'nowrite', 'man']
+let g:hardtime_allow_different_key = 1
+let g:hardtime_maxcount = 2
 
 """" movements
 " w			  [count] words forward.  |exclusive| motion.
@@ -1083,6 +1129,10 @@ let g:hardtime_maxcount = 3
 " [(      jump to the beginning of a parenthesis
 " ]}      jump to end of code block (while, switch, if, etc)
 " ])      jump to the end of a parenthesis
+" ]]			[count] |section|s forward or to the next '{' in the first column.
+" ][			[count] |section|s forward or to the next '}' in the first column.
+" [[			[count] |section|s backward or to the previous '{' in the first column
+" []			[count] |section|s backward or to the previous '}' in the first column
 " CTRL-O  go to [count] Older cursor position in jump list
 " CTRL-I  go to [count] newer cursor position in jump list
 " '.      go to position where last change was made (in current buffer)
@@ -1117,61 +1167,84 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 
 call plug#end()
 
-call wilder#enable_cmdline_enter()
-" only / and ? are enabled by default
-call wilder#set_option('modes', ['/', '?', ':'])
+
+call wilder#setup({'modes': [':', '/', '?']})
 
 cmap <expr> <Tab> wilder#in_context() ? wilder#next() : '\<Tab>'
 cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : '\<S-Tab>'
 cmap <expr> <c-j> wilder#in_context() ? wilder#next() : '\<c-j>'
 cmap <expr> <c-k> wilder#in_context() ? wilder#previous() : '\<c-k>'
 
-" use wilder#wildmenu_lightline_theme() if using Lightline
-" 'highlights' : can be overriden, see :h wilder#wildmenu_renderer()
-call wilder#set_option('renderer', wilder#wildmenu_renderer(
-      \ wilder#wildmenu_lightline_theme({
-      \   'highlights': {},
-      \   'highlighter': wilder#basic_highlighter(),
-      \   'separator': ' · ',
-      \ })))
-
 call wilder#set_option('pipeline', [
       \   wilder#branch(
+      \     wilder#python_file_finder_pipeline({
+      \       'file_command': {_, arg -> stridx(arg, '.') != -1 ? ['fd', '-tf', '-H'] : ['fd', '-tf']},
+      \       'dir_command': ['fd', '-td'],
+      \       'filters': ['cpsm_filter'],
+      \     }),
+      \     wilder#substitute_pipeline({
+      \       'pipeline': wilder#python_search_pipeline({
+      \         'skip_cmdtype_check': 1,
+      \         'pattern': wilder#python_fuzzy_pattern({
+      \           'start_at_boundary': 0,
+      \         }),
+      \       }),
+      \     }),
       \     wilder#cmdline_pipeline({
       \       'fuzzy': 1,
-      \       'set_pcre2_pattern': 1,
+      \       'fuzzy_filter': wilder#lua_fzy_filter(),
       \     }),
+      \     [
+      \       wilder#check({_, x -> empty(x)}),
+      \       wilder#history(),
+      \     ],
       \     wilder#python_search_pipeline({
-      \       'pattern': 'fuzzy',
+      \       'pattern': wilder#python_fuzzy_pattern({
+      \         'start_at_boundary': 0,
+      \       }),
       \     }),
       \   ),
       \ ])
 
-let s:highlighters = [
-        \ wilder#pcre2_highlighter(),
-        \ wilder#basic_highlighter(),
-        \ ]
+let s:highlighters = [ wilder#lua_fzy_highlighter() ]
 
-call wilder#set_option('renderer', wilder#renderer_mux({
-      \ ':': wilder#popupmenu_renderer({
+call wilder#set_option('renderer', wilder#wildmenu_renderer(
+      \ wilder#wildmenu_lightline_theme({
       \   'highlighter': s:highlighters,
-      \   'winblend': 25,
-      \ }),
-      \ '/': wilder#wildmenu_renderer({
-      \   'highlighter': s:highlighters,
-      \ }),
+      \   'separator': ' · ',
+      \ })))
+
+let s:popupmenu_renderer = wilder#popupmenu_renderer(wilder#popupmenu_border_theme({
+      \ 'border': 'rounded',
+      \ 'empty_message': wilder#popupmenu_empty_message_with_spinner(),
+      \ 'highlights': { 'accent': 'Statement'},
+      \ 'highlighter': s:highlighters,
+      \ 'left': [
+      \   ' ',
+      \   wilder#popupmenu_devicons(),
+      \   wilder#popupmenu_buffer_flags({
+      \     'flags': ' a + ',
+      \     'icons': {'+': '', 'a': '', 'h': ''},
+      \   }),
+      \ ],
+      \ 'right': [
+      \   ' ',
+      \   wilder#popupmenu_scrollbar(),
+      \ ],
       \ }))
 
-call wilder#set_option('renderer', wilder#popupmenu_renderer({
-      \ 'highlighter': wilder#basic_highlighter(),
-      \ 'left': [
-      \   wilder#popupmenu_devicons(),
-      \ ],
-      \'right': [
-      \  ' ',
-      \  wilder#popupmenu_scrollbar(),
-      \],
-      \   'winblend': 25,
+let s:wildmenu_renderer = wilder#wildmenu_renderer({
+      \ 'highlighter': s:highlighters,
+      \ 'highlights': { 'accent': 'Statement'},
+      \ 'separator': ' · ',
+      \ 'left': [' ', wilder#wildmenu_spinner(), ' '],
+      \ 'right': [' ', wilder#wildmenu_index()],
+      \ })
+
+call wilder#set_option('renderer', wilder#renderer_mux({
+      \ ':': s:popupmenu_renderer,
+      \ '/': s:popupmenu_renderer,
+      \ 'substitute': s:wildmenu_renderer,
       \ }))
 
 " mfussenegger/nvim-ts-hint-textobject
@@ -1185,23 +1258,38 @@ nmap <expr> F reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_F" : "
 nmap <expr> t reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_t" : "t"
 nmap <expr> T reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_T" : "T"
 
+" function! s:RepeatFt(reverse)
+"   lua require'lightspeed'.ft['instant-repeat?'] = true
+"   lua require'lightspeed'.ft:to(vim.api.nvim_eval('a:reverse'),
+"                               \ require'lightspeed'.ft['prev-t-like?'])
+" endfunction
+" nnoremap <silent> ; <cmd>call <SID>RepeatFt(v:false)<cr>
+" xnoremap <silent> ; <cmd>call <SID>RepeatFt(v:false)<cr>
+" nnoremap <silent> , <cmd>call <SID>RepeatFt(v:true)<cr>
+" xnoremap <silent> , <cmd>call <SID>RepeatFt(v:true)<cr>
+
 lua << EOF
-require'lightspeed'.setup {
+
+require("todo-comments").setup {}
+require("tabout").setup {}
+require("nvim-web-devicons").setup {}
+require("which-key").setup {}
+require("headlines").setup { }
+
+require('lightspeed').setup {
   limit_ft_matches = 5,
   -- For instant-repeat, pressing the trigger key again (f/F/t/T) always works
   instant_repeat_fwd_key = ';',
   instant_repeat_bwd_key = ':',
 }
 
-require'hop'.setup()
+require("hop").setup()
 vim.api.nvim_set_keymap('n', '<leader><leader>', "<cmd>lua require'hop'.hint_words()<cr>", {})
 vim.api.nvim_set_keymap('n', '<leader><tab>', "<cmd>lua require'hop'.hint_lines()<cr>", {})
 vim.api.nvim_set_keymap('n', '<leader>/', "<cmd>lua require'hop'.hint_patterns()<cr>", {})
 vim.api.nvim_set_keymap('v', '<leader><leader>', "<cmd>lua require'hop'.hint_words()<cr>", {})
 vim.api.nvim_set_keymap('v', '<leader><tab>', "<cmd>lua require'hop'.hint_lines()<cr>", {})
 vim.api.nvim_set_keymap('v', '<leader>/', "<cmd>lua require'hop'.hint_patterns()<cr>", {})
-
-require("todo-comments").setup {}
 
 require("zen-mode").setup {
   window = {
@@ -1213,6 +1301,7 @@ require("zen-mode").setup {
     height = 1, -- height of the Zen window
   },
 }
+
 require("telescope").load_extension("git_worktree")
 
 -- nvim-telescope/telescope-dap.nvim
@@ -1242,7 +1331,7 @@ require('telescope').setup {
   }
 }
 
-require"octo".setup({
+require("octo").setup({
   submit_win = {
       approve_review = "<C-p>",            -- approve review
       comment_review = "<C-m>",            -- comment review
@@ -1251,16 +1340,12 @@ require"octo".setup({
     },
 })
 
-require"nvim-web-devicons".setup()
-
-require("which-key").setup()
-
 require('numb').setup {
    show_numbers = true, -- Enable 'number' for the window while peeking
    show_cursorline = true -- Enable 'cursorline' for the window while peeking
 }
 
-require'sniprun'.setup({
+require('sniprun').setup({
   display = {
     "VirtualTextOk",              -- "display ok results as virtual text (multiline is shortened)
     "VirtualTextErr",          -- "display error results as virtual text
@@ -1270,9 +1355,7 @@ require'sniprun'.setup({
   },
 })
 
-require("tabout").setup()
-
-require'nvim-treesitter.configs'.setup {
+require('nvim-treesitter.configs').setup {
   ensure_installed = "maintained",
   -- ensure_installed = { "bash", "comment", "css", "graphql", "html", "javascript", "jsdoc", "json", "jsonc", "lua", "regex", "ruby", "tsx", "typescript" },
   highlight = {
@@ -1337,36 +1420,36 @@ require'nvim-treesitter.configs'.setup {
   --       ["im"] = "@call.inner",
   --     },
   --   },
-    -- swap = {
-    --   enable = true,
-    --   swap_next = {
-    --     ["<leader>a"] = "@parameter.inner",
-    --   },
-    --   swap_previous = {
-    --     ["<leader>A"] = "@parameter.inner",
-    --   },
-    -- },
-    -- move = {
-    --   enable = true,
-    --   set_jumps = true, -- whether to set jumps in the jumplist
-    --   goto_next_start = {
-    --     ["]m"] = "@function.outer",
-    --     ["]]"] = "@class.outer",
-    --   },
-    --   goto_next_end = {
-    --     ["]M"] = "@function.outer",
-    --     ["]["] = "@class.outer",
-    --   },
-    --   goto_previous_start = {
-    --     ["[m"] = "@function.outer",
-    --     ["[["] = "@class.outer",
-    --   },
-    --   goto_previous_end = {
-    --     ["[M"] = "@function.outer",
-    --     ["[]"] = "@class.outer",
-    --   },
-    -- },
+  -- swap = {
+  --   enable = true,
+  --   swap_next = {
+  --     ["<leader>a"] = "@parameter.inner",
+  --   },
+  --   swap_previous = {
+  --     ["<leader>A"] = "@parameter.inner",
+  --   },
   -- },
+  -- move = {
+  --   enable = true,
+  --   set_jumps = true, -- whether to set jumps in the jumplist
+  --   goto_next_start = {
+  --     ["]m"] = "@function.outer",
+  --     ["]]"] = "@class.outer",
+  --   },
+  --   goto_next_end = {
+  --     ["]M"] = "@function.outer",
+  --     ["]["] = "@class.outer",
+  --   },
+  --   goto_previous_start = {
+  --     ["[m"] = "@function.outer",
+  --     ["[["] = "@class.outer",
+  --   },
+  --   goto_previous_end = {
+  --     ["[M"] = "@function.outer",
+  --     ["[]"] = "@class.outer",
+  --   },
+  -- },
+-- },
   playground = {
     enable = true,
     disable = {},
@@ -1382,16 +1465,19 @@ require'nvim-treesitter.configs'.setup {
     enable = true,
   },
 }
--- lua
+
 require('hlslens').setup({
   nearest_only = true
 })
+
 EOF
 
 augroup randomstuff
   autocmd!
-  " Make it so that if files are changed externally (ex: changing git branches) update the vim buffers automatically
   autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if !bufexists("[Command Line]") | checktime | endif
+  " highlight cursor position with Beacon on tmux pane move or enter
+  autocmd FocusGained * :Beacon
+  " Make it so that if files are changed externally (ex: changing git branches) update the vim buffers automatically
   autocmd FileChangedShellPost *
     \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
   " if highlighting on big files is bad, can do similiar:
@@ -1401,21 +1487,18 @@ augroup randomstuff
   " autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
   " autocmd BufRead,BufNewFile */graphql/queries/*.js set syntax=graphql
   autocmd BufNewFile,BufRead .eslintrc,.prettierrc,.lintstagedrc set filetype=jsonc
-  autocmd BufNewFile,BufRead *.bak set filetype=javascript
   autocmd BufNewFile,BufRead *.build,.env* set filetype=sh
   " per reddit, Vim doesn't have an autocommand for graphql files. You will have to manually add this line to your config - not sure if needed
   autocmd BufRead,BufNewFile *.graphql,*.graphqls,*.gql setfiletype graphql
-
-  " Return to last edit position when opening files (You want this!)
-  " autocmd BufReadPost *
-  "       \ if line("'\"") > 0 && line("'\"") <= line("$") |
-  "       \   exe "normal! g`\"" |
-  "       \ endif
 augroup END
 
 augroup LastCursorPos
   autocmd!
   autocmd BufReadPost * if @% !~# "\.git[\/\\]COMMIT_EDITMSG$" && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
+  " autocmd BufReadPost *
+  "       \ if line("'\"") > 0 && line("'\"") <= line("$") |
+  "       \   exe "normal! g`\"" |
+  "       \ endif
 augroup end
 
 " how to automatically rename things based on filetype
@@ -1458,33 +1541,33 @@ nmap <Leader>mt :MundoToggle<CR>
 let g:mundo_right=1
 
 " vim-smoothie
-let g:smoothie_base_speed = 20
+let g:smoothie_base_speed = 30
 
 " vim-peekaboo
 let g:peekaboo_delay='1000' " delay 1000ms
 let g:peekaboo_window="call CreateCenteredFloatingWindow()"
 
 function! CreateCenteredFloatingWindow()
-    let width = float2nr(&columns * 0.7)
-    let height = float2nr(&lines * 0.7)
-    let top = ((&lines - height) / 2) - 1
-    let left = (&columns - width) / 2
-    let opts = {'relative': 'editor', 'row': top, 'col': left, 'width': width, 'height': height, 'style': 'minimal'}
+  let width = float2nr(&columns * 0.7)
+  let height = float2nr(&lines * 0.7)
+  let top = ((&lines - height) / 2) - 1
+  let left = (&columns - width) / 2
+  let opts = {'relative': 'editor', 'row': top, 'col': left, 'width': width, 'height': height, 'style': 'minimal'}
 
-    let top = "╭" . repeat("─", width - 2) . "╮"
-    let mid = "│" . repeat(" ", width - 2) . "│"
-    let bot = "╰" . repeat("─", width - 2) . "╯"
-    let lines = [top] + repeat([mid], height - 2) + [bot]
-    let s:buf = nvim_create_buf(v:false, v:true)
-    call nvim_buf_set_lines(s:buf, 0, -1, v:true, lines)
-    call nvim_open_win(s:buf, v:true, opts)
-    set winhl=Normal:Floating
-    let opts.row += 1
-    let opts.height -= 2
-    let opts.col += 2
-    let opts.width -= 4
-    call nvim_open_win(nvim_create_buf(v:false, v:true), v:true, opts)
-    au BufWipeout <buffer> exe 'bw '.s:buf
+  let top = "╭" . repeat("─", width - 2) . "╮"
+  let mid = "│" . repeat(" ", width - 2) . "│"
+  let bot = "╰" . repeat("─", width - 2) . "╯"
+  let lines = [top] + repeat([mid], height - 2) + [bot]
+  let s:buf = nvim_create_buf(v:false, v:true)
+  call nvim_buf_set_lines(s:buf, 0, -1, v:true, lines)
+  call nvim_open_win(s:buf, v:true, opts)
+  set winhl=Normal:Floating
+  let opts.row += 1
+  let opts.height -= 2
+  let opts.col += 2
+  let opts.width -= 4
+  call nvim_open_win(nvim_create_buf(v:false, v:true), v:true, opts)
+  autocmd BufWipeout <buffer> exe 'bw '.s:buf
 endfunction
 
 " Run PlugUpgrade and PlugUpdate every day automatically when entering Vim.
@@ -1507,7 +1590,6 @@ function! OnVimEnter() abort
   endif
 endfunction
 
-
 augroup vimenterauto
   autocmd!
   autocmd VimEnter * call OnVimEnter()
@@ -1524,6 +1606,7 @@ function! OpenURLUnderCursor()
 endfunction
 nnoremap gx :call OpenURLUnderCursor()<CR>
 
+" TODO use this to fix duplicate git org and repo name link
 " Press gx to open the GitHub URL for a plugin or a commit with the default browser.
 " function! s:plug_gx()
 "   let line = getline('.')
@@ -1706,6 +1789,7 @@ function! s:add_mappings() abort
   wincmd p
 endfunction
 
+" https://github.com/tpope/vim-fugitive/issues/132#issuecomment-570844756
 function DiffCurrentQuickfixEntry() abort
   cc
   let qf = getqflist({'context': 0, 'idx': 0})
@@ -1723,24 +1807,11 @@ let base16colorspace=256
 if has("termguicolors")
   set termguicolors
 endif
+
 let g:tokyonight_style = "night"
 let g:tokyonight_italic_functions = 1
-let g:tokyonight_sidebars = [ "qf", "coc-explorer", "terminal", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches", "dap-repl" ]
-" tokyonight_style 	"storm" 	The theme comes in three styles, storm, a darker variant night and day.
-" tokyonight_terminal_colors 	true 	Configure the colors used when opening a :terminal in Neovim
-" tokyonight_italic_comments 	true 	Make comments italic
-" tokyonight_italic_keywords 	true 	Make keywords italic
-" tokyonight_italic_functions 	false 	Make functions italic
-" tokyonight_italic_variables 	false 	Make variables and identifiers italic
-" tokyonight_transparent 	false 	Enable this to disable setting the background color
-" tokyonight_hide_inactive_statusline 	false 	Enabling this option, will hide inactive statuslines and replace them with a thin border instead. Should work with the standard StatusLine and LuaLine.
-" tokyonight_sidebars 	{} 	Set a darker background on sidebar-like windows. For example: ["qf", "vista_kind", "terminal", "packer"]
-" tokyonight_transparent_sidebar 	false 	Sidebar like windows like NvimTree get a transparent background
-" tokyonight_dark_sidebar 	true 	Sidebar like windows like NvimTree get a darker background
-" tokyonight_dark_float 	true 	Float windows like the lsp diagnostics windows get a darker background.
-" tokyonight_colors 	{} 	You can override specific color groups to use other groups or a hex color
-" tokyonight_day_brightness 	0.3 	Adjusts the brightness of the colors of the Day style. Number between 0 and 1, from dull to vibrant colors
-" tokyonight_lualine_bold 	false 	When true, section headers in the lualine theme will be bold
+let g:tokyonight_italic_variables = 0
+let g:tokyonight_sidebars = [ "qf", "coc-explorer", "terminal", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches", "dap-repl", "DiffviewFiles" ]
 colorscheme tokyonight
 
 " customize
@@ -1758,10 +1829,6 @@ let g:fzf_colors = {
       \ 'spinner': ['fg', 'Yellow'],
       \ 'header': ['fg', 'Blue']
       \ }
-
-" hide line showing switch in insert/normal mode
-set noshowmode
-set noruler
 
 " https://github.com/junegunn/fzf.vim/issues/392
 let g:projectionist_ignore_term = 1
@@ -2007,7 +2074,7 @@ require("dapui").setup({
       { id = "stacks", size = 0.40 },
       -- { id = "watches", size = 00.25 },
     },
-    width = 50,
+    size = 50,
     position = "right", -- Can be "left" or "right"
   },
   tray = {
@@ -2015,7 +2082,7 @@ require("dapui").setup({
     elements = { "repl",
       { id = "watches", size = 0.25 },
     },
-    height = 10,
+    size = 10,
     position = "bottom", -- Can be "bottom" or "top"
   },
   floating = {
@@ -2078,92 +2145,6 @@ vnoremap <leader>di :lua require'dap.ui.variables'.visual_hover()<CR>
 nnoremap <leader>dI :lua require'dap.ui.widgets'.hover()<CR>
 nnoremap <leader>d? :lua local widgets=require'dap.ui.widgets';widgets.centered_float(widgets.scopes)<CR>
 nnoremap <leader>de :lua require'dap'.set_exception_breakpoints({"all"})<CR>
-
-" vim-test
-" nnoremap <silent> <Leader>tt :TestNearest<CR>
-" nnoremap <silent> <Leader>tf :TestFile<CR>
-" nnoremap <silent> <Leader>ts :TestSuite<CR>
-" nnoremap <silent> <Leader>tl :TestLast<CR>
-" nnoremap <silent> <Leader>tv :TestVisit<CR>
-" let test#strategy = 'neovim'
-" let test#javascript#jest#options = '--no-watchman'
-" tmap <C-o> <C-\><C-n> " easier switch to normal mode to scroll
-
-" npx jest 2>&1 | grep 'FAIL' | sort -t: -u -k1,1 " only display failed
-" https://github.com/vim-test/vim-test/issues/331
-" autocmd FileType typescript compiler jest
-" let test#strategy = 'dispatch'
-" let g:dispatch_compilers = { 'jest': 'jest-cli' }
-" let test#javascript#jest#options = '--no-watchman --reporters jest-vim-reporter'
-" let test#javascript#jest#options = '--no-watchman --reporters $HOME/code/timtyrrell/jest-quickfix-reporter/index.js'
-
-" jank/vim-test and mfussenegger/nvim-dap
-" nnoremap <leader>dd :TestNearest -strategy=jest<CR>
-" function! JestStrategy(cmd)
-"   let testName = matchlist(a:cmd, '\v -t ''(.*)''')[1]
-"   let fileName = matchlist(a:cmd, '\v'' -- (.*)$')[1]
-"   call luaeval("require'debugHelper'.debugJest([[" . testName . "]], [[" . fileName . "]])")
-" endfunction
-" let g:test#custom_strategies = {'jest': function('JestStrategy')}
-
-" puremourning/vimspector
-" let g:vimspector_enable_mappings = 'HUMAN'
-" let g:vimspector_install_gadgets = ['debugger-for-chrome', 'force-enable-node']
-" let g:vimspector_base_dir = expand('$HOME/.config/vimspector-config')
-
-" fun! GotoWindow(id)
-"   :call win_gotoid(a:id)
-" endfun
-" let g:vimspector_base_dir = expand('$HOME/.config/vimspector-config')
-" let g:vimspector_sidebar_width = 120
-" let g:vimspector_bottombar_height = 0
-" let g:vimspector_sign_priority = {
-"    \    'vimspectorBP':         998,
-"    \    'vimspectorBPCond':     997,
-"    \    'vimspectorBPDisabled': 996,
-"    \    'vimspectorPC':         999,
-"    \ }
-
-" let g:vimspector_sign_priority = {
-"   \    'vimspectorBP':         3,
-"   \    'vimspectorBPCond':     2,
-"   \    'vimspectorBPDisabled': 1,
-"   \    'vimspectorPC':         999,
-"   \ }
-
-" func! AddToWatch()
-"   let word = expand("<cexpr>")
-"   call vimspector#AddWatch(word)
-" endfunction
-" nnoremap <leader>da :call vimspector#Launch()<CR>
-" nnoremap <leader>dd :TestNearest -strategy=jest<CR>
-" nnoremap <leader>dc :call GotoWindow(g:vimspector_session_windows.code)<CR>
-" nnoremap <leader>dv :call GotoWindow(g:vimspector_session_windows.variables)<CR>
-" nnoremap <leader>dw :call GotoWindow(g:vimspector_session_windows.watches)<CR>
-" nnoremap <leader>ds :call GotoWindow(g:vimspector_session_windows.stack_trace)<CR>
-" nnoremap <leader>do :call GotoWindow(g:vimspector_session_windows.output)<CR>
-" nnoremap <leader>d? :call AddToWatch()<CR>
-" nnoremap <leader>dx :call vimspector#Reset()<CR>
-" nnoremap <leader>dX :call vimspector#ClearBreakpoints()<CR>
-" nnoremap <S-k> <Plug>VimspectorStepOut
-" nnoremap <S-l> <Plug>VimspectorStepInto
-" nnoremap <S-j> <Plug>VimspectorStepOver
-" nnoremap <leader>d_ <Plug>VimspectorRestart
-" nnoremap <leader>dn :call vimspector#Continue()<CR>
-" nnoremap <leader>drc <Plug>VimspectorRunToCursor
-" nnoremap <leader>dh <Plug>VimspectorToggleBreakpoint
-" nnoremap <leader>de <Plug>VimspectorToggleConditionalBreakpoint
-
-" nmap <silent> tn :TestNearest<CR>
-" nmap <silent> tf :TestFile<CR>
-" nmap <silent> ts :TestSuite<CR>
-" nmap <silent> tl :TestLast<CR>
-" function! JestStrategy(cmd)
-"   let testName = matchlist(a:cmd, '\v -t ''(.*)''')[1]
-"   call vimspector#LaunchWithSettings( #{ configuration: 'jest', TestName: testName } )
-" endfunction
-
-" let g:test#custom_strategies = {'jest': function('JestStrategy')}
 
 let g:vim_jsx_pretty_colorful_config = 1
 
@@ -2233,9 +2214,9 @@ nmap <silent> ]g <Plug>(coc-diagnostic-next)
 nmap <silent> [G <Plug>(coc-diagnostic-prev-error)
 nmap <silent> ]G <Plug>(coc-diagnostic-next-error)
 
-" Navigate through git changes on file (overrides default sentence movement, not sure if good)
-" nmap ) <Plug>(coc-git-nextchunk)
-" nmap ( <Plug>(coc-git-prevchunk)
+" Navigate through git changes on file
+nmap <silent> [h <Plug>(coc-git-nextchunk)
+nmap <silent> ]h <Plug>(coc-git-prevchunk)
 nmap <leader>uc :CocCommand git.chunkUndo<cr>
 vmap <leader>uc :CocCommand git.chunkUndo<cr>
 
@@ -2381,20 +2362,21 @@ command -nargs=0 Swagger :CocCommand swagger.render
 
 " coc-fzf remappings
 let g:coc_fzf_opts= ['--layout=reverse']
-let g:coc_fzf_preview='right:50%'
+let g:coc_fzf_preview='down:80%'
 let g:coc_fzf_preview_fullscreen=0
 let g:coc_fzf_preview_toggle_key='\'
 
 nnoremap <silent><nowait> <leader>za :<C-u>CocFzfList actions<CR>
-nnoremap <silent><nowait> <leader>zb :<C-u>CocFzfList diagnostics --current-buf<CR>
-nnoremap <silent><nowait> <leader>zB :<C-u>CocFzfList diagnostics<CR>
+nnoremap <silent><nowait> <leader>zd :<C-u>CocFzfList diagnostics --current-buf<CR>
+nnoremap <silent><nowait> <leader>zD :<C-u>CocFzfList diagnostics<CR>
 nnoremap <silent><nowait> <leader>zc :<C-u>CocFzfList commands<CR>
 nnoremap <silent><nowait> <leader>ze :<C-u>CocFzfList extensions<CR>
 nnoremap <silent><nowait> <leader>zl :<C-u>CocFzfList location<CR>
 nnoremap <silent><nowait> <leader>zL :<C-u>CocFzfList<CR>
 nnoremap <silent><nowait> <leader>zo :<C-u>CocFzfList outline<CR>
 nnoremap <silent><nowait> <leader>zs :<C-u>CocFzfList symbols<CR>
-nnoremap <silent><nowait> <leader>zS :<C-u>CocFzfList snippets<CR>
+nnoremap <silent><nowait> <leader>zS :<C-u>CocFzfList symbols <C-R><C-W><CR>
+nnoremap <silent><nowait> <leader>zn :<C-u>CocFzfList snippets<CR>
 nnoremap <silent><nowait> <leader>zv :<C-u>CocFzfList services<CR>
 nnoremap <silent><nowait> <leader>zr :<C-u>CocFzfListResume<CR>
 nnoremap <silent><nowait> <leader>zy :<C-u>CocFzfList yank<CR>
@@ -2416,28 +2398,6 @@ augroup cocexplorercmds
   autocmd CursorMoved \[coc-explorer\]* :call <SID>ShowFilename()
 augroup END
 
-" Start multiple cursors session
-" nmap <silent> <C-c> <Plug>(coc-cursors-position)
-" nmap <silent> <C-d> <Plug>(coc-cursors-word)
-" xmap <silent> <C-d> <Plug>(coc-cursors-range)
-" use normal command like `<leader>xi(`
-" nmap <leader>x  <Plug>(coc-cursors-operator)
-
-" nmap <expr> <silent> <C-d> <SID>select_current_word()
-" function! s:select_current_word()
-"   if !get(g:, 'coc_cursors_activated', 0)
-"     return '\<Plug>(coc-cursors-word)'
-"   endif
-"   return '*\<Plug>(coc-cursors-word):nohlsearch\<CR>'
-" endfun
-
-" define line highlight color
-" highlight LineHighlight ctermbg=darkgray guibg=darkgray
-" highlight the current line
-" nnoremap ll :call matchadd('LineHighlight', '\%'.line('.').'l')<cr>
-" " clear all the highlighted lines
-" nnoremap lc :call clearmatches()<cr>
-
 " ack.vim
 let g:ackprg = 'rg --vimgrep'
 " Don't jump to first match
@@ -2446,10 +2406,11 @@ cnoreabbrev Ack Ack!
 " use ripgrep for grep
 set grepprg=rg\ --vimgrep\ --no-heading
 set grepformat=%f:%l:%c:%m
-" https://jdhao.github.io/2020/02/16/ripgrep_cheat_sheet/
 
-" grep word under cursor
-nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
+" grep word under cursor in entire project into quickfix
+" nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
+" grep word under cursor all buffers in current window into quickfix
+nnoremap <leader><bs> :AckWindow! <C-R><C-W><CR>
 
 " fzf.vim
 " nnoremap <C-w>- :new<cr>
@@ -2757,10 +2718,6 @@ let g:tmux_navigator_disable_when_zoomed = 1
 let g:beacon_show_jumps = 0
 let g:beacon_ignore_buffers = ["coc-explorer", "Mundo"]
 
-" christoomey/vim-sort-motion
-" make all sorts case insensitive and remove duplicates
-let g:sort_motion_flags = "ui"
-
 " add motions for words_like_this, etc
 " i_ i. i: i, i; i| i/ i\ i* i+ i- i#
 " a_ a. a: a, a; a| a/ a\ a* a+ a- a#
@@ -2799,7 +2756,7 @@ let g:vim_markdown_conceal = 0
 let g:vim_markdown_conceal_code_blocks = 0
 let g:vimwiki_hl_headers = 1 " highlight headers with different colors
 let g:vimwiki_hl_cb_checked = 2 " highlight completed tasks and line
-" let g:markdown_fenced_languages = ['javascript']
+let g:vim_markdown_fenced_languages = ['viml=vim', 'bash=sh', 'javascript=js']
 
 " trying to make markdown snippets work
 " let g:vimwiki_table_mappings=0
@@ -2870,9 +2827,6 @@ function! VimwikFindAllIncompleteTasks()
   lopen
 endfunction
 
-" nmap <Leader>wa :call VimwikiFindAllIncompleteTasks()<CR>
-" nmap <Leader>wx :call VimwikiFindIncompleteTasks()<CR>
-
 command! -bang -nargs=* SearchNotes
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
@@ -2888,6 +2842,8 @@ augroup vimwikigroup
   autocmd!
   " do not set syntax to 'vimwiki'
   autocmd BufEnter *.md setl syntax=markdown
+  " make syntax highlighting work
+  autocmd BufEnter *.md :syntax enable
   " automatically update links on read diary
   autocmd BufRead,BufNewFile diary.md VimwikiDiaryGenerateLinks
 
