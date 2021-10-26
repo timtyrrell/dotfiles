@@ -1,0 +1,90 @@
+#!/bin/bash
+#
+# Attach or create tmux session named the same as current directory.
+#
+# Logic:
+# if dir path passed in
+#    attach or create at the dir path with the basename
+# else
+#    attach or create session with existing basename (current dir name)
+
+# https://github.com/WaylonWalker/devtainer/blob/main/bin/.local/bin/ta
+# https://github.com/christoomey/dotfiles/blob/master/bin/tat
+
+DIR=$1
+
+if [ -z "$DIR" ]; then
+    _session_name="$(basename "$PWD" | tr . -)"
+    session_name=${_session_name//./_}
+    path_name=$PWD
+else
+    # ask which directory to start in
+    _session_name=$(cd $DIR && ls -d */ | sed  "s|/||g" | fzf --reverse --header="Select project from $(basename $DIR) >")
+    session_name=${_session_name//./_}
+    path_name=$DIR/$session_name
+fi
+
+# echo dir is $DIR
+# echo session name is \"$session_name\"
+# echo path name is $path_name
+
+not_in_tmux() {
+  [ -z "$TMUX" ]
+}
+
+session_exists() {
+    tmux has-session -t "=$session_name"
+}
+
+create_detached_session() {
+    (TMUX=''
+    tmux new-session -Ad -s "$session_name" -c $path_name;
+    tmux split-window -vb -t "$session_name" -c $path_name -p 70;
+    tmux send-keys -t "$session_name" "nvim" Enter;
+    )
+}
+
+create_if_needed_and_attach() {
+    if not_in_tmux; then
+        tmux new-session -As "$session_name" -c $path_name
+    else
+        if ! session_exists; then
+            create_detached_session
+        fi
+        tmux switch-client -t "$session_name"
+    fi
+}
+
+create_if_needed_and_attach
+
+#!/bin/sh
+#
+# Attach or create tmux session named the same as current directory.
+
+# path_name="$(basename "$PWD" | tr . -)"
+# session_name=${1-$path_name}
+
+# not_in_tmux() {
+#   [ -z "$TMUX" ]
+# }
+
+# session_exists() {
+#   tmux list-sessions | sed -E 's/:.*$//' | grep -q "^$session_name$"
+# }
+
+# create_detached_session() {
+#   (TMUX='' tmux new-session -Ad -s "$session_name")
+# }
+
+# create_if_needed_and_attach() {
+#   if not_in_tmux; then
+#     tmux new-session -As "$session_name"
+#   else
+#     if ! session_exists; then
+#       create_detached_session
+#     fi
+#     tmux switch-client -t "$session_name"
+#   fi
+# }
+
+# create_if_needed_and_attach

@@ -4,3 +4,8 @@ node_modules
 yarn.lock
 .next
 cassettes
+junit
+*.snap
+.snyk
+notebooks
+poetry.lock

@@ -1,27 +1,144 @@
+"""" motions
+" 0			  To the first character of the line.  |exclusive|
+" ^			  To the first non-blank character of the line.
+" $       To the end of the line.  When a count is given also go
+" w			  [count] words forward.  |exclusive| motion.
+" W			  [count] WORDS forward.  |exclusive| motion.
+" e			  Forward to the end of word [count] |inclusive|.
+" E			  Forward to the end of WORD [count] |inclusive|.
+" b			  [count] words backward.  |exclusive| motion.
+" B			  [count] WORDS backward.  |exclusive| motion.
+" ge			Backward to the end of word [count] |inclusive|.
+" gE			Backward to the end of WORD [count] |inclusive|.
+" %			  Find the next item in this line after or under the cursor and jump to its match.
+" ]m      go to next start of a method
+" ]M      go to next end of a method
+" [m      go to previous start of a method
+" [M      go to previous end of a method
+" [{      jump to beginning of code block (while, switch, if, etc)
+" [(      jump to the beginning of a parenthesis
+" ]}      jump to end of code block (while, switch, if, etc)
+" ])      jump to the end of a parenthesis
+" ]]			[count] |section|s forward or to the next '{' in the first column.
+" ][			[count] |section|s forward or to the next '}' in the first column.
+" [[			[count] |section|s backward or to the previous '{' in the first column
+" []			[count] |section|s backward or to the previous '}' in the first column
+" CTRL-O  go to [count] Older cursor position in jump list
+" CTRL-I  go to [count] newer cursor position in jump list
+" '.      go to position where last change was made (in current buffer)
+" (			  [count] sentences backward
+" )			  [count] sentences forward
+" {			  [count] paragraphs backward
+" }			  [count] paragraphs forward
+" '<			To the first line or character of the last selected Visual area
+" '>			To the last line or character of the last selected Visual area
+" g;			Go to [count] older position in change list.
+" g,			Go to [count] newer cursor position in change list.
+" c       delete character and enter insert mode
+" d       delete character and enter insert mode
+" p       paste behind cursor
+" P       paste in-front/on top cursor
+
+"""" actions
+" C 	    delete from the cursor to the end of the line and enter insert mode
+" cc    	delete the whole line and enter insert mode (===S）
+" x 	    delete the character under the cursor
+" X 	    delete the character in front of the cursor
+" D       clears all characters in the current line (the line is not deleted)
+" dw      delete word
+" de      delete until end of word
+" dd      delete one line
+" dl	    delete character (alias: "x")
+" diw     delete inner word
+" daw     delete a word
+" diW     delete inner WORD
+" daW     delete a WORD
+" dis     delete inner sentence
+" das     delete a sentence
+" dib     delete inner '(' ')' block
+" dab     delete a '(' ')' block
+" dip     delete inner paragraph
+" dap     delete a paragraph
+" diB     delete inner '{' '}' block
+" daB     delete a '{' '}' block
+" d5j     delete 5 lines in 'j' direction
+" xp      transpose 2 characters
+" rc      replace the character under the cursor with c
+
+"""" read-only registers
+" "% 	    current file name
+" "# 	    rotation file name
+" ". 	    last inserted text
+" ": 	    last executed command
+" "/ 	    last found pattern
+
+"""" special register
+" "0      'y' copied text is stored in the nameless register `""`, also `"0`. `c`、`d`、`s`、`x` does not override this register.
+
+"""" INSERT MODE KEYS
+" <C-h>   delete the character before the cursor during insert mode
+" <C-w>   delete word before the cursor during insert mode
+" <C-j>   begin new line during insert mode
+" <C-t>   indent (move right) line one shiftwidth during insert mode
+" <C-d>   de-indent (move left) line one shiftwidth during insert mode
+" <C-R>a  pastes the contents of the `a` register
+" <C-R>"  pastes the contents of the unnamed register (last delete/yank/etc)
+
+" send change arguments to blackhole registry
+nnoremap c "_c
+nnoremap C "_C
+
+" copy paragraph
+nnoremap cp vap:t'><CR>
+
+" insert mode paste from the clipboard just like on mac
+inoremap <C-v> <C-r>*
+
+" Indent/dedent what you just pasted
+nnoremap <leader>< V`]<
+nnoremap <leader>> V`]>
+
+" reselect pasted text. gv, reselects the last visual selection
+nnoremap gp `[v`]
+
+" first character of line, end of line TODO trial
+noremap H 0
+noremap L $
+
+" scroll through time instead of space TODO (find non-mouse combo)
+" map <ScrollWheelUp> :later 10m<CR>
+" map <ScrollWheelDown> :earlier 10m<CR>
+
+" Don't lose selection when shifting sidewards
+"*** seems to remove the ability to '.' ***
+" xnoremap < <gv
+" xnoremap > >gv
 set shell=/usr/local/bin/zsh
 
 set title "displays current file as vim title
 set visualbell "kills the bell
 set t_vb= "kills the bell
 
-" install? https://github.com/Konfekt/FastFold
-" install? https://github.com/Jorengarenar/vim-syntaxMarkerFold
 " folds
-" set foldcolumn=2
-" Space to toggle folds.
 " nnoremap <space><space> za
 " vnoremap <space><space> za
-" commands
 " zf - create fold
 " zd - delete fold under cursor
 " zR - open all folds
 " zM - close all folds
-"
 " treesitter
-" set foldmethod=expr
-" set foldexpr=nvim_treesitter#foldexpr()
-" disable folding
-set nofoldenable
+set foldmethod=expr
+set foldexpr=nvim_treesitter#foldexpr()
+" set foldtext=getline(v:foldstart).'...'.trim(getline(v:foldend))
+set foldtext=substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend))
+" set foldtext=substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend)) . ' (' . (v:foldend - v:foldstart + 1) . ' lines)'
+" set fillchars=fold: ,eob
+set fillchars=fold:\\
+set foldnestmax=3
+set foldminlines=1
+" set nofoldenable
+" Open files without any folding
+set foldlevelstart=99
 
 " command line completion
 set wildmenu
@@ -30,15 +147,14 @@ cnoremap <expr> <c-n> wildmenumode() ? "\<c-n>" : "\<down>"
 cnoremap <expr> <c-p> wildmenumode() ? "\<c-p>" : "\<up>"
 
 set wildmode=longest:full,full
-" not as nice looking but selects first option
-" set wildmode=longest:list,full
 set wildoptions=pum
 " set wildoptions+=pum
 " Enables pseudo-transparency for the popup-menu, 0-100
 set pumblend=20
 set wildcharm=<Tab>
 " set completeopt+=noselect,noinsert,menuone,preview
-set completeopt=menuone,noinsert,noselect,preview
+" set completeopt=menuone,noinsert,noselect,preview
+set completeopt=menuone,preview
 
 " ignore case, example: :e TEST.js
 set wildignorecase
@@ -55,7 +171,7 @@ let mapleader = ','
 " nnoremap ; :
 
 " switch back and forth with two most recent files in buffer
-nnoremap <Backspace> <C-^>
+" nnoremap <Backspace> <C-^>
 
 " go back to last old buffer
 " nnoremap <silent> <bs> <c-o><cr>
@@ -70,10 +186,12 @@ nnoremap <Backspace> <C-^>
 " vim tab navigation
 " Next tab: gt
 " Prior tab: gT
-" Numbered tab: ngt
+" Numbered tab: 7gt
 nnoremap <leader>tc :tabclose<CR>
 nnoremap <leader>tn :tabnew<CR>
 nnoremap <leader>tl :tablast<CR>
+nnoremap <leader>to :tabonly<cr>
+nnoremap <leader>tm :tabmove
 nnoremap <leader>1 1gt
 nnoremap <leader>2 2gt
 nnoremap <leader>3 3gt
@@ -84,7 +202,11 @@ nnoremap <leader>7 7gt
 nnoremap <leader>8 8gt
 nnoremap <leader>9 9gt
 nnoremap <leader>0 10gt
-" nnoremap <leader>0 :tablast<CR> ?
+
+" Let 'tl' toggle between this and the last accessed tab
+let g:lasttab = 1
+nmap <Leader>tl :exe "tabn ".g:lasttab<CR>
+au TabLeave * let g:lasttab = tabpagenr()
 
 " add < and > to matched pairs
 set matchpairs+=<:>
@@ -100,7 +222,7 @@ endfunction
 " https://thevaluable.dev/vim-expert/
 augroup cmd_msg_cls
   autocmd!
-  autocmd CmdlineLeave :  call timer_start(5000, funcref('s:empty_message'))
+  autocmd CmdlineLeave :  call timer_start(10000, funcref('s:empty_message'))
 augroup END
 
 augroup checktimegroup
@@ -122,7 +244,7 @@ set expandtab " Use softtabstop spaces instead of tab characters
 set softtabstop=2 " Indent by 2 spaces when pressing <TAB>
 set shiftwidth=2 " Indent by 2 spaces when using >>, <<, == etc.
 set showtabline=2 " always display vim tab bar
-set number " show line numbers
+set number
 set relativenumber
 set breakindent
 set breakindentopt=shift:2
@@ -130,6 +252,14 @@ set breakindentopt=shift:2
 " also recording jump points for movements larger than five lines
 nnoremap <expr> j v:count ? (v:count > 5 ? "m'" . v:count : '') . 'j' : 'gj'
 nnoremap <expr> k v:count ? (v:count > 5 ? "m'" . v:count : '') . 'k' : 'gk'
+
+augroup numbertoggle
+  autocmd!
+  autocmd BufEnter,FocusGained *.*,.* set relativenumber
+  autocmd BufLeave,FocusLost   *.*,.* set norelativenumber
+  " or by filetype
+  " autocmd BufNewFile,BufRead *.myfile setlocal norelativenumber
+augroup END
 
 " force decimal-based arithmetic on increment/decrement
 set nrformats=
@@ -157,18 +287,10 @@ set undodir=~/.vim/undo
 " search highlighting/behavior
 set hlsearch
 set incsearch
-" Also / then C-r C-w inserts the word under the cursor
-" C-r C-l inserts the entire line
-" /res then C-l will add the next character, can keep hitting
-" https://www.reddit.com/r/vim/comments/jkxuv8/is_easymotion_the_fastest_way_to_navigate_to_an/gaoiwjd/?context=3
-
-" add insert mode shortcuts like terminal
-inoremap <C-a> <C-o>0
-inoremap <C-e> <C-o>$
 
 " allow tab/s-tab to filter with incsearch in-progress
-cnoremap <expr> <Tab>   getcmdtype() =~ "[?/]" ? "<c-g>" : "<Tab>"
-cnoremap <expr> <S-Tab> getcmdtype() =~ "[?/]" ? "<c-t>" : "<S-Tab>"
+" cnoremap <expr> <Tab>   getcmdtype() =~ "[?/]" ? "<c-g>" : "<Tab>"
+" cnoremap <expr> <S-Tab> getcmdtype() =~ "[?/]" ? "<c-t>" : "<S-Tab>"
 
 " Make <C-p>/<C-n> act like <Up>/<Down> in cmdline mode, so they can be used to navigate history with partially completed commands
 cnoremap <c-p> <up>
@@ -182,6 +304,7 @@ cnoremap <c-j> <Right>
 
 " juggling with jumps
 nnoremap ' `
+set jumpoptions=stack
 
 set ignorecase
 set infercase " enhances ignorecase
@@ -190,14 +313,7 @@ set inccommand=nosplit "highlight :s in realtime
 set diffopt+=vertical
 " allows block selections to operate across lines regardless of the underlying text
 set virtualedit=block
-
-" make all visual select blockwise
-" noremap v <c-v>
-" noremap <c-v> v
-
-" do not jump from item on * search
-" nnoremap * *``
-" nnoremap * m`:keepjumps normal! *``<cr>
+set selection=old
 
 set complete-=t " disable searching tags
 nnoremap <silent><leader>vr :call execute('source $MYVIMRC')<cr>:echo 'vim config reloaded!'<cr>
@@ -223,22 +339,11 @@ endfunction
 nmap <silent> <leader>sz :call FzfSpell()<CR>
 " try https://github.com/lewis6991/spellsitter.nvim ?
 
-" Unhighlight search results
-map <Leader><space> :nohl<cr>
-
-" n always search forward and N always backward.
-" noremap <expr> <SID>(search-forward) 'Nn'[v:searchforward]
-" noremap <expr> <SID>(search-backward) 'nN'[v:searchforward]
-" nmap n <SID>(search-forward)zzzv
-" xmap n <SID>(search-forward)zzzv
-" nmap N <SID>(search-backward)zzzv
-" xmap N <SID>(search-backward)zzzv
-
 " keep windows same size when opening/closing splits
 set equalalways
 
 " only highlight cursorline in current active buffer, when not in insert mode
-augroup ALL_MY_WEIRD_AUTO_COMMANDS
+augroup STUFFS
   autocmd!
   " resize panes the host window is resized
   autocmd VimResume,VimResized, CocExplorerOpenPost, CocExplorerQuitPost * wincmd =
@@ -251,6 +356,10 @@ augroup ALL_MY_WEIRD_AUTO_COMMANDS
   " autocmd BufWritePre *.md CocCommand markdownlint.fixAll
   " autocmd BufWritePost *.md CocCommand markdownlint.fixAll | echo 'hi'
   " autocmd BufWritePost *.jsx,*.js CocCommand eslint.executeAutofix
+  autocmd FileType TelescopePrompt let b:coc_pairs_disabled = ["'"]
+
+  " go back to previous tab when closing tab
+  autocmd TabClosed * tabprevious
 augroup END
 
 "sessions
@@ -261,52 +370,28 @@ set sessionoptions-=options
 " don't restore help windows
 set sessionoptions-=help
 
-" send change arguments to blackhole registry
-nnoremap c "_c
-nnoremap C "_C
-" always paste from 0 register to avoid pasting deleted text
-" nnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
-" nnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
-" xnoremap <expr> p (v:register ==# '"' ? '"0' : '') . 'p'
-" xnoremap <expr> P (v:register ==# '"' ? '"0' : '') . 'P'
-" Default VIM commands for pasting registers in insert move
-" <C-R>a pastes the contents of the `a` register
-" <C-R>" pastes the contents of the unnamed register (last delete/yank/etc)
-
-" copy paragraph
-nnoremap cp vap:t'><CR>
-
-" insert mode paste from the clipboard just like on mac
-inoremap <C-v> <C-r>*
-
-" Indent/dedent what you just pasted
-nnoremap <leader>< V`]<
-nnoremap <leader>> V`]>
-
-" reselect pasted text. gv, reselects the last visual selection
-nnoremap gp `[v`]
-
-" Don't lose selection when shifting sidewards
-"*** seems to remove the ability to '.' ***
-" xnoremap < <gv
-" xnoremap > >gv
-
 " split windows
 nnoremap <C-w>- :new<cr>
 nnoremap <C-w><bar> :vnew<cr>
 
-" open file under cursor in vertical split
-map <C-w>f <C-w>vgf
-
+" open :e based on current file path
+noremap <Leader>ep :e <C-R>=expand('%:p:h') . '/' <CR>
+" Opens a new tab with the current buffer's path
+noremap <leader>et :tabedit <C-r>=expand("%:p:h")<CR>/
 " Prompt to open file with same name, different extension
-map <leader>er :e <C-R>=expand("%:r")."."<CR>
+noremap <leader>er :e <C-R>=expand("%:r")."."<CR>
+
+" Switch CWD to the directory of the open buffer
+nnoremap <leader>cd :cd %:p:h<cr>:pwd<cr>
+" change directory to folder of current file
+nnoremap <leader>cd :cd %:p:h<cr>
 
 " open file under cursor anywhere on line
 " https://www.reddit.com/r/vim/comments/mcxha4/remapping_gf_to_open_a_file_from_anywhere_on_the/
 nnoremap gf ^f/gf
 
-" change directory to folder of current file
-nnoremap <leader>cd :cd %:p:h<cr>
+" open file under cursor in vertical split
+map <C-w>f <C-w>vgf
 
 "toggles whether or not the current window is automatically zoomed
 function! ToggleMaxWins()
@@ -334,7 +419,7 @@ nnoremap q: <nop>
 set mouse=
 
 " keep foreground commands in sync
-map fg <c-z>
+" map fg <c-z>
 " or the reverse, add this to shell profile
 " stty susp undef
 " bind '"\C-z":"fg\n"'
@@ -343,7 +428,7 @@ map fg <c-z>
 nnoremap <silent> <Leader>jj :%!python -m json.tool<CR>
 
 " format html
-nnoremap <silent> <Leader>ti :%!tidy -config ~/.config/tidy_config.txt %<CR>
+" nnoremap <silent> <Leader>ti :%!tidy -config ~/.config/tidy_config.txt %<CR>
 
 " remove smart quotes
 " %!iconv -f utf-8 -t ascii//translit
@@ -377,6 +462,7 @@ call plug#begin('~/.config/nvim/plugged')
 Plug 'neoclide/coc.nvim', {'branch': 'master', 'do': 'yarn install --frozen-lockfile'} |
            \ Plug 'antoinemadec/coc-fzf' |
            \ Plug 'wellle/tmux-complete.vim' " coc completion from open tmux panes
+let g:coc_enable_locationlist = 0
 let g:coc_global_extensions = [
           \ 'coc-css',
           \ 'coc-cssmodules',
@@ -452,10 +538,32 @@ augroup mundoauto
   autocmd User vim-mundo echom 'vim-mundo is now loaded!'
 augroup END
 
-Plug 'tpope/vim-obsession' " session management
-" try nvim version and telescope session picker?
-" https://github.com/rmagatti/auto-sessiona
-" https://github.com/rmagatti/session-lens
+" session management
+Plug 'rmagatti/auto-session'
+Plug 'rmagatti/session-lens'
+
+Plug 'preservim/vimux'
+" Combine VimuxZoomRunner and VimuxInspectRunner in one function.
+function! VimuxZoomInspectRunner()
+  if exists("g:VimuxRunnerIndex")
+    call VimuxTmux("select-pane -t ".g:VimuxRunnerIndex)
+    call VimuxTmux("resize-pane -Z -t ".g:VimuxRunnerIndex)
+    call VimuxTmux("copy-mode")
+  endif
+endfunction
+map <Leader>vv :call VimuxZoomInspectRunner()<CR>
+map <Leader>vp :VimuxPromptCommand<CR>
+map <Leader>vl :VimuxRunLastCommand<CR>
+map <Leader>vi :VimuxInspectRunner<CR>
+map <leader>vz :VimuxZoomRunner<CR>
+map <Leader>vq :VimuxCloseRunner<CR>
+map <Leader>v<C-l> :VimuxClearTerminalScreen<CR>
+map <Leader>vc :VimuxClearRunnerHistory<CR>
+map <Leader>vx :VimuxInterruptRunner<CR>
+
+" testing
+Plug 'vim-test/vim-test'
+Plug 'rcarriga/vim-ultest', { 'do': ':UpdateRemotePlugins' }
 
 " debugging
 Plug 'mfussenegger/nvim-dap'
@@ -546,53 +654,21 @@ let g:mkdp_filetypes = ['markdown']
 nmap <leader>mp <Plug>MarkdownPreview
 nmap <leader>ms <Plug>MarkdownPreviewStop
 
+" display images in neovim
+" https://github.com/edluffy/hologram.nvim
+
 " markdown preview in nvim popup
 Plug 'ellisonleao/glow.nvim', {'for': 'markdown'}
 nmap <leader>mv :Glow<CR>
 let g:glow_binary_path = $HOME . "/bin"
 " q to quit, :Glow for current filepath
 
-Plug 'godlygeek/tabular', { 'on': 'Tabularize'}
-" Tabularize /,
-augroup tabularloaded
-  autocmd!
-  autocmd User tabular echom 'Tabular is now loaded!'
-augroup END
-
-Plug 'dhruvasagar/vim-table-mode', { 'on': 'TableModeToggle'}
-augroup tablemodeload
-  autocmd!
-  autocmd User vim-table-mode echom 'vim-table-mode is now loaded!'
-augroup END
-let g:table_mode_map_prefix = '<Leader>tm'
-" <Leader>tm
-" This is a prefix defined by the option |table-mode-map-prefix| used before all other table mode commands.
-" <Leader>tmm
-" Toggle table mode for the current buffer. You can change this using the |toggle-mode-options-toggle-map| option.
-" |
-" Trigger table creation in table mode. You can change this using the |toggle-mode-options-separator| option.
-" <Leader>tmt
-" Triggers |table-mode-commands-tableize| on the visually selected content.
-" mappings? need ,tm
-" <Leader>T
-" Triggers |table-mode-commands-tableize| on the visually selected asking for user to input the delimiter.
-" <Leader>tr
-" Realigns table columns
-" <Leader>tdd
-" Delete the entire table row you are on or multiple rows using a [count]
-" <Leader>tdc
-" Delete entire table column you are within. You can preceed it with a [count] to delete multiple columns to the right
-" <Leader>tiC
-" Insert a table column before the column you are within. You can preceed it with a [count] to insert multiple columns
-" <Leader>tic
-" Insert a table column after the column you are within. You can preceed it with a [count] to insert multiple columns
-" <Leader>ts      Sort a column under the cursor
-" ||              Expands to a header border
-" *table-mode-mappings-motions*
-" [|              Move to previous cell
-" ]|              Move to next cell
-" {|              Move to the cell above
-" }|              Move to the cell below
+Plug 'weirongxu/plantuml-previewer.vim'
+Plug 'tyru/open-browser.vim'
+" vim .dsl syntax https://github.com/vim/vim/pull/8764
+Plug 'shuntaka9576/preview-swagger.nvim', { 'build': 'yarn install' }
+" Draw ASCII diagrams in Neovim.
+" Plug 'jbyuki/venn.nvim'
 
 " https://www.reddit.com/r/vim/comments/lwr56a/search_and_replace_camelcase_to_snake_case/
 Plug 'tpope/vim-abolish'
@@ -606,7 +682,9 @@ Plug 'tpope/vim-abolish'
 Plug 'mileszs/ack.vim'
 
 " enhanced matchit
+let g:loaded_matchit = 1
 Plug 'andymass/vim-matchup'
+let g:matchup_matchparen_offscreen = {'method': 'popup'}
 " ---------------------------------------------~
 "  LHS   RHS                   Mode   Module
 " -----------------------------------------------~
@@ -623,58 +701,9 @@ Plug 'andymass/vim-matchup'
 " tab to exit enclosing character
 Plug 'abecodes/tabout.nvim'
 
-" sneak replacement
-Plug 'ggandor/lightspeed.nvim'
-" s|S <c-x>? char1 (char2|label)? (<tab>|<s-tab>)* label?
-" s{char}{char} motion
-" dz{char}{char} - delete until
-"
-" Normal mode~
-
-" s{char}{char}              Jump to the first character of {char}{char}
-"                            in the forward direction.
-" S{char}{char}              Jump to the first character of {char}{char}
-"                            in the backward direction.
-" Visual mode~
-
-" s{char}{char}              Extend visual selection up to and including the
-"                            first character of {char}{char} in the forward
-"                            direction.
-" S{char}{char}              Extend visual selection up to and including the
-"                            first character of {char}{char} in the backward
-"                            direction.
-
-" x{char}{char}              Extend visual selection up to and including the
-"                            second character of {char}{char} in the forward
-"                            direction.
-" X{char}{char}              Extend visual selection up to the second character
-"                            of {char}{char} in the backward direction.
-" Operator-pending mode~
-
-" {operator}z{char}{char}    Perform {operator} from the cursor up to the first
-"                            character of {char}{char} in the forward direction.
-" {operator}Z{char}{char}    Perform {operator} from the cursor up to and
-"                            including the first character of {char}{char} in
-"                            the backward direction. (|exclusive| motion: the
-"                            cursor position is not included without |o_v|.)
-
-" {operator}x{char}{char}    Perform {operator} from the cursor up to and
-"                            including the second character of {char}{char} in
-"                            the forward direction.
-" {operator}X{char}{char}    Perform {operator} from the cursor up to the second
-"                            character of {char}{char} in the backward
-"                            direction. (|exclusive| motion: the cursor position
-"                            is not included without |o_v|.)
-
-
 Plug 'phaazon/hop.nvim'
-
-Plug 'christoomey/vim-sort-motion'
-" make all sorts case insensitive and remove duplicates.
-let g:sort_motion_flags = 'ui'
-" gs2j => Sort down two lines (current + 2 below)
-" gsip => Sort the current paragraph
-" gsi{ => sort inner parenthesis
+nmap <leader><leader> :HopWord<cr>
+vmap <leader><leader> :HopWord<cr>
 
 Plug 'drmingdrmer/vim-toggle-quickfix'
 
@@ -687,6 +716,8 @@ Plug 'kevinhwang91/nvim-bqf'
 " > - next quickfix list
 
 Plug 'christoomey/vim-tmux-navigator'
+" If the tmux window is zoomed, keep it zoomed when moving from Vim to another pane
+let g:tmux_navigator_preserve_zoom = 1
 " simplify split navigation
 " map <C-j> <C-W>j
 " map <C-k> <C-W>k
@@ -706,7 +737,9 @@ Plug 'christoomey/vim-system-copy'
 "bundle bopen
 
 Plug 'tpope/vim-commentary'
-"gcc comment out, gcap for paragraph
+"gcc  - comment out line
+"gcap - comment out paragraph
+"gcgc - uncomment a set of adjacent commented lines
 
 " add viml/lua commenting support
 Plug 'suy/vim-context-commentstring',  { 'for': 'vim' }
@@ -753,7 +786,7 @@ Plug 'tpope/vim-surround'
 " yswf : prompt & surround with a function call
 " ds" : delete surrounding "
 " dst : delete surrounding tag (HTML)
-
+" in case I need to unmap them: https://github.com/mgarort/dotvim/blob/e67260d70377c28a0d0a08d8f3733adb05d5d4bd/vimrc#L987-L1000
 
 augroup jsconsolecmds
   autocmd!
@@ -761,6 +794,7 @@ augroup jsconsolecmds
   " autocmd FileType typescriptreact,javascript,javascriptreact,typescript let b:surround_{char2nr('c')} = 'console.log(\r)'
   " autocmd FileType typescriptreact,javascript,javascriptreact,typescript let b:surround_{char2nr('e')} = '${\r}'
   " move word under cursor up or down a line wrapped in a console.log
+  " or use: https://github.com/meain/vim-printer
   autocmd FileType typescriptreact,javascript,javascriptreact,typescript nnoremap <buffer> <leader>cO "zyiwOconsole.log(z)<Esc>
   autocmd FileType typescriptreact,javascript,javascriptreact,typescript nnoremap <buffer> <leader>co "zyiwoconsole.log(z)<Esc>
 augroup END
@@ -770,23 +804,31 @@ Plug 'tpope/vim-unimpaired'
 " [<Space> and ]<Space> add newlines before and after the cursor line
 " [e and ]e exchange the current line with the one above or below it.
 
-Plug 'tommcdo/vim-exchange'
-" cx
+Plug 'tpope/vim-speeddating'
+" increment/decrement dates <C-A>/<C-X>
 
-" On the first use, define the first {motion} to exchange. On the second use, define the second {motion} and perform the exchange.
-" cxx
-
-" Like cx, but use the current line.
-" X
-
-" Like cx, but for Visual mode.
-" cxc
-
-Plug 'kana/vim-textobj-user' | Plug 'kana/vim-textobj-line'
+" try https://github.com/wellle/targets.vim ?
+" https://github.com/kana/vim-textobj-user/wiki
+Plug 'kana/vim-textobj-user'
+Plug 'kana/vim-textobj-line'
 " adds 'al' and 'il' motions for a line
 " 'il' ignores leading and trailing spaces. 'al' ignoes EOL
-" a lot more: https://github.com/kana/vim-textobj-user/wiki
-" try https://github.com/wellle/targets.vim ?
+Plug 'kana/vim-textobj-indent'
+" ai	<Plug>(textobj-indent-a)
+" ii	<Plug>(textobj-indent-i)
+" aI	<Plug>(textobj-indent-same-a)
+" iI	<Plug>(textobj-indent-same-i)
+" Plug 'vimtaku/vim-textobj-keyvalue'
+" ak	<Plug>(textobj-key-a)
+" ik	<Plug>(textobj-key-i)
+" av	<Plug>(textobj-value-a)
+" iv	<Plug>(textobj-value-i)
+Plug 'sgur/vim-textobj-parameter'
+let g:vim_textobj_parameter_mapping = ','
+" i,
+" a,
+Plug 'Julian/vim-textobj-variable-segment'
+" iv and av for variable segments, snake_case, camelCase, etc
 
 " https://github.com/mlaursen/vim-react-snippets#cheatsheet
 Plug 'mlaursen/vim-react-snippets', { 'branch': 'main' }
@@ -794,10 +836,11 @@ Plug 'mlaursen/vim-react-snippets', { 'branch': 'main' }
 " review linenumber before jump
 Plug 'nacro90/numb.nvim'
 
+" https://github.com/metakirby5/codi.vim
 Plug 'michaelb/sniprun', {'do': 'bash install.sh'}
 nmap <leader>snr <Plug>SnipRun
 " nmap <leader>sn <Plug>SnipRunOperator
-vmap sn <Plug>SnipRun
+" vmap sn <Plug>SnipRun
 nmap <leader>snc <Plug>SnipClose
 
 " diff visual selections
@@ -817,18 +860,32 @@ Plug 'tpope/vim-fugitive' |
            \ Plug 'junegunn/gv.vim' |
            \ Plug 'tpope/vim-rhubarb' | "GitHub extension for fugitive.vim
 
+" https://github.com/tpope/vim-fugitive/issues/1446
+" old version of husky at work....
+let g:fugitive_pty = 0
+
 " Fugitive mapping
 nmap <leader>gb :Git blame<cr>
 nmap <leader>gB :%Git blame<cr>
 nmap <leader>gd :Gdiff<cr>
+
 nmap <leader>gl :Gclog<cr>
 nmap <leader>gL :Gclog -- %<cr>
+" :0Glog " see history of current file
 " nmap <leader>gL :Gclog -100<cr>
-nmap <leader>gs :Git<cr>
-" P (on the file you want to run patch on)
+" G log to see commits
+" 'o' to see diff, 'O' to open in new tab
+" coo to checkout and switch to that commit
+
 nmap <leader>ge :Gedit<cr>
+" :Gedit main:file.js to open file version in another branch
+" :Gedit " go back to normal file from read-only view in Gstatus window
+
 nmap <leader>gc :Gcommit<cr>
+
 nmap <leader>gr :Gread<cr>:update<cr>
+" :Gread main:file.js to replace file from one in another branch
+
 nmap <leader>gg :Ggrep
 
 " Add the entire file to the staging area
@@ -845,9 +902,10 @@ vnoremap <Leader>GB :GBrowse!<CR>
 
 " Copy current line url to clipboard
 nnoremap <Leader>GB :.GBrowse!<CR>
-" :0Glog " see history of current file
-" :Gedit " go back to normal file from read-only view in Gstatus window
-" <C-N> or <C-P> to jump to the next/previous file (as mentioned above)
+
+nmap <leader>gs :Git<cr>
+" P (on the file you want to run patch on)
+" <C-N> or <C-P> to jump to the next/previous file
 " - on a file, stages (or unstages) the entire file.
 " = shows the git diff of the file your cursor is on.
 " - on a hunk, stages (or unstages) the hunk.
@@ -874,7 +932,7 @@ Plug 'christoomey/vim-conflicted'
 set fillchars+=diff:╱
 
 Plug 'rhysd/git-messenger.vim'
-" git blame: <Leader>gm
+" <Leader>gm
 " q 	Close the popup window
 " o/O 	older commit/newer commit
 " d/D 	Toggle diff hunks only related to current file in the commit/All Diffs
@@ -899,21 +957,40 @@ endfunction
 " display diff while in interactive rebase
 Plug 'hotwatermorning/auto-git-diff'
 
+Plug 'iberianpig/tig-explorer.vim'
+" open tig with Project root path
+nnoremap <Leader>tig :TigOpenProjectRootDir<CR>
+" open tig with current file
+nnoremap <Leader>tif :TigOpenCurrentFile<CR>
+" open tig grep with the word under the cursor
+nnoremap <Leader>tic :<C-u>:TigGrep<Space><C-R><C-W><CR>
+" open tig blame with current file
+nnoremap <Leader>tib :TigBlame<CR>
+
+" otherwise I lose what was open in the buffer...
+let g:tig_explorer_use_builtin_term=0
+
+let g:tig_explorer_keymap_edit_e  = 'e'
+let g:tig_explorer_keymap_edit    = '<C-o>'
+let g:tig_explorer_keymap_tabedit = '<C-t>'
+let g:tig_explorer_keymap_split   = '<C-s>'
+let g:tig_explorer_keymap_vsplit  = '<C-v>'
+
+let g:tig_explorer_keymap_commit_edit    = '<ESC>o'
+let g:tig_explorer_keymap_commit_tabedit = '<ESC>t'
+let g:tig_explorer_keymap_commit_split   = '<ESC>s'
+let g:tig_explorer_keymap_commit_vsplit  = '<ESC>v'
+" bclose.vim required for neovim and tig-explorer
+Plug 'rbgrouleff/bclose.vim'
+
 Plug 'kevinhwang91/nvim-hlslens'
-" do not jump from item on * search
-nnoremap * *``<Cmd>lua require('hlslens').start()<CR>
-nnoremap * m`:keepjumps normal! *``<cr><Cmd>lua require('hlslens').start()<CR>
-noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
-            \<Cmd>lua require('hlslens').start()<CR>
-noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
-            \<Cmd>lua require('hlslens').start()<CR>
+
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
 nnoremap <leader>te :Telescope<cr>
-" install if I ever start using telescope
-" Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-" https://github.com/nvim-telescope/telescope.nvim/wiki/Extensions
+
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'nvim-telescope/telescope-dap.nvim'
 Plug 'pwntester/octo.nvim'
 nnoremap <leader>opr <cmd>Octo pr list<cr>
@@ -921,12 +998,33 @@ nnoremap <leader>ors <cmd>Octo review start<cr>
 nnoremap <leader>orr <cmd>Octo review resume<cr>
 nnoremap <leader>orb <cmd>Octo review submit<cr>
 
+Plug 'ElPiloto/telescope-vimwiki.nvim'
+nnoremap <leader>vw :Telescope vimwiki<cr>
+nnoremap <leader>vg :Telescope vimwiki live_grep<cr>
+
+Plug 'nvim-telescope/telescope-node-modules.nvim'
+
+Plug 'dhruvmanila/telescope-bookmarks.nvim'
+
+Plug 'xiyaowong/telescope-emoji.nvim'
+
+Plug 'AckslD/nvim-neoclip.lua'
+Plug 'tami5/sqlite.lua'
+
+Plug 'fannheyward/telescope-coc.nvim'
+
+Plug 'camgraff/telescope-tmux.nvim'
+Plug 'norcalli/nvim-terminal.lua'
+" https://github.com/akinsho/toggleterm.nvim
+
+Plug 'mrjones2014/dash.nvim', { 'do': 'make install'}
+
+Plug 'nvim-telescope/telescope-github.nvim'
+Plug 'rlch/github-notifications.nvim'
+
 Plug 'kyazdani42/nvim-web-devicons'
 " https://levelup.gitconnected.com/git-worktrees-the-best-git-feature-youve-never-heard-of-9cd21df67baf
 Plug 'ThePrimeagen/git-worktree.nvim'
-
-" Plug 'nvim-telescope/telescope-project.nvim'
-" https://github.com/AckslD/nvim-neoclip.lua
 
 " Plug 'tami5/sql.nvim'
 " Plug 'nvim-telescope/telescope-frecency.nvim'
@@ -954,6 +1052,9 @@ Plug 'tpope/vim-scriptease'
 " visiblity
 Plug 'psliwka/vim-smoothie'
 
+Plug 'Konfekt/FastFold'
+" Plug 'Jorengarenar/vim-syntaxMarkerFold' ?
+
 " no recent updates, try this? https://github.com/edluffy/specs.nvim
 Plug 'danilamihailov/beacon.nvim'
 let g:beacon_ignore_filetypes = ['git', 'startify']
@@ -975,22 +1076,12 @@ endif
 
 " Plug 'google/vim-searchindex'
 
-Plug 'junegunn/vim-peekaboo'
-" spacebar toggle full screen
+Plug 'tversteeg/registers.nvim', { 'branch': 'main' }
+let g:registers_window_border = "double"
+let g:registers_show_empty_registers = 0
+let g:registers_delay = 1000
 
-" mark column display
-Plug 'kshenoy/vim-signature'
-" don't override mfussenegger/nvim-ts-hint-textobject mapping
-let g:SignatureMap = {
-      \ 'DeleteMark' : "dM",
-      \ }
-let g:SignatureMarkTextHL = "Todo"
-" mx           Toggle mark 'x' and display it in the leftmost column
-" dMx          Remove mark 'x' where x is a-zA-Z
-" m<Space>     Delete all marks from the current buffer
-" m<BS>        Remove all markers
-" ]'           Jump to start of next line containing a mark
-" ['           Jump to start of prev line containing a mark
+Plug 'chentau/marks.nvim'
 
 " displays colors for words/hex
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
@@ -1000,6 +1091,7 @@ let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typesc
 " appearence and insight
 Plug 'ryanoasis/vim-devicons'
 let g:WebDevIconsOS = 'Darwin'
+Plug 'bryanmylee/vim-colorscheme-icons'
 
 " massive cmdline improvement
 Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -1033,11 +1125,6 @@ let g:browser_search_engines = {
   \ 'google':'https://google.com/search?q=%s',
   \ 'stackoverflow':'https://stackoverflow.com/search?q=%s',
   \ }
-
-Plug 'keith/investigate.vim'
-" gK to open word in Dash
-let g:investigate_use_dash=1
-let g:investigate_dash_for_typescriptreact="javascript"
 
 Plug 'meain/vim-package-info', { 'do': 'npm install' }
 " another one to try: https://github.com/vuki656/package-info.nvim
@@ -1098,68 +1185,18 @@ xmap <leader>sC <plug>(scratch-selection-clear)
 " learning
 Plug 'folke/which-key.nvim'
 
-Plug 'takac/vim-hardtime'
-let g:hardtime_default_on = 1
-let g:hardtime_timeout = 1000
-let g:hardtime_showmsg = 1
-let g:list_of_normal_keys = ["h", "j", "k", "l", "w", "b", "W", "B"]
-let g:list_of_visual_keys = ["h", "j", "k", "l", "w", "b", "W", "B"]
-let g:list_of_insert_keys = ["<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
-let g:list_of_disabled_keys = []
-let g:hardtime_ignore_quickfix = 1
-let g:hardtime_ignore_buffer_patterns = ['help', 'nofile', 'nowrite', 'man']
-let g:hardtime_allow_different_key = 1
-let g:hardtime_maxcount = 2
-
-"""" movements
-" w			  [count] words forward.  |exclusive| motion.
-" W			  [count] WORDS forward.  |exclusive| motion.
-" e			  Forward to the end of word [count] |inclusive|.
-" E			  Forward to the end of WORD [count] |inclusive|.
-" b			  [count] words backward.  |exclusive| motion.
-" B			  [count] WORDS backward.  |exclusive| motion.
-" ge			Backward to the end of word [count] |inclusive|.
-" gE			Backward to the end of WORD [count] |inclusive|.
-" %			  Find the next item in this line after or under the cursor and jump to its match.
-" ]m      go to next start of a method
-" ]M      go to next end of a method
-" [m      go to previous start of a method
-" [M      go to previous end of a method
-" [{      jump to beginning of code block (while, switch, if, etc)
-" [(      jump to the beginning of a parenthesis
-" ]}      jump to end of code block (while, switch, if, etc)
-" ])      jump to the end of a parenthesis
-" ]]			[count] |section|s forward or to the next '{' in the first column.
-" ][			[count] |section|s forward or to the next '}' in the first column.
-" [[			[count] |section|s backward or to the previous '{' in the first column
-" []			[count] |section|s backward or to the previous '}' in the first column
-" CTRL-O  go to [count] Older cursor position in jump list
-" CTRL-I  go to [count] newer cursor position in jump list
-" '.      go to position where last change was made (in current buffer)
-" (			  [count] sentences backward
-" )			  [count] sentences forward
-" {			  [count] paragraphs backward
-" }			  [count] paragraphs forward
-" '<			To the first line or character of the last selected Visual area
-" '>			To the last line or character of the last selected Visual area
-" g;			Go to [count] older position in change list.
-" g,			Go to [count] newer cursor position in change list.
-""""
-
-"dl"	delete character (alias: "x")
-"diw"	delete inner word
-"daw"	delete a word
-"diW"	delete inner WORD
-"daW"	delete a WORD
-"dd"	delete one line
-"dis"	delete inner sentence
-"das"	delete a sentence
-"dib"	delete inner '(' ')' block
-"dab"	delete a '(' ')' block
-"dip"	delete inner paragraph
-"dap"	delete a paragraph
-"diB"	delete inner '{' '}' block
-"daB"	delete a '{' '}' block
+" Plug 'takac/vim-hardtime'
+" let g:hardtime_default_on = 1
+" let g:hardtime_timeout = 1000
+" let g:hardtime_showmsg = 1
+" let g:list_of_normal_keys = ["h", "j", "k", "l", "w", "b", "W", "B"]
+" let g:list_of_visual_keys = ["h", "j", "k", "l", "w", "b", "W", "B"]
+" let g:list_of_insert_keys = ["<UP>", "<DOWN>", "<LEFT>", "<RIGHT>"]
+" let g:list_of_disabled_keys = []
+" let g:hardtime_ignore_quickfix = 1
+" let g:hardtime_ignore_buffer_patterns = ['help', 'nofile', 'nowrite', 'man']
+" let g:hardtime_allow_different_key = 1
+" let g:hardtime_maxcount = 2
 
 " bugfix
 " fix CursorHold perf bug
@@ -1167,7 +1204,19 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 
 call plug#end()
 
+" Unhighlight search results
+map <Leader><space> :nohl<cr>
+" nmap <silent> <BS>  :nohlsearch<CR>
 
+" do not jump from item on * search
+nnoremap * *``<Cmd>lua require('hlslens').start()<CR>
+nnoremap * m`:keepjumps normal! *``<cr><Cmd>lua require('hlslens').start()<CR>
+noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
+            \<Cmd>lua require('hlslens').start()<CR>
+noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
+            \<Cmd>lua require('hlslens').start()<CR>
+
+call wilder#enable_cmdline_enter()
 call wilder#setup({'modes': [':', '/', '?']})
 
 cmap <expr> <Tab> wilder#in_context() ? wilder#next() : '\<Tab>'
@@ -1208,13 +1257,8 @@ call wilder#set_option('pipeline', [
 
 let s:highlighters = [ wilder#lua_fzy_highlighter() ]
 
-call wilder#set_option('renderer', wilder#wildmenu_renderer(
-      \ wilder#wildmenu_lightline_theme({
-      \   'highlighter': s:highlighters,
-      \   'separator': ' · ',
-      \ })))
-
 let s:popupmenu_renderer = wilder#popupmenu_renderer(wilder#popupmenu_border_theme({
+      \ 'reverse': 1,
       \ 'border': 'rounded',
       \ 'empty_message': wilder#popupmenu_empty_message_with_spinner(),
       \ 'highlights': { 'accent': 'Statement'},
@@ -1233,13 +1277,12 @@ let s:popupmenu_renderer = wilder#popupmenu_renderer(wilder#popupmenu_border_the
       \ ],
       \ }))
 
-let s:wildmenu_renderer = wilder#wildmenu_renderer({
-      \ 'highlighter': s:highlighters,
-      \ 'highlights': { 'accent': 'Statement'},
-      \ 'separator': ' · ',
-      \ 'left': [' ', wilder#wildmenu_spinner(), ' '],
-      \ 'right': [' ', wilder#wildmenu_index()],
-      \ })
+let s:wildmenu_renderer = wilder#wildmenu_renderer(
+      \ wilder#wildmenu_lightline_theme({
+      \   'highlighter': s:highlighters,
+      \   'highlights': { 'accent': 'Statement'},
+      \   'separator': ' · ',
+      \ }))
 
 call wilder#set_option('renderer', wilder#renderer_mux({
       \ ':': s:popupmenu_renderer,
@@ -1247,26 +1290,22 @@ call wilder#set_option('renderer', wilder#renderer_mux({
       \ 'substitute': s:wildmenu_renderer,
       \ }))
 
+" lazy way seems slower
+" call wilder#enable_cmdline_enter()
+" autocmd CmdlineEnter * ++once call s:wilder_init() | call s:wilder#main#start()
+" augroup my_wilder_init
+"   autocmd!
+"   autocmd CmdlineEnter * ++once call s:wilder_init()
+" augroup END
+
 " mfussenegger/nvim-ts-hint-textobject
 " example: `vm` to visually display hints to select
 omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
 vnoremap <silent> m :lua require('tsht').nodes()<CR>
 
-" don't be multiline during macros
-nmap <expr> f reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_f" : "f"
-nmap <expr> F reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_F" : "F"
-nmap <expr> t reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_t" : "t"
-nmap <expr> T reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_T" : "T"
-
-" function! s:RepeatFt(reverse)
-"   lua require'lightspeed'.ft['instant-repeat?'] = true
-"   lua require'lightspeed'.ft:to(vim.api.nvim_eval('a:reverse'),
-"                               \ require'lightspeed'.ft['prev-t-like?'])
-" endfunction
-" nnoremap <silent> ; <cmd>call <SID>RepeatFt(v:false)<cr>
-" xnoremap <silent> ; <cmd>call <SID>RepeatFt(v:false)<cr>
-" nnoremap <silent> , <cmd>call <SID>RepeatFt(v:true)<cr>
-" xnoremap <silent> , <cmd>call <SID>RepeatFt(v:true)<cr>
+" nvim/shada is dumb with marks, don't save for new session
+" https://www.reddit.com/r/neovim/comments/q7bgwo/comment/hghwogp/?context=3
+set shada=!,'0,f0,<50,s10,h
 
 lua << EOF
 
@@ -1274,22 +1313,64 @@ require("todo-comments").setup {}
 require("tabout").setup {}
 require("nvim-web-devicons").setup {}
 require("which-key").setup {}
-require("headlines").setup { }
+require("headlines").setup {}
+require("terminal").setup {}
 
-require('lightspeed').setup {
-  limit_ft_matches = 5,
-  -- For instant-repeat, pressing the trigger key again (f/F/t/T) always works
-  instant_repeat_fwd_key = ';',
-  instant_repeat_bwd_key = ':',
+require('auto-session').setup {
+  log_level = 'info',
+  auto_session_enable_last_session = false,
+  auto_session_root_dir = vim.fn.stdpath('data').."/sessions/",
+  auto_session_enabled = true,
+  auto_save_enabled = true,
+  auto_restore_enabled = true,
+  auto_session_suppress_dirs = nil
 }
 
 require("hop").setup()
-vim.api.nvim_set_keymap('n', '<leader><leader>', "<cmd>lua require'hop'.hint_words()<cr>", {})
-vim.api.nvim_set_keymap('n', '<leader><tab>', "<cmd>lua require'hop'.hint_lines()<cr>", {})
-vim.api.nvim_set_keymap('n', '<leader>/', "<cmd>lua require'hop'.hint_patterns()<cr>", {})
-vim.api.nvim_set_keymap('v', '<leader><leader>', "<cmd>lua require'hop'.hint_words()<cr>", {})
-vim.api.nvim_set_keymap('v', '<leader><tab>', "<cmd>lua require'hop'.hint_lines()<cr>", {})
-vim.api.nvim_set_keymap('v', '<leader>/', "<cmd>lua require'hop'.hint_patterns()<cr>", {})
+-- Set up `f` as general hop hotkey to hint character
+vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR })<cr>", {})
+vim.api.nvim_set_keymap('x', 'f', "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR })<cr>", {})
+vim.api.nvim_set_keymap('n', 'F', "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR })<cr>", {})
+vim.api.nvim_set_keymap('x', 'F', "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR })<cr>", {})
+-- Set up actions in normal mode
+local actions = { "d", "c", "<", ">", "y" }
+for _, a in ipairs(actions) do
+  vim.api.nvim_set_keymap('n', a .. 'f', a .. "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR })<cr>", {})
+  vim.api.nvim_set_keymap('n', a .. 'F', a .. "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR })<cr>", {})
+end
+
+require'marks'.setup {
+  bookmark_0 = {
+    sign = "⚑",
+    virt_text = "FIX THIS"
+  },
+}
+
+-- mx              Set mark x
+-- m,              Set the next available alphabetical (lowercase) mark
+-- m;              Toggle the next available mark at the current line
+-- dmx             Delete mark x
+-- dm-             Delete all marks on the current line
+-- dm<space>       Delete all marks in the current buffer
+-- m]              Move to next mark
+-- m[              Move to previous mark
+-- m:              Preview mark. This will prompt you for a specific mark to
+--                 preview; press <cr> to preview the next mark.
+
+-- m[0-9]          Add a bookmark from bookmark group[0-9].
+-- dm[0-9]         Delete all bookmarks from bookmark group[0-9].
+-- m}              Move to the next bookmark having the same type as the bookmark under
+--                 the cursor. Works across buffers.
+-- m{              Move to the previous bookmark having the same type as the bookmark under
+--                 the cursor. Works across buffers.
+-- dm=             Delete the bookmark under the cursor.
+--
+-- :MarksToggleSigns - Toggle signs in the buffer
+-- :MarksListBuf - Fill the location list with all marks in the current buffer.
+-- :MarksListGlobal - Fill the location list with all global marks in open buffers.
+-- :MarksListAll - Fill the location list with all marks in all open buffers.
+-- :BookmarksList - group_number Fill the location list with all bookmarks of group "group_number".
+-- :BookmarksListAll - Fill the location list with all bookmarks, across all groups.
 
 require("zen-mode").setup {
   window = {
@@ -1301,14 +1382,6 @@ require("zen-mode").setup {
     height = 1, -- height of the Zen window
   },
 }
-
-require("telescope").load_extension("git_worktree")
-
--- nvim-telescope/telescope-dap.nvim
--- require('telescope').load_extension('dap')
--- map('n', '<leader>ds', ':Telescope dap frames<CR>')
--- map('n', '<leader>dc', ':Telescope dap commands<CR>')
--- map('n', '<leader>db', ':Telescope dap list_breakpoints<CR>')
 
 local actions = require('telescope.actions')
 -- Global remapping
@@ -1325,11 +1398,143 @@ require('telescope').setup {
     mappings = {
       i = {
         ["<C-j>"] = actions.move_selection_next,
-        ["<C-k>"] = actions.move_selection_previous
+        ["<C-k>"] = actions.move_selection_previous,
+        ["<esc>"] = actions.close,
+        ["<C-n"] = require('telescope.actions').cycle_history_next,
+        ["<C-p>"] = require('telescope.actions').cycle_history_prev,
       },
+    },
+  },
+  pickers = {
+    current_buffer_fuzzy_find = {
+      skip_empty_lines = true,
+    },
+    grep_string = {
+      sort_only_text = true,
+    },
+    live_grep = {
+      only_sort_text = true,
+    },
+    buffers = {
+      ignore_current_buffer = true,
+      sort_lastused = true,
+    },
+  },
+  extensions = {
+    fzf = {
+      fuzzy = true,                    -- false will only do exact matching
+      override_generic_sorter = true,  -- override the generic sorter
+      override_file_sorter = true,     -- override the file sorter
+      case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+                                       -- the default case_mode is "smart_case"
+    },
+    dash = {
+      -- map filetype strings to the keywords you've configured for docsets in Dash
+      -- setting to false will disable filtering by filetype for that filetype
+      fileTypeKeywords = {
+        startify = false,
+        TelescopePrompt = false,
+        terminal = false,
+        -- a table of strings will search on multiple keywords
+        javascript = { 'javascript', 'nodejs' },
+        typescript = { 'typescript', 'javascript', 'nodejs' },
+        typescriptreact = { 'typescript', 'javascript', 'react' },
+        javascriptreact = { 'javascript', 'react' },
+        -- you can also do a string, for example,
+        -- bash = 'sh'
+      },
+    },
+    bookmarks = {
+      -- Available: 'brave', 'google_chrome', 'safari', 'firefox', 'firefox_dev'
+      selected_browser = 'google_chrome',
     },
   }
 }
+
+-- local M = {}
+
+-- function M.project_files()
+--   local opts = {} -- define here if you want to define something
+--   local ok = pcall(require'telescope.builtin'.git_files, opts)
+--   if not ok then require'telescope.builtin'.find_files(opts) end
+-- end
+
+-- function M.project_search()
+--   require('telescope.builtin').find_files {
+--     previewer = false,
+--     shorten_path = true,
+--     layout_strategy = "horizontal",
+--     cwd = require('lspconfig.util').root_pattern(".git")(vim.fn.expand(":p")),
+--   }
+-- end
+
+-- local M = {}
+
+-- M.project_files = function()
+--   local opts = {} -- define here if you want to define something
+--   local ok = pcall(require'telescope.builtin'.git_files, opts)
+--   if not ok then require'telescope.builtin'.find_files(opts) end
+-- end
+
+-- return M
+
+require('telescope').load_extension('node_modules')
+-- :Telescope node_modules list
+-- | key               | action               |
+-- |-------------------|----------------------|
+-- | `<CR>` (edit)     | `builtin.find_files` |
+-- | `<C-x>` (split)   | `:chdir` to the dir  |
+-- | `<C-v>` (vsplit)  | `:lchdir` to the dir |
+-- | `<C-t>` (tabedit) | `:tchdir` to the dir |
+require('telescope').load_extension('gh')
+-- Telescope gh pull_request assignee=timtyrrell state=open
+-- |---------|-------------------------------|
+-- | `<cr>`  | checkout pull request         |
+-- | `<c-t>` | open web                      |
+-- | `<c-e>` | toggle to view detail or diff |
+-- | `<c-r>` | merge request                 |
+-- | `<c-a>` | approve pull request          |
+-- Telescope gh run
+-- |---------|----------------------------------------------|
+-- | `<cr>`  | open workflow summary/run logs in new window |
+-- | `<c-t>` | open web                                     |
+-- | `<c-r>` | request run rerun                            |
+-- Telescope gh gist
+-- Telescope gh issues
+require('telescope').load_extension('tmux')
+require('telescope').load_extension('coc')
+require("telescope").load_extension("git_worktree")
+require('telescope').load_extension('vimwiki')
+require('telescope').load_extension('fzf')
+require('telescope').load_extension('bookmarks')
+require("telescope").load_extension("emoji")
+require('telescope').load_extension('ghn')
+require('telescope').load_extension('fzf')
+
+require("telescope").load_extension("neoclip")
+require('neoclip').setup({
+  history = 1000,
+  enable_persistant_history = true,
+  preview = true,
+  keys = {
+    i = {
+      select = '<cr>',
+      paste = '<c-p>',
+      paste_behind = '<c-P>',
+    },
+    n = {
+      select = '<cr>',
+      paste = 'p',
+      paste_behind = 'P',
+    },
+  },
+})
+
+-- nvim-telescope/telescope-dap.nvim
+-- require('telescope').load_extension('dap')
+-- map('n', '<leader>ds', ':Telescope dap frames<CR>')
+-- map('n', '<leader>dc', ':Telescope dap commands<CR>')
+-- map('n', '<leader>db', ':Telescope dap list_breakpoints<CR>')
 
 require("octo").setup({
   submit_win = {
@@ -1543,33 +1748,6 @@ let g:mundo_right=1
 " vim-smoothie
 let g:smoothie_base_speed = 30
 
-" vim-peekaboo
-let g:peekaboo_delay='1000' " delay 1000ms
-let g:peekaboo_window="call CreateCenteredFloatingWindow()"
-
-function! CreateCenteredFloatingWindow()
-  let width = float2nr(&columns * 0.7)
-  let height = float2nr(&lines * 0.7)
-  let top = ((&lines - height) / 2) - 1
-  let left = (&columns - width) / 2
-  let opts = {'relative': 'editor', 'row': top, 'col': left, 'width': width, 'height': height, 'style': 'minimal'}
-
-  let top = "╭" . repeat("─", width - 2) . "╮"
-  let mid = "│" . repeat(" ", width - 2) . "│"
-  let bot = "╰" . repeat("─", width - 2) . "╯"
-  let lines = [top] + repeat([mid], height - 2) + [bot]
-  let s:buf = nvim_create_buf(v:false, v:true)
-  call nvim_buf_set_lines(s:buf, 0, -1, v:true, lines)
-  call nvim_open_win(s:buf, v:true, opts)
-  set winhl=Normal:Floating
-  let opts.row += 1
-  let opts.height -= 2
-  let opts.col += 2
-  let opts.width -= 4
-  call nvim_open_win(nvim_create_buf(v:false, v:true), v:true, opts)
-  autocmd BufWipeout <buffer> exe 'bw '.s:buf
-endfunction
-
 " Run PlugUpgrade and PlugUpdate every day automatically when entering Vim.
 function! OnVimEnter() abort
   if exists('g:plug_home')
@@ -1730,7 +1908,8 @@ function! MyHighlights() abort
     hi default link CocHintVirtualText LspDiagnosticsVirtualTextHint
     hi default link CocCodeLens LspCodeLens
     hi NormalFloat guifg=#c0caf5 guibg=#292e42
-    " hi Pmenu ctermfg=0 ctermbg=13 guifg=#c0caf5 guibg=#1f2335 cterm=underline
+    " chentau/marks.nvim
+    hi MarkVirtTextHL cterm=bold ctermfg=15 ctermbg=9 gui=bold guifg=#ffffff guibg=#f00077
   end
 endfunction
 
@@ -1844,7 +2023,6 @@ let g:projectionist_heuristics['package.json'] = {
   \       '{dirname}/{basename}.styl',
   \     ],
   \     'type': 'source',
-  \     'make': 'yarn',
   \   },
   \   '*.test.js': {
   \     'alternate': [
@@ -2063,7 +2241,6 @@ require("dapui").setup({
     repl = "r",
   },
   sidebar = {
-    open_on_start = true,
     -- You can change the order of elements in the sidebar
     elements = {
       -- Provide as ID strings or tables with "id" and "size" keys
@@ -2078,7 +2255,6 @@ require("dapui").setup({
     position = "right", -- Can be "left" or "right"
   },
   tray = {
-    open_on_start = true,
     elements = { "repl",
       { id = "watches", size = 0.25 },
     },
@@ -2105,13 +2281,28 @@ vim.api.nvim_set_keymap('n', '<leader>td', ':lua require"jester".debug({ path_to
 -- vim.api.nvim_set_keymap('n', '<leader>df', ':lua require"jester".debug_file({ path_to_jest = "node_modules/.bin/jest" })<cr>', {})
 EOF
 
-" coc-jest
-" Run jest for current file
-nnoremap <leader>tf :call CocActionAsync('runCommand', 'jest.fileTest', ['%'])<CR>
-" Run jest for current test
-nnoremap <leader>tt :call CocActionAsync('runCommand', 'jest.singleTest')<CR>
-" Run jest for current project
-nnoremap <leader>tp :call CocActionAsync('runCommand', 'jest.projectTest')<CR>
+" vim-test
+let test#python#runner = 'pytest'
+" nmap <silent> <leader>tt :TestNearest<CR>
+nmap <silent> <leader>tt :UltestNearest<CR>
+nmap <silent> <leader>tf :TestFile<CR>
+nmap <silent> <leader>tp :TestLast<CR>
+nmap <silent> <leader>tv :TestVisit<CR>
+nmap <silent> <leader>ts :TestSuite<CR>
+
+"  ultest
+ let g:ultest_use_pty = 1
+
+augroup move_these_to_ftplugin
+  " :help ftplugin
+  autocmd!
+  " coc-jest
+  autocmd FileType typescriptreact,javascript,javascriptreact,typescript nnoremap <leader>tf :call CocActionAsync('runCommand', 'jest.fileTest', ['%'])<CR>
+  autocmd FileType typescriptreact,javascript,javascriptreact,typescript nnoremap <leader>tt :call CocActionAsync('runCommand', 'jest.singleTest')<CR>
+  autocmd FileType typescriptreact,javascript,javascriptreact,typescript nnoremap <leader>ts :call CocActionAsync('runCommand', 'jest.projectTest')<CR>
+  " autocmd FileType javascript,typescript, nnoremap <buffer> <C-]> :TernDef<CR>
+  " autocmd BufWritePost *.jsx,*.js CocCommand eslint.executeAutofix
+augroup END
 
 " dap-ui
 nnoremap <leader>dq :lua require'dapui'.toggle()<CR>
@@ -2151,6 +2342,7 @@ let g:vim_jsx_pretty_colorful_config = 1
 let g:git_messenger_always_into_popup = 1
 let g:git_messenger_include_diff = 'current'
 let g:git_messenger_extra_blame_args ='-w' " Ignore whitespace
+let g:git_messenger_floating_win_opts = { 'border': 'single' }
 
 " DEFAULT COC.NVIM START
 
@@ -2253,6 +2445,8 @@ augroup CocGroup
   autocmd FileType typescript,json setl formatexpr=CocActionAsync('formatSelected')
   " Update signature help on jump placeholder.
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  autocmd User CocQuickfixChange :CocList --normal quickfix
+  autocmd User CocLocationsChange ++nested call s:coc_qf_jump2loc(g:coc_jump_locations)
 
   " disable autocomplete for vimwiki, ctrl+space to trigger in insert mode
   autocmd FileType vimwiki let b:coc_suggest_disable = 1
@@ -2331,6 +2525,39 @@ vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(
 nnoremap <silent> <leader>cr :<C-u>CocRestart<CR>
 nnoremap <silent> <leader>cs :<C-u>CocStart<CR>
 
+" nvim-bqf
+function! s:coc_qf_diagnostic() abort
+  if !get(g:, 'coc_service_initialized', 0)
+    return
+  endif
+  let diagnostic_list = CocAction('diagnosticList')
+  let items = []
+  let loc_ranges = []
+  for d in diagnostic_list
+    let text = printf('[%s%s] %s', (empty(d.source) ? 'coc.nvim' : d.source),
+          \ (d.code ? ' ' . d.code : ''), split(d.message, '\n')[0])
+    let item = {'filename': d.file, 'lnum': d.lnum, 'col': d.col, 'text': text, 'type':
+          \ d.severity[0]}
+    call add(loc_ranges, d.location.range)
+    call add(items, item)
+  endfor
+  call setqflist([], ' ', {'title': 'CocDiagnosticList', 'items': items,
+        \ 'context': {'bqf': {'lsp_ranges_hl': loc_ranges}}})
+  botright copen
+endfunction
+
+function! s:coc_qf_jump2loc(locs) abort
+  let loc_ranges = map(deepcopy(a:locs), 'v:val.range')
+  call setloclist(0, [], ' ', {'title': 'CocLocationList', 'items': a:locs,
+        \ 'context': {'bqf': {'lsp_ranges_hl': loc_ranges}}})
+  let winid = getloclist(0, {'winid': 0}).winid
+  if winid == 0
+    rightbelow lwindow
+  else
+    call win_gotoid(winid)
+  endif
+endfunction
+
 " COC.SNIPPET START
 
 " https://github.com/neoclide/coc.nvim/issues/1775
@@ -2346,9 +2573,9 @@ let g:coc_snippet_prev = '<S-Tab>'
 " COC.SNIPPET END
 
 " Do default action for next item.
-nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+nnoremap <silent><nowait> <space>j :<C-u>CocNext<CR>
 " Do default action for previous item.
-nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+nnoremap <silent><nowait> <space>k :<C-u>CocPrev<CR>
 
 " coc-swagger
 command -nargs=0 Swagger :CocCommand swagger.render
@@ -2380,10 +2607,21 @@ nnoremap <silent><nowait> <leader>zn :<C-u>CocFzfList snippets<CR>
 nnoremap <silent><nowait> <leader>zv :<C-u>CocFzfList services<CR>
 nnoremap <silent><nowait> <leader>zr :<C-u>CocFzfListResume<CR>
 nnoremap <silent><nowait> <leader>zy :<C-u>CocFzfList yank<CR>
+nnoremap <silent><nowait> <space>cd :call <SID>coc_qf_diagnostic()<CR>
+
+function! CopyFloatText() abort
+  let id = win_getid()
+  let winid = coc#float#get_float_win()
+  if winid
+    call win_gotoid(winid)
+    execute 'normal! ggvGy'
+    call win_gotoid(id)
+  endif
+endfunction
 
 " coc-explorer
 nnoremap <silent> <leader>ee :CocCommand explorer --toggle<CR>
-nnoremap <silent> <leader>ef  :CocCommand explorer --position floating<CR>
+nnoremap <silent> <leader>ef :CocCommand explorer --position floating<CR>
 
 " display fullpath in status line, used for long filenames
 function! s:ShowFilename()
@@ -2432,6 +2670,9 @@ let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.7 } }
 " !fire	inverse-exact-match	Items that do not include fire
 " !^music	inverse-prefix-exact-match	Items that do not start with music
 " !.mp3$	inverse-suffix-exact-match	Items that do not end with .mp3
+
+" nnoremap <leader>ff <cmd>Telescope git_files<cr>
+" nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <silent> <Leader>ff :Files<CR>
 " to set search folder
 nnoremap <Leader>fF :Files<space>
@@ -2439,37 +2680,75 @@ nnoremap <Leader>fF :Files<space>
 
 nnoremap <silent> <Leader>fp :call fzf#vim#files('', { 'source': g:FzfFilesSource(), 'options': '--tiebreak=index'})<CR>
 
-nnoremap <Leader>fb :Buffers<CR>
-let g:fzf_buffers_jump = 1
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+" nnoremap <Leader>fb :Buffers<CR>
+" let g:fzf_buffers_jump = 1
 
 " Lines in the current buffer
-nnoremap <Leader>fB :BLines<CR>
+nnoremap <leader>fB <cmd>Telescope current_buffer_fuzzy_find<cr>
+" nnoremap <Leader>fB :BLines<CR>
 
+" live grep exact word match
+" nnoremap <leader>fl <cmd>Telescope live_grep<cr>
+" live grep fuzzy match
+" nnoremap <leader>fL <cmd>lua require('telescope.builtin')
+"       \ .grep_string({
+"       \   only_sort_text = true,
+"       \   search = ''
+"       \ })<cr>
 nnoremap <silent> <Leader>fl :RgLines<CR>
+
 " Lines in loaded buffers
+nnoremap <leader>fz <cmd>lua require('telescope.builtin')
+      \.live_grep({
+      \   prompt_title = 'find string in open buffers...',
+      \   grep_open_files = true
+      \ })<cr>
 nnoremap <silent> <Leader>fL :Lines<CR>
-nnoremap <silent> <Leader>fh :HistoryCmds<CR>
-" old and open files
-nnoremap <silent> <Leader>fH :History<CR>
-nnoremap <silent> <Leader>fS :HistorySearch<CR>
-nnoremap <silent> <Leader>fg :GFiles?<CR>
-nnoremap <silent> <Leader>fc :Commits<CR>
-nnoremap <silent> <Leader>fC :BCommits<CR>
-nnoremap <silent> <Leader>fm :Marks<CR>
-nnoremap <silent> <Leader>fM :Maps<CR>
+nnoremap <leader>fh <cmd>Telescope command_history<cr>
+" nnoremap <silent> <Leader>fh :HistoryCmds<CR>
+
+nnoremap <leader>fH <cmd>Telescope old_files<cr>
+" nnoremap <silent> <Leader>fH :History<CR>
+nnoremap <leader>fS <cmd>Telescope search_history<cr>
+" nnoremap <silent> <Leader>fS :HistorySearch<CR>
+nnoremap <silent> <Leader>fg :Telescope git_status<CR>
+" nnoremap <silent> <Leader>fg :GFiles?<CR>
+nnoremap <leader>fc <cmd>Telescope git_commits<cr>
+" nnoremap <silent> <Leader>fc :Commits<CR>
+nnoremap <leader>fC <cmd>Telescope git_bcommits<cr>
+" nnoremap <silent> <Leader>fC :BCommits<CR>
+nnoremap <leader>fm <cmd>Telescope marks<cr>
+" nnoremap <silent> <Leader>fm :Marks<CR>
+nnoremap <leader>fM <cmd>Telescope keymaps<cr>
+" nnoremap <silent> <Leader>fM :Maps<CR>
+
+nnoremap <leader>fs <cmd>Telescope spell_suggest<cr>
+
+nnoremap <leader>fr <cmd>Telescope resume<cr>
+
 nnoremap <silent> <leader>bd :BD<CR>
 
 " start search from current dir
+" nnoremap <leader>fd <cmd>lua require('telescope.builtin')
+"       \ .find_files({
+"       \   cwd = require'telescope.utils'.buffer_dir()
+"       \ })<cr>
 nnoremap <silent> <Leader>fd :Files <C-R>=expand('%:h')<CR><CR>
 
 " Rg current word under cursor
+" nnoremap <leader>rw <cmd>lua require('telescope.builtin')
+"       \ .grep_string({
+"       \   only_sort_text = true,
+"       \   word_match = '-w',
+"       \ })<cr>
 nnoremap <silent> <Leader>rw :RgLines <C-R><C-W><CR>
 " Rg with any params (filetypes)
 nnoremap <leader>rf :RG **/*.
 " Rg with dir autocomplete
 nnoremap <leader>rd :RGdir<Space>
 " Search by file path/names AND file contents
-nnoremap <Leader>ra :Rg<CR>
+" nnoremap <Leader>ra :Rg<CR>
 
 " Search lines in _all_ buffers with smart-case (this only does the current buffer???)
 " command! -bang -nargs=* BLines
@@ -2632,6 +2911,15 @@ function! g:FzfFilesSource()
   endif
 endfunction
 
+" Search and replace in file/line (selection or word)
+" or use: Visual select > dgn > n(skip) or .(repeat)
+vnoremap <leader>rs "9y:%s/<c-r>9/<c-r>9/g<left><left>
+nnoremap <leader>rs viw"9y:%s/<c-r>9/<c-r>9/g<left><left>
+vnoremap <leader>rl "9y:s/<c-r>9/<c-r>9/g<left><left>
+nnoremap <leader>rl viw"9y:s/<c-r>9/<c-r>9/g<left><left>
+nnoremap <leader>dw y:%s/\<<c-r>"\>//g<cr>
+" vnoremap <leader>dw y:%s/\<<c-r>"\>//g<cr>
+
 " Find and Replace in all files
 function! FindAndReplace( ... )
   if a:0 != 2
@@ -2642,9 +2930,8 @@ function! FindAndReplace( ... )
   execute printf('argdo %%substitute/%s/%s/g | update', a:1, a:2)
 endfunction
 command! -nargs=+ FindAndReplaceAll call FindAndReplace(<f-args>)
-
-" open :e based on current file path
-" noremap <Leader>h :e <C-R>=expand('%:p:h') . '/' <CR>
+" nmap  S  :%s//g<LEFT><LEFT>
+" nmap <expr>  M  ':%s/' . @/ . '//g<LEFT><LEFT>'
 
 " startify
 
@@ -2727,6 +3014,12 @@ for char in [ '_', '.', ':', ',', ';', '<bar>', '/', '<bslash>', '*', '+', '-', 
 	execute 'xnoremap a' . char . ' :<C-u>normal! F' . char . 'vf' . char . '<CR>'
 	execute 'onoremap a' . char . ' :normal va' . char . '<CR>'
 endfor
+
+" change word movement?
+" let someobject = response.user.posts[2].description.length
+" ^   ^            ^        ^    ^     ^  ^           ^
+" nnoremap w /\W\zs\w<CR>
+" nnoremap W ?\W\zs\w<CR>
 
 " get highlight info
 " :call GetSyntax() to find highlight group
@@ -2816,17 +3109,6 @@ nmap <Leader>wdn :VimwikiMakeDiaryNote<CR>
 nmap <Leader>wdy <Plug>VimwikiMakeYesterdayDiaryNote
 nmap <Leader>wdt <Plug>VimwikiMakeTomorrowDiaryNote
 
-" find incomplete items and add to quickfix
-function! VimwikiFindIncompleteTasks()
-  lvimgrep /- \[ \]/ %:p
-  lopen
-endfunction
-
-function! VimwikFindAllIncompleteTasks()
-  VimwikiSearch /- \[ \]/
-  lopen
-endfunction
-
 command! -bang -nargs=* SearchNotes
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always --smart-case -- '.shellescape(<q-args>), 1,
@@ -2855,6 +3137,7 @@ augroup vimwikigroup
   " delete new line at end of file: https://vi.stackexchange.com/questions/29091/exclude-trailing-newline-when-reading-in-skeleton-file
   " https://vimtricks.com/p/automated-file-templates/ or read in from file
   " au BufNewFile ~/Documents/notes/diary/*.md
+  " or break it out: https://levelup.gitconnected.com/reducing-boilerplate-with-vim-templates-83831f8ced12
   autocmd BufNewFile ~/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/diary/*.md
     \ call append(0,[
     \ "# " . split(expand('%:r'),'/')[-1], "",

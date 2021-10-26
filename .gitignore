@@ -10,3 +10,6 @@ yarn-error.log
 node_modules
 tags
 .env.local.bak
+.env.dev.*
+.env.prd.*
+.env.stg.*

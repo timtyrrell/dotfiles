@@ -1,9 +1,23 @@
+if [ -z "$TMUX" ]; then
+	~/bin/ta
+fi
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
+  # exit 1
 # confirmations, etc.) must go above this block; everything else may go below.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+
+# make with the nice completion
+# autoload -U compinit; compinit
+autoload -Uz compinit
+# if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
+#   compinit
+# else
+#   compinit -C
+# fi
 
 # zmodload zsh/zprof # zsh perf check
 
@@ -19,26 +33,22 @@ export ZLS_COLORS=$LSCOLORS
 export LC_CTYPE=en_US.UTF-8
 # export LC_ALL=en_US.UTF-8
 # export LANG=en_US.UTF-8
+# https://github.com/kovidgoyal/kitty/issues/2047#issuecomment-934058006 ?
+# export LANGUAGE=en_US.UTF-8
+# export LC_ALL=en_US.UTF-8
+# export LANG=en_US.UTF-8
+# export LC_TYPE=en_US.UTF-8
+
+# set for git delta, iirc
 export LESS=FRX
 
-# make with the nice completion
-# autoload -U compinit; compinit
-autoload -Uz compinit
-# if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
-#   compinit
-# else
-#   compinit -C
-# fi
+# make with the pretty colors
+autoload colors; colors
 
 # Completion for kill-like commands
 # zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
 # zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
-
 zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
-zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
-  '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
-zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
-
 zstyle ':completion:*:ssh:*' tag-order hosts users
 zstyle ':completion:*:ssh:*' group-order hosts-domain hosts-host users hosts-ipaddr
 
@@ -51,9 +61,84 @@ zstyle ':completion:*:functions' ignored-patterns '_*'
 zstyle ':completion:*' accept-exact '*(N)'
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zshcache
+zstyle ':completion:*' special-dirs true
 
-# make with the pretty colors
-autoload colors; colors
+# disable sort when completing options of any command
+# zstyle ":completion:*:git-checkout:*" sort false
+zstyle ':completion:complete:*:options' sort false
+
+# TODO fix all this: https://superuser.com/questions/265547/zsh-cdpath-and-autocompletion
+# set cd autocompletion to commonly visited directories
+cdpath=($HOME/code/invitae $HOME/code/timtyrrell)
+zstyle ':completion:*:complete:(cd|pushd):*' tag-order 'local-directories named-directories'
+
+# set list-colors to enable filename colorizing
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# set descriptions format to enable group support
+zstyle ':completion:*:descriptions' format '[%d]'
+
+zstyle ':fzf-tab:*' show-group brief
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+zstyle ':fzf-tab:*' popup-pad 200 200
+# switch group using `,` and `.`
+zstyle ':fzf-tab:*' switch-group ',' '.'
+# use input as query string when completing zlua
+zstyle ':fzf-tab:complete:_zlua:*' query-string input
+
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
+  '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
+
+zstyle ':fzf-tab:*' fzf-bindings 'ctrl-u:preview-half-page-up' 'ctrl-d:preview-half-page-down' 'space:accept' 'alt-k:page-up' 'alt-j:page-down'
+zstyle ':fzf-tab:*' continuous-trigger '/'
+zstyle ':fzf-tab:*' accept-line ctrl-x
+
+local preview_command='
+if [[ -d $realpath ]]; then
+  lsd --color always --icon always --depth 2 --tree $realpath
+elif [[ -f $realpath ]]; then
+  bat --pager=never --color=always --line-range :80 $realpath
+else
+	# "potato"
+	# lesspipe.sh $word | bat --color=always
+	exit 1
+fi
+'
+zstyle ':fzf-tab:complete:*' fzf-preview $preview_command
+# zstyle ':fzf-tab:complete:*.*' fzf-preview $preview_command
+# zstyle ':fzf-tab:complete:*:*' fzf-preview 'less ${(Q)realpath}'
+# export LESSOPEN="|/usr/local/bin/lesspipe.sh %s" LESS_ADVANCED_PREPROCESSOR=1
+
+# zstyle ':fzf-tab:complete:(\\|)run-help:*' fzf-preview 'run-help $word'
+# zstyle ':fzf-tab:complete:(\\|*/|)man:*' fzf-preview 'man $word'
+# zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
+	# fzf-preview 'echo ${(P)word}'
+
+# zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd --color always --icon always --depth 2 --tree $realpath'
+# zstyle ':fzf-tab:complete:git-checkout:argument-rest' fzf-preview '
+# [[ $group == "[recent branches]" || $group == "[local head]" ]] && git log --max-count=3 -p $word | delta
+# '
+# zstyle ':fzf-tab:complete:*' fzf-preview 'less $realpath'
+# zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview 'git diff $word'
+# zstyle -s ':fzf-tab:complete:git-add:*' fzf-preview str
+
+zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
+	'git diff $word'
+zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
+	'git log --color=always $word'
+zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
+	'git help $word | bat -plman --color=always'
+zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+	'case "$group" in
+	"commit tag") git show --color=always $word ;;
+	*) git show --color=always $word | delta ;;
+	esac'
+zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
+	'case "$group" in
+	"modified file") git diff $word | delta ;;
+	"recent commit object name") git show --color=always $word | delta ;;
+	*) git log --color=always $word ;;
+	esac'
 
 #vim binding
 bindkey -v
@@ -66,60 +151,6 @@ bindkey '^ ' autosuggest-accept # ctrl + space to accept the current suggestion.
 bindkey '^x' autosuggest-execute # ctrl + x to execute the current suggestion
 
 export KEYTIMEOUT=5 # remove normal/insert mode switch delay
-
-zstyle ':completion:*' special-dirs true
-
-# disable sort when completing options of any command
-zstyle ':completion:complete:*:options' sort false
-zstyle ":completion:*:git-checkout:*" sort false
-
-# use input as query string when completing zlua
-zstyle ':fzf-tab:complete:_zlua:*' query-string input
-
-# TODO fix all this: https://superuser.com/questions/265547/zsh-cdpath-and-autocompletion
-# set cd autocompletion to commonly visited directories
-cdpath=($HOME/code/invitae $HOME/code/timtyrrell)
-# don't display the common ones with `cd` command
-# zstyle ':completion:*:complete:cd:*' tag-order \
-#     'local-directories named-directories'
-
-# fzf-tab
-zstyle ':fzf-tab:*' fzf-bindings 'alt-k:preview-half-page-up' 'alt-j:preview-half-page-down' 'space:accept'
-zstyle ':fzf-tab:*' continuous-trigger '/'
-zstyle ':fzf-tab:*' accept-line enter
-
-# local fzf_tab_preview_debug='
-# echo "word: $word"
-# echo "group: $group"
-# echo "desc: $desc"
-# echo "realpath: $realpath"
-# '
-# zstyle ':fzf-tab:complete:*' fzf-preview $fzf_tab_preview_debug
-
-local preview_command='
-if [[ -d $realpath ]]; then
-    lsd --color always --icon always --depth 2 --tree $realpath
-elif [[ -f $realpath ]]; then
-    bat --pager=never --color=always --line-range :80 $realpath
-else
-    exit 1
-fi
-'
-# https://github.com/junegunn/fzf#settings
-#
-# zstyle ':completion:*:*:vim:*:*files'
-zstyle ':fzf-tab:complete:*' fzf-preview $preview_command
-zstyle ':fzf-tab:complete:git-checkout:argument-rest' fzf-preview '
-[[ $group == "[recent branches]" || $group == "[local head]" ]] && git log --max-count=3 -p $word | delta
-'
-# use gig-git-status-branch.sh to display upstream differences? ./git-status-branch -d $word
-
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':fzf-tab:*' show-group brief
-
-zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-zstyle ':fzf-tab:*' popup-pad 200 200
 
 # Change cursor shape for different vi modes.
 function zle-keymap-select {
@@ -159,6 +190,9 @@ setopt hist_ignore_all_dups  # Delete old recorded entry if new entry is a dupli
 # setopt share_history         # Share history between all sessions.
 setopt prompt_subst          # parameter expansion, command substitution and arithmetic expansion are performed in prompts
 setopt auto_resume            # attempt to resume existing job before creating a new process
+
+# don't append failed command to ~/.zsh_history
+zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }
 
 # Bindings
 # external editor support
@@ -293,7 +327,7 @@ export FZF_CTRL_R_OPTS="$FZF_HIDE_PREVIEW"
 # presentation
 export BAT_THEME="Enki-Tokyo-Night"
 
-export FZF_HEADER_DEFAULT="CTRL-u/d page up/down, ALT-k/j preview half-page up/down, \ to toggle"
+export FZF_HEADER_DEFAULT="ALT-k/j page up/down, CTRL-u/d preview half-page up/down, \ to toggle"
 export FZF_HEADER_FILES="CTRL-s/ALT-d to select/unselect-all, CTRL-v open in nvim"
 export FZF_HEADER_PASTE="CTRL-y to copy into clipboard"
 export FZF_YANK_COMMAND="--bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'"
@@ -303,12 +337,10 @@ export FZF_SHOW_PREVIEW="
 --preview '([[ -f {} ]] && (bat --style=full --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200'
 --preview-window cycle
 --bind '\:toggle-preview'
---bind 'alt-k:preview-half-page-up'
---bind 'alt-j:preview-half-page-down'
+--bind 'ctrl-u:preview-half-page-up'
+--bind 'ctrl-d:preview-half-page-down'
 "
 
-# Sneak          xxx guifg=#292e42 guibg=#bb9af7
-# CursorLine     xxx cterm=underline guibg=#292e42
 export FZF_DEFAULT_OPTS="
 --history=$HOME/.fzf_history
 --layout=reverse
@@ -325,13 +357,12 @@ export FZF_DEFAULT_OPTS="
 --header '$FZF_HEADER_DEFAULT'
 --bind 'ctrl-s:select-all'
 --bind 'alt-d:deselect-all'
---bind 'ctrl-u:page-up'
---preview '([[ -f {} ]] && (bat --style=full --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200'
 --preview-window cycle
 --bind '\:toggle-preview'
---bind 'alt-k:preview-half-page-up'
---bind 'alt-j:preview-half-page-down'
---bind 'ctrl-d:page-down'
+--bind 'ctrl-u:preview-half-page-up'
+--bind 'ctrl-d:preview-half-page-down'
+--bind 'alt-k:page-up'
+--bind 'alt-j:page-down'
 --bind 'ctrl-v:execute(nvim {} < /dev/tty > /dev/tty 2>&1)+accept'
 "
 # --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'
@@ -369,26 +400,6 @@ tm() {
   fi
   session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf-tmux -p 90%,90% -preview-window=:hidden --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
 }
-
-# fish script converting HEIC to JPG
-# function deheic --description 'Un-HEIC received pictures'
-#     if not type -q mogrify
-#         brew update
-#         brew install imagemagick
-#     end
-#     cd ~/Downloads
-#     set -l u_heic *.HEIC
-#     set -l l_heic *.heic
-#     if test (count $u_heic) -gt 0
-#         mogrify -format jpg *.HEIC
-#         rm *.HEIC
-#     end
-#     if test (count $l_heic) -gt 0
-#         mogrify -format jpg *.heic
-#         rm *.heic
-#     end
-#     cd -
-# end
 
 # would need to do a workaround like: https://newbedev.com/errors-from-whatis-command-unable-to-rebuild-database-with-makewhatis
 # fman() {
@@ -444,6 +455,12 @@ fgst() {
     echo "$item" | awk '{print $2}'
   done
   echo
+}
+
+# quick rebase with origin
+function greb() {
+  REMOTE=${1:-main}
+  git fetch origin && git rebase origin/${REMOTE}
 }
 
 # USAGE:
@@ -548,6 +565,21 @@ git_reset_hard_local() {
   git reset --hard $(echo "$commit")
 }
 
+# checkout existing branch otherwise create new branch
+gcob() {
+	BRANCH=$1
+	ARGS=$2
+
+  if [ "$BRANCH" = "" ] ||
+		 [ "$BRANCH" = "-" ]; then
+    git checkout $BRANCH
+	elif [ "$BRANCH $ARGS" = "-- ." ]; then
+    git checkout -- .
+  else
+    git checkout $(git show-ref --verify --quiet refs/heads/$BRANCH || echo '-b') $BRANCH
+  fi
+}
+
 gpull() {
   if [ $# -eq 0 ]
     then
@@ -557,7 +589,8 @@ gpull() {
   fi
   git pull origin "${BRANCH}"
 }
-function gpush() {
+
+gpush() {
   BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
   git push -u origin "${BRANCH}"
 }
@@ -570,23 +603,50 @@ alias lla='ls -la'
 alias lt='ls --tree'
 alias lart='ls -lart'
 alias md='mkdir -p'
+alias rd='rmdir'
+alias tree='tree-git-ignore'
+alias cl='clear'
+
+#vim
 alias vi='nvim'
 alias vim='nvim'
 alias n='nvim'
-alias rd='rmdir'
-alias tweak='vim ~/.config/nvim/init.vim'
-alias tree='tree-git-ignore'
-alias cl='clear'
+alias wl='watchman watch-list'
+alias wda='watchman watch-del-all'
 
 # tmux
 alias tmn='tmux new -s'
 alias tma='tmux attach -t'
+alias tmls='tmux ls'
+alias tkill="for s in \$(tmux list-sessions | awk '{print \$1}' | rg ':' -r '' | fzf); do tmux kill-session -t \$s; done;"
+# alias tkill=tmux display-popup -E "for s in \$(tmux list-sessions | awk '{print \$1}' | rg ':' -r '' | fzf); do tmux kill-session -t \$s; done;"
 
 # docker
 alias dc='docker-compose'
 alias dcu='docker-compose up'
 alias dcd='docker-compose down'
 alias dcps='docker-compose ps'
+alias kt='kubetail'
+alias ks='stern -l'
+alias kctx='kubectx'
+alias kns='kubens'
+
+# python
+alias pactivate='source $(poetry env info --path)/bin/activate'
+
+# safe
+alias safeauth="safe auth ldap"
+alias safedev="safe target blah dev"
+alias safestg="safe target blah stg"
+alias safeprd="safe target blah prd"
+
+
+# https://qmacro.org/autodidactics/2021/08/06/tmux-output-formatting/
+# 1. Open a popup
+# 2. Show you all the docker images on your system ... in an FZF menu
+# 3. Select your choice
+# 4. A split pane (from target pane) will run docker run --rm -it <chosen_image>
+alias dselect='tmux display-popup -E "docker image ls --format '{{.Repository}}' | fzf | xargs tmux split-window -h docker run --rm -it"'
 
 # another option: https://github.com/natkuhn/Chrome-debug
 alias chrome-debug='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222&'
@@ -655,6 +715,35 @@ function dic {
     fi
 }
 
+# Select a docker container to start and attach to
+function da() {
+  local cid
+  cid=$(docker ps -a | sed 1d | fzf -1 -q "$1" | awk '{print $1}')
+
+  [ -n "$cid" ] && docker start "$cid" && docker attach "$cid"
+}
+
+# Select a running docker container to stop
+function ds() {
+  local cid
+  cid=$(docker ps | sed 1d | fzf -q "$1" | awk '{print $1}')
+
+  [ -n "$cid" ] && docker stop "$cid"
+}
+
+# Select a docker container to remove
+function drm() {
+  local cid
+  cid=$(docker ps -a | sed 1d | fzf -q "$1" | awk '{print $1}')
+
+  [ -n "$cid" ] && docker rm "$cid"
+}
+
+# Select a docker image or images to remove
+function drmi() {
+  docker images | sed 1d | fzf -q "$1" --no-sort -m --tac | awk '{ print $3 }' | xargs -r docker rmi
+}
+
 # git aliases
 alias g='git'
 alias ga='git add'
@@ -680,6 +769,7 @@ alias branches='git browse -- branches'
 # alias open-PLACEHOLDER='git browse PLACEHOLDER'
 alias gst='git status -sb'
 alias gstl='git status'
+alias ghst='gh pr status'
 alias ghpr='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" |  { read first rest ; echo $first ; } | xargs gh pr checkout'
 alias ghd='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" |  { read first rest ; echo $first ; } | xargs gh pr diff'
 alias gs='fbr'
@@ -695,7 +785,7 @@ alias gcpa='git cherry-pick --abort'
 alias gcps='git cherry-pick --skip'
 alias gcpc='git cherry-pick --continue'
 alias gco='git checkout'
-alias gcob='git checkout -b'
+# alias gcob='git checkout -b'
 alias gcop='git checkout -p' # interactive hunk revert
 alias gres='git restore --staged .'
 alias gappend='git add . && git commit --amend -C HEAD'
@@ -717,7 +807,6 @@ alias pokey="gco main && gpr && gco - && gr -"
 alias gup="git up"
 alias hokey="pokey"
 alias sha="git rev-parse HEAD"
-alias SHA="sha"
 alias cannonball="git add . && git commit --amend -C HEAD && git push --force-with-lease"
 alias cannonballyolo="git add . && HUSKY_SKIP_HOOKS=1 git commit --amend -C HEAD && git push --force-with-lease"
 alias fix='nvim +/HEAD `git diff --name-only | uniq`'
@@ -734,7 +823,6 @@ alias strat="start"
 alias ns="npm start"
 alias barf="rm -rf node_modules && npm i"
 alias rimraf="rm -rf node_modules"
-
 
 # brew tap jason0x43/homebrew-neovim-nightly
 # brew cask install neovim-nightly
@@ -792,39 +880,33 @@ autoload -Uz _zinit
 # add https://github.com/josa42/zsh-upgrade-all ?
 # plugins - zinit update # to update all
 zinit ice depth=1; zinit light romkatv/powerlevel10k
+
 zinit light aloxaf/fzf-tab
+
+zinit ice pick'poetry.zsh'
+zinit light sudosubin/zsh-poetry
+
+zplugin ice as"completion"
+zinit light greymd/docker-zsh-completion
+
 zinit ice wait lucid atload'_zsh_autosuggest_start'
 zinit light zsh-users/zsh-autosuggestions
+
 zinit ice wait lucid
 zinit light zdharma/fast-syntax-highlighting
-zinit light zsh-users/zsh-completions
-# use docker completion script provided by Oh-my-zsh: https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/docker
-zinit ice as"completion"
-zinit snippet OMZ::plugins/docker/_docker
-# use docker completion script provided by Oh-my-zsh: https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/docker-compose
-zinit ice as"completion"
-zinit snippet OMZ::plugins/docker-compose/_docker-compose
+
+zinit wait lucid atload"zicompinit; zicdreplay" blockf for \
+    zsh-users/zsh-completions
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# if [[ "$TERM" != "screen" ]] && [[ "$SSH_CONNECTION" == "" ]]; then
-#     WHOAMI=$(whoami)
-#     if tmux has-session -t $WHOAMI 2>/dev/null; then
-#         tmux -2 attach-session -t $WHOAMI
-#     else
-#         tmux -2 new-session -s $WHOAMI
-#     fi
-# fi
-
-# if [[ ! -v TMUX ]]; then
-#   tmux_chooser && exit
-# fi
-
-compinit
+[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
 
 # zprof # zsh perf check
 # eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
+
+eval "$(pyenv init -)"
 
 # fnm
 eval "$(fnm --log-level=quiet env --use-on-cd)"
@@ -832,3 +914,10 @@ eval "$(fnm --log-level=quiet env --use-on-cd)"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# Created by `pipx` on 2021-10-05 19:50:54
+export PATH="$PATH:/Users/timothy.tyrrell/.local/bin"
+
+compinit
+
+eval "$(pyenv init -)"

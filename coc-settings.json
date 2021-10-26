@@ -4,7 +4,8 @@
   "scss.validate": false,
   "wxss.validate": false,
   "stylelintplus.filetypes": [
-    "scss"
+    "scss",
+    "less"
   ],
   "stylelintplus.autoFixOnSave": true,
   "cSpell.enabled": false,
@@ -68,6 +69,24 @@
     "markdown", "jsonc"
   ],
   "diagnostic.checkCurrentLine": true,
+  "diagnostic.floatConfig": {
+		"border": true,
+		"highlight": "Normal",
+		"maxWidth": 100,
+		"focusable": false
+	},
+  "hover.floatConfig": {
+		"border": true,
+		"highlight": "Normal",
+		"maxWidth": 100,
+		"focusable": false
+	},
+	"signature.floatConfig": {
+		"border": true,
+		"highlight": "Normal",
+		"maxWidth": 100,
+		"focusable": false
+	},
   "diagnostic.messageTarget": "float",
   "diagnostic.virtualText": false,
   "diagnostic.virtualTextCurrentLineOnly": false,
@@ -90,7 +109,11 @@
   "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true,
   "signature.preferShownAbove": true,
   "signature.target": "float",
-  "suggest.enablePreselect": false,
+  "snippets.extends": {
+		"typescript": ["javascript"]
+	},
+  "suggest.defaultSortMethod": "none",
+  "suggest.enablePreselect": true,
   "suggest.enablePreview": true,
   "suggest.floatEnable": true,
   "suggest.noselect": false,
@@ -165,7 +188,7 @@
     ]
   },
   "coc.preferences.rootPatterns": [
-    "manage.py",
+    "poetry.lock",
     "jsconfig.json",
     "tsconfig.json",
     ".git"
