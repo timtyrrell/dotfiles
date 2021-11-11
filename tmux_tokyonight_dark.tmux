@@ -31,6 +31,7 @@ set -g status-left " #[fg=${black},bg=${blue},bold] #S #[fg=${blue},bg=${bg_dark
 # set -g status-right "#[fg=${bg_dark},bg=${bg_dark},nobold,nounderscore,noitalics]#[fg=${blue},bg=${bg_dark}] #{prefix_highlight} #[fg=${fg_gutter},bg=${bg_dark},nobold,nounderscore,noitalics]#[fg=${blue},bg=${fg_gutter}] %Y-%m-%d  %I:%M %p #[fg=${blue},bg=${fg_gutter},nobold,nounderscore,noitalics]#[fg=${black},bg=${blue},bold] #h "
 
 # set -g status-right "#{pomodoro_status} #{docker_status} | #{kcontext}#{kpod} | ♫ #{music_status} #{artist}: #{track}"
+set -g status-right "#{docker_status} | #{kcontext}#{kpod}"
 
 setw -g window-status-activity-style "underscore,fg=${fg_dark},bg=${bg_dark}"
 setw -g window-status-separator ""

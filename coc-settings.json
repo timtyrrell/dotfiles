@@ -70,23 +70,23 @@
   ],
   "diagnostic.checkCurrentLine": true,
   "diagnostic.floatConfig": {
-		"border": true,
-		"highlight": "Normal",
-		"maxWidth": 100,
-		"focusable": false
-	},
+    "border": true,
+    "highlight": "Normal",
+    "maxWidth": 100,
+    "focusable": false
+  },
   "hover.floatConfig": {
-		"border": true,
-		"highlight": "Normal",
-		"maxWidth": 100,
-		"focusable": false
-	},
-	"signature.floatConfig": {
-		"border": true,
-		"highlight": "Normal",
-		"maxWidth": 100,
-		"focusable": false
-	},
+    "border": true,
+    "highlight": "Normal",
+    "maxWidth": 100,
+    "focusable": false
+  },
+  "signature.floatConfig": {
+    "border": true,
+    "highlight": "Normal",
+    "maxWidth": 100,
+    "focusable": false
+  },
   "diagnostic.messageTarget": "float",
   "diagnostic.virtualText": false,
   "diagnostic.virtualTextCurrentLineOnly": false,
@@ -110,8 +110,8 @@
   "signature.preferShownAbove": true,
   "signature.target": "float",
   "snippets.extends": {
-		"typescript": ["javascript"]
-	},
+    "typescript": ["javascript"]
+  },
   "suggest.defaultSortMethod": "none",
   "suggest.enablePreselect": true,
   "suggest.enablePreview": true,
@@ -154,44 +154,7 @@
   "coc.preferences.extensionUpdateCheck": "daily",
   "coc.preferences.silentAutoupdate": false,
   "react-refactor.produceClass": false,
-  "explorer.contentWidthType": "vim-width",
-  "explorer.openAction.strategy": "previousBuffer",
-  "explorer.width": 40,
-  "explorer.file.root.template": "[icon & 1] PROJECT ([root])",
-  "explorer.file.child.template": "[git | 2] [selection | clip | 1] [indent][icon | 1] [diagnosticError & 1][filename omitCenter 1][modified][readonly] [linkIcon & 1][link growRight 1 omitCenter 5]",
-  "explorer.file.child.labelingTemplate": "[filename][modified]",
-  "explorer.file.showHiddenFiles": true,
-  "explorer.git.showIgnored": false,
-  "explorer.file.reveal.auto": false,
-  "explorer.icon.enableNerdfont": true,
-  "explorer.previewAction.onHover": false,
-  "explorer.sources": [
-    {
-      "name": "file",
-      "expand": true
-    }
-  ],
-  "explorer.keyMappings.global": {
-    "<cr>": [ "expandable?", ["expanded?", "collapse", "expand"], "open" ],
-    "o": [ "expandable?", ["expanded?", "collapse", "expand"], "open" ]
-  },
-  "explorer.file.hiddenRules": {
-    "extensions": [
-      "o",
-      "a",
-      "obj",
-      "pyc"
-    ],
-    "filenames": [".DS_Store", ".git"],
-    "patternMatches": [
-      "^\\."
-    ]
-  },
   "coc.preferences.rootPatterns": [
-    "poetry.lock",
-    "jsconfig.json",
-    "tsconfig.json",
     ".git"
-  ],
-  "workspace.bottomUpFiletypes": ["python"]
+  ]
 }

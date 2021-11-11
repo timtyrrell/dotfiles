@@ -1,5 +1,5 @@
 if [ -z "$TMUX" ]; then
-	~/bin/ta
+  ~/bin/ta
 fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -12,14 +12,12 @@ fi
 
 # make with the nice completion
 # autoload -U compinit; compinit
-autoload -Uz compinit
+# autoload -Uz compinit
 # if [ $(date +'%j') != $(stat -f '%Sm' -t '%j' ~/.zcompdump) ]; then
 #   compinit
 # else
 #   compinit -C
 # fi
-
-# zmodload zsh/zprof # zsh perf check
 
 fpath=(
   $fpath
@@ -31,13 +29,10 @@ export CLICOLOR=1
 export LSCOLORS=Dxfxcxdxbxegedabadacad
 export ZLS_COLORS=$LSCOLORS
 export LC_CTYPE=en_US.UTF-8
-# export LC_ALL=en_US.UTF-8
-# export LANG=en_US.UTF-8
 # https://github.com/kovidgoyal/kitty/issues/2047#issuecomment-934058006 ?
+# export LANG=en_US.UTF-8
 # export LANGUAGE=en_US.UTF-8
 # export LC_ALL=en_US.UTF-8
-# export LANG=en_US.UTF-8
-# export LC_TYPE=en_US.UTF-8
 
 # set for git delta, iirc
 export LESS=FRX
@@ -140,6 +135,7 @@ zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
 	*) git log --color=always $word ;;
 	esac'
 
+# TODO: replace with https://github.com/jeffreytse/zsh-vi-mode ??
 #vim binding
 bindkey -v
 bindkey -M vicmd '^r' history-incremental-search-backward
@@ -390,7 +386,15 @@ fzf-history-widget-accept() {
 zle     -N     fzf-history-widget-accept
 # bindkey '^X^R' fzf-history-widget-accept
 
-# tm - create new tmux session, or switch to existing one. Works from within tmux too. (@bag-man)
+in_tmux () {
+  if [ -n "$TMUX" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# tm - create new tmux session, or switch to existing one. Works from within tmux too
 # `tm` will allow you to select your tmux session via fzf.
 # `tm irc` will attach to the irc session (if it exists), else it will create it.
 tm() {
@@ -400,6 +404,24 @@ tm() {
   fi
   session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf-tmux -p 90%,90% -preview-window=:hidden --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
 }
+
+tmt() {
+  if [[ -z "$TMUX" ]]; then
+    tmux attach -t "$session_name"
+  else
+    tmux switch-client -t "$session_name"
+  fi
+}
+
+# fs() {
+# local -r fmt='#{session_id}:|#S|(#{session_attached} attached)'
+# { tmux display-message -p -F "$fmt" && tmux list-sessions -F "$fmt"; } \
+#   | awk '!seen[$1]++' \
+#   | column -t -s'|' \
+#   | fzf -q '$' --reverse --prompt 'switch session: ' -1 \
+#   | cut -d':' -f1 \
+#   | xargs tmux switch-client -t
+# }
 
 # would need to do a workaround like: https://newbedev.com/errors-from-whatis-command-unable-to-rebuild-database-with-makewhatis
 # fman() {
@@ -617,6 +639,7 @@ alias wda='watchman watch-del-all'
 # tmux
 alias tmn='tmux new -s'
 alias tma='tmux attach -t'
+alias tms='tmux switch-client -t'
 alias tmls='tmux ls'
 alias tkill="for s in \$(tmux list-sessions | awk '{print \$1}' | rg ':' -r '' | fzf); do tmux kill-session -t \$s; done;"
 # alias tkill=tmux display-popup -E "for s in \$(tmux list-sessions | awk '{print \$1}' | rg ':' -r '' | fzf); do tmux kill-session -t \$s; done;"
@@ -831,8 +854,6 @@ alias brew-tmux-head="brew reinstall tmux"
 alias brew-install="brew bundle install --global"
 alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
 alias brewup="brew update; brew upgrade; brew cleanup"
-alias zinit-update="zinit self-update"
-alias zinit-plugin-update="zinit update --all"
 alias crate-update="cargo install-update -a"
 
 alias reload='source ~/.zshrc; echo -e "\n\u2699  \e[33mZSH config reloaded\e[0m \u2699"'
@@ -849,6 +870,7 @@ export GOROOT=/usr/local/go
 export GOBIN=$GOPATH/bin
 export PATH=$PATH:$GOPATH
 export PATH=$PATH:$GOROOT/bin
+export PYTHONPATH="."
 
 # eval "$(zsh)"
 # eval "$(rbenv init -)"
@@ -863,47 +885,26 @@ export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
 # bindkey '^T' fzf-completion #context (dir) aware completion
 # bindkey '^I' $fzf_default_completion
 
-### Added by Zinit's installer
-if [[ ! -f $HOME/.zinit/bin/zinit.zsh ]]; then
-    print -P "%F{33}▓▒░ %F{220}Installing %F{33}DHARMA%F{220} Initiative Plugin Manager (%F{33}zdharma/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.zinit" && command chmod g-rwX "$HOME/.zinit"
-    command git clone https://github.com/zdharma/zinit "$HOME/.zinit/bin" && \
-        print -P "%F{33}▓▒░ %F{34}Installation successful.%f%b" || \
-        print -P "%F{160}▓▒░ The clone has failed.%f%b"
+# Clone zcomet if necessary
+if [[ ! -f ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh ]]; then
+  command git clone https://github.com/agkozak/zcomet.git ${ZDOTDIR:-${HOME}}/.zcomet/bin
 fi
 
-source "$HOME/.zinit/bin/zinit.zsh"
-autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
-### End of Zinit's installer chunk
+source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
-# add https://github.com/josa42/zsh-upgrade-all ?
-# plugins - zinit update # to update all
-zinit ice depth=1; zinit light romkatv/powerlevel10k
-
-zinit light aloxaf/fzf-tab
-
-zinit ice pick'poetry.zsh'
-zinit light sudosubin/zsh-poetry
-
-zplugin ice as"completion"
-zinit light greymd/docker-zsh-completion
-
-zinit ice wait lucid atload'_zsh_autosuggest_start'
-zinit light zsh-users/zsh-autosuggestions
-
-zinit ice wait lucid
-zinit light zdharma/fast-syntax-highlighting
-
-zinit wait lucid atload"zicompinit; zicdreplay" blockf for \
-    zsh-users/zsh-completions
+zcomet load romkatv/powerlevel10k
+zcomet load aloxaf/fzf-tab
+zcomet load sudosubin/zsh-poetry
+zcomet load greymd/docker-zsh-completion
+zcomet load zsh-users/zsh-autosuggestions
+zcomet load zdharma-continuum/fast-syntax-highlighting
+zcomet load zsh-users/zsh-completions
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
 
-# zprof # zsh perf check
 # eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
 
 eval "$(pyenv init -)"
@@ -918,6 +919,7 @@ export SDKMAN_DIR="$HOME/.sdkman"
 # Created by `pipx` on 2021-10-05 19:50:54
 export PATH="$PATH:/Users/timothy.tyrrell/.local/bin"
 
-compinit
+# compinit
+zcomet compinit
 
 eval "$(pyenv init -)"

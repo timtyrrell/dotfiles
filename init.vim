@@ -120,23 +120,15 @@ set visualbell "kills the bell
 set t_vb= "kills the bell
 
 " folds
-" nnoremap <space><space> za
-" vnoremap <space><space> za
+" toggle folds
+nnoremap <space><space> za
+vnoremap <space><space> za
 " zf - create fold
 " zd - delete fold under cursor
 " zR - open all folds
 " zM - close all folds
 " treesitter
-set foldmethod=expr
-set foldexpr=nvim_treesitter#foldexpr()
-" set foldtext=getline(v:foldstart).'...'.trim(getline(v:foldend))
-set foldtext=substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend))
-" set foldtext=substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend)) . ' (' . (v:foldend - v:foldstart + 1) . ' lines)'
-" set fillchars=fold: ,eob
-set fillchars=fold:\\
-set foldnestmax=3
-set foldminlines=1
-" set nofoldenable
+set fillchars+=fold:\    " space
 " Open files without any folding
 set foldlevelstart=99
 
@@ -160,7 +152,11 @@ set completeopt=menuone,preview
 set wildignorecase
 
 " don't have vim autocomplete these ever
-set wildignore+=tags,package-lock.json
+set wildignore+=tags
+set wildignore+=package-lock.json
+set wildignore+=**/*.xml
+set wildignore+=**/node_modules/*
+set wildignore+=**/.git/*
 
 " give low priority to files matching the defined patterns.
 set suffixes+=.lock,.scss,.sass,.min.js,.less,.json
@@ -346,7 +342,8 @@ set equalalways
 augroup STUFFS
   autocmd!
   " resize panes the host window is resized
-  autocmd VimResume,VimResized, CocExplorerOpenPost, CocExplorerQuitPost * wincmd =
+ " NvimTreeOpen, NvimTreeClose, NvimTreeFocus, NvimTreeFindFileToggle, and NvimTreeResize
+  autocmd VimResume,VimResized, NvimTreeOpen, NvimTreeClose * wincmd =
   autocmd VimResized,VimResume * execute "normal! \<C-w>="
   autocmd InsertLeave,WinEnter * set cursorline
   autocmd InsertEnter,WinLeave * set nocursorline
@@ -467,11 +464,11 @@ let g:coc_global_extensions = [
           \ 'coc-css',
           \ 'coc-cssmodules',
           \ 'coc-dash-complete',
+          \ 'coc-db',
           \ 'coc-docker',
           \ 'coc-emoji',
           \ 'coc-eslint',
           \ 'coc-just-complete',
-          \ 'coc-explorer',
           \ 'coc-git',
           \ 'coc-html',
           \ 'coc-import-cost',
@@ -513,6 +510,10 @@ augroup editconfigcmd
   autocmd FileType gitcommit let b:EditorConfig_disable = 1
 augroup END
 
+" Plug 'plytophogy/vim-virtualenv'
+Plug 'PieterjanMontens/vim-pipenv'
+Plug 'petobens/poet-v'
+
 " buffer management
 Plug 'AndrewRadev/undoquit.vim'
 "<c-w>u reopen windo
@@ -543,6 +544,7 @@ Plug 'rmagatti/auto-session'
 Plug 'rmagatti/session-lens'
 
 Plug 'preservim/vimux'
+let g:VimuxUseNearest = 0
 " Combine VimuxZoomRunner and VimuxInspectRunner in one function.
 function! VimuxZoomInspectRunner()
   if exists("g:VimuxRunnerIndex")
@@ -560,6 +562,13 @@ map <Leader>vq :VimuxCloseRunner<CR>
 map <Leader>v<C-l> :VimuxClearTerminalScreen<CR>
 map <Leader>vc :VimuxClearRunnerHistory<CR>
 map <Leader>vx :VimuxInterruptRunner<CR>
+
+" dbs
+Plug 'tpope/vim-dadbod'
+Plug 'kristijanhusak/vim-dadbod-ui'
+let g:db_ui_show_database_icon = 1
+let g:db_ui_use_nerd_fonts = 1
+let g:db_ui_force_echo_notifications = 1
 
 " testing
 Plug 'vim-test/vim-test'
@@ -606,20 +615,20 @@ if &diff
     let g:indent_blankline_enabled = v:false
 endif
 let g:indent_blankline_use_treesitter = v:true
+" default listchars=tab:>,trail:-,nbsp:+
+set list listchars=tab:→\ ,space:⋅,trail:•,nbsp:␣,extends:▶,precedes:◀
+" extends:⟩,precedes:⟨,tab:│\ ,eol:, tab:<->
 let g:indent_blankline_char = '▏'
-let g:indent_blankline_filetype_exclude = [
-     \ 'startify', 'coc-explorer'
-     \]
+" let g:indent_blankline_char_list = ['|', '¦', '┆', '┊']
+let g:indent_blankline_filetype_exclude = [ 'startify', 'NvimTree' ]
 let g:indent_blankline_buftype_exclude = ['terminal']
-let g:indent_blankline_show_first_indent_level = v:false
+let g:indent_blankline_show_first_indent_level = v:true
 let g:indent_blankline_show_trailing_blankline_indent = v:false
 let g:indent_blankline_show_current_context = v:true
-let g:indent_blankline_space_char = '⋅'
-" let g:indent_blankline_context_patterns = ['class', 'function', 'method',
-" 				\ 'if_statement', 'else_clause', 'jsx_element', 'jsx_self_closing_element',
-" 				\ 'try_statement', 'catch_clause']
-" https://github.com/lukas-reineke/indent-blankline.nvim/issues/61#issuecomment-869872432
-let g:indent_blankline_context_patterns = [ 'declaration', 'expression', 'pattern', 'primary_expression', 'statement', 'switch_body', 'jsx_element', 'jsx_self_closing_element', 'import_statement']
+let g:indent_blankline_show_current_context_start = v:true
+" let g:indent_blankline_context_patterns = [ 'declaration', 'expression', 'pattern', 'primary_expression', 'statement', 'switch_body', 'jsx_element', 'jsx_self_closing_element', 'import_statement']
+" let g:indent_blankline_context_patterns = [ 'def', 'class', 'return', 'function', 'method', '^if', '^while', 'jsx_element', '^for', '^object', '^table', 'block', 'arguments', 'if_statement', 'else_clause', 'jsx_element', 'jsx_self_closing_element', 'try_statement', 'catch_clause', 'import_statement', 'operation_type' ]
+let g:indent_blankline_context_patterns = [ 'declaration', 'expression', 'pattern', 'primary_expression', 'statement', 'switch_body' ,'def', 'class', 'return', 'function', 'method', '^if', '^while', 'jsx_element', '^for', '^object', '^table', 'block', 'arguments', 'else_clause', '^jsx', 'try_statement', 'catch_clause', 'import_statement', 'operation_type' ]
 
 augroup tmuxgroups
   autocmd!
@@ -635,10 +644,12 @@ let g:polyglot_disabled = [
         \ 'jsonc', 'jsx', 'lua', 'python', 'regex', 'rspec', 'ruby',
         \ 'sh', 'svg', 'tmux', 'tsx', 'typescript', 'typescriptreact', 'yaml']
 Plug 'sheerun/vim-polyglot'
+let g:polyglot_disabled = ['sensible']
 " let g:polyglot_disabled = ['ftdetect']
-" let g:polyglot_disabled = ['sensible']
 " let g:polyglot_disabled = ['autoindent']
 let g:markdown_fenced_languages = ['ruby', 'vim']
+Plug 'z0mbix/vim-shfmt', { 'for': 'sh' }
+let g:shfmt_fmt_on_save = 1
 
 Plug 'AndrewRadev/splitjoin.vim'
 " gS to split a one-liner into multiple lines
@@ -660,7 +671,9 @@ nmap <leader>ms <Plug>MarkdownPreviewStop
 " markdown preview in nvim popup
 Plug 'ellisonleao/glow.nvim', {'for': 'markdown'}
 nmap <leader>mv :Glow<CR>
-let g:glow_binary_path = $HOME . "/bin"
+let g:glow_binary_path = $HOME . '/bin'
+let g:glow_border = 'rounded'
+let g:glow_width = 120
 " q to quit, :Glow for current filepath
 
 Plug 'weirongxu/plantuml-previewer.vim'
@@ -704,6 +717,7 @@ Plug 'abecodes/tabout.nvim'
 Plug 'phaazon/hop.nvim'
 nmap <leader><leader> :HopWord<cr>
 vmap <leader><leader> :HopWord<cr>
+nmap <leader>/ :HopPattern<cr>
 
 Plug 'drmingdrmer/vim-toggle-quickfix'
 
@@ -982,6 +996,7 @@ let g:tig_explorer_keymap_commit_split   = '<ESC>s'
 let g:tig_explorer_keymap_commit_vsplit  = '<ESC>v'
 " bclose.vim required for neovim and tig-explorer
 Plug 'rbgrouleff/bclose.vim'
+let g:bclose_no_plugin_maps = 1
 
 Plug 'kevinhwang91/nvim-hlslens'
 
@@ -1007,9 +1022,13 @@ Plug 'nvim-telescope/telescope-node-modules.nvim'
 Plug 'dhruvmanila/telescope-bookmarks.nvim'
 
 Plug 'xiyaowong/telescope-emoji.nvim'
+" Plug 'nvim-telescope/telescope-symbols.nvim'
 
-Plug 'AckslD/nvim-neoclip.lua'
 Plug 'tami5/sqlite.lua'
+Plug 'AckslD/nvim-neoclip.lua'
+
+" Plug 'tami5/sql.nvim'
+" Plug 'nvim-telescope/telescope-frecency.nvim'
 
 Plug 'fannheyward/telescope-coc.nvim'
 
@@ -1022,23 +1041,30 @@ Plug 'mrjones2014/dash.nvim', { 'do': 'make install'}
 Plug 'nvim-telescope/telescope-github.nvim'
 Plug 'rlch/github-notifications.nvim'
 
-Plug 'kyazdani42/nvim-web-devicons'
+Plug 'kyazdani42/nvim-web-devicons' " for file icons, nvim-tree and others
+
+Plug 'kyazdani42/nvim-tree.lua'
+nnoremap <silent> <leader>ee :NvimTreeFindFile<CR>
+nnoremap <silent> <leader>et :NvimTreeToggle<CR>
+nnoremap <silent> <leader>er :NvimTreeRefresh<CR>
+" NvimTreeOpen, NvimTreeClose, NvimTreeFocus, NvimTreeFindFileToggle, and NvimTreeResize
+let g:nvim_tree_indent_markers = 1 "0 by default, this option shows indent markers when folders are open
+let g:nvim_tree_git_hl = 1 "0 by default, will enable file highlight for git attributes (can be used without the icons).
+let g:nvim_tree_highlight_opened_files = 1
+let g:nvim_tree_disable_window_picker = 0
+let g:nvim_tree_window_picker_exclude = {
+    \   'filetype': [
+    \     'notify',
+    \     'packer',
+    \     'qf'
+    \   ],
+    \   'buftype': [
+    \     'terminal'
+    \   ]
+    \ }
+
 " https://levelup.gitconnected.com/git-worktrees-the-best-git-feature-youve-never-heard-of-9cd21df67baf
 Plug 'ThePrimeagen/git-worktree.nvim'
-
-" Plug 'tami5/sql.nvim'
-" Plug 'nvim-telescope/telescope-frecency.nvim'
-
-Plug 'chrisbra/unicode.vim'
-let g:Unicode_ShowPreviewWindow = 1
-let g:Unicode_CompleteName = 1
-" :Digraphs        - Search for specific digraph char
-" :UnicodeSearch   - Search for specific unicode char
-" :UnicodeSearch!  - Search for specific unicode char (and add at current cursor position)
-" :UnicodeName     - Identify character under cursor (like ga command)
-" :UnicodeTable    - Print Unicode Table in new window
-" :DownloadUnicode - Download (or update) Unicode data
-" :UnicodeCache    - Create cache file
 
 " regex explain - :ExplainPattern {pattern} or :ExplainPattern {register}
 Plug 'Houl/ExplainPattern'
@@ -1050,9 +1076,11 @@ Plug 'tpope/vim-scriptease'
 " :Messages load messages into quickfix
 
 " visiblity
+" TODO: try ? https://github.com/karb94/neoscroll.nvim
 Plug 'psliwka/vim-smoothie'
 
 Plug 'Konfekt/FastFold'
+let g:fastfold_savehook = 1
 " Plug 'Jorengarenar/vim-syntaxMarkerFold' ?
 
 " no recent updates, try this? https://github.com/edluffy/specs.nvim
@@ -1061,7 +1089,7 @@ let g:beacon_ignore_filetypes = ['git', 'startify']
 if !&diff
   let g:beacon_show_jumps = 0
   let g:beacon_ignore_buffers = [
-      \ "Mundo",
+      \ 'Mundo',
       \ '\w*git*\w',
       \ '\w*fugitive*\w',
       \ '\w*defx*\w',
@@ -1085,7 +1113,8 @@ Plug 'chentau/marks.nvim'
 
 " displays colors for words/hex
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
-let g:Hexokinase_highlighters = ['backgroundfull']
+" let g:Hexokinase_highlighters = ['backgroundfull']
+let g:Hexokinase_highlighters = ['virtual']
 let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'less', 'vim', 'conf', 'tmux', 'gitconfig', 'xml', 'lua', 'stylus']
 
 " appearence and insight
@@ -1104,14 +1133,12 @@ Plug 'mhinz/vim-startify'
 Plug 'folke/tokyonight.nvim'
 " Plug 'EdenEast/nightfox.nvim'
 
-Plug 'folke/todo-comments.nvim'
-
-" center window, mode keeping status bars, etc :VenterToggle
+" center windows, all splits
 Plug 'jmckiern/vim-venter'
 let g:venter_width = &columns/6
 nnoremap <leader>ve :VenterToggle<CR>
 
-" center current buffer, in neovim z-index
+" center current buffer only
 Plug 'folke/zen-mode.nvim'
 nnoremap <leader>zm :ZenMode<CR>
 
@@ -1127,7 +1154,6 @@ let g:browser_search_engines = {
   \ }
 
 Plug 'meain/vim-package-info', { 'do': 'npm install' }
-" another one to try: https://github.com/vuki656/package-info.nvim
 
 " monorepo
 Plug 'airblade/vim-rooter'
@@ -1144,7 +1170,8 @@ Plug 'dstein64/vim-startuptime'
 " K for more info
 " Plug 'tweekmonster/startuptime.vim'
 
-" Plug 'vimwiki/vimwiki', { 'branch': 'dev' }
+" replace vimwiki?
+" Plug 'dkarter/bullets.vim'
 Plug 'vimwiki/vimwiki', { 'branch': 'dev', 'for': 'markdown', 'on': 'VimwikiMakeDiaryNote' }
 augroup load_vimwiki
   autocmd!
@@ -1307,9 +1334,23 @@ vnoremap <silent> m :lua require('tsht').nodes()<CR>
 " https://www.reddit.com/r/neovim/comments/q7bgwo/comment/hghwogp/?context=3
 set shada=!,'0,f0,<50,s10,h
 
+" don't open on blank dir (startify)
+" augroup NvimTreeConfig
+"   au!
+"   au BufEnter * if isdirectory(expand('%')) | exec("cd " . expand('%')) | exec('NvimTreeOpen') | endif
+" augroup END
+
 lua << EOF
 
-require("todo-comments").setup {}
+-- fold settings
+vim.wo.foldmethod = "expr"
+vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
+vim.o.foldtext = [[substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'g').'...'.trim(getline(v:foldend)) . ' (' . (v:foldend - v:foldstart + 1) . ' lines)']]
+-- vim.wo.fillchars = "fold:\\"
+-- vim.wo.fillchars = "fold: "
+vim.wo.foldnestmax = 3
+vim.wo.foldminlines = 1
+
 require("tabout").setup {}
 require("nvim-web-devicons").setup {}
 require("which-key").setup {}
@@ -1318,25 +1359,57 @@ require("terminal").setup {}
 
 require('auto-session').setup {
   log_level = 'info',
-  auto_session_enable_last_session = false,
-  auto_session_root_dir = vim.fn.stdpath('data').."/sessions/",
   auto_session_enabled = true,
   auto_save_enabled = true,
   auto_restore_enabled = true,
-  auto_session_suppress_dirs = nil
+  pre_save_cmds = {"NvimTreeClose"}
 }
+
+require'nvim-tree'.setup {
+  disable_netrw       = false,
+  hijack_netrw        = false,
+  ignore_ft_on_setup  = {"startify"},
+  auto_close          = true,
+  hijack_cursor       = true,
+  diagnostics = {
+    enable = true,
+  },
+  update_to_buf_dir   = {
+    enable = true,
+    auto_open = false,
+  },
+  update_focused_file = {
+    enable      = false,
+    update_cwd  = false,
+    ignore_list = {}
+  },
+  filters = {
+    custom = {} -- list of string that will not be shown
+  },
+  view = {
+    width = '20%',
+    auto_resize = true,
+    mappings = {
+      list = {}
+    }
+  }
+}
+
+-- require'nvim-tree.events'.on_nvim_tree_ready(function ()
+--   vim.cmd("NvimTreeRefresh")
+-- end)
 
 require("hop").setup()
 -- Set up `f` as general hop hotkey to hint character
-vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR })<cr>", {})
-vim.api.nvim_set_keymap('x', 'f', "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR })<cr>", {})
-vim.api.nvim_set_keymap('n', 'F', "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR })<cr>", {})
-vim.api.nvim_set_keymap('x', 'F', "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR })<cr>", {})
+vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
+vim.api.nvim_set_keymap('x', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
+vim.api.nvim_set_keymap('n', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
+vim.api.nvim_set_keymap('x', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
 -- Set up actions in normal mode
 local actions = { "d", "c", "<", ">", "y" }
 for _, a in ipairs(actions) do
-  vim.api.nvim_set_keymap('n', a .. 'f', a .. "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR })<cr>", {})
-  vim.api.nvim_set_keymap('n', a .. 'F', a .. "<cmd>lua require'hop'.hint_char1_line({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR })<cr>", {})
+  vim.api.nvim_set_keymap('n', a .. 'f', a .. "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
+  vim.api.nvim_set_keymap('n', a .. 'F', a .. "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
 end
 
 require'marks'.setup {
@@ -1366,11 +1439,12 @@ require'marks'.setup {
 -- dm=             Delete the bookmark under the cursor.
 --
 -- :MarksToggleSigns - Toggle signs in the buffer
--- :MarksListBuf - Fill the location list with all marks in the current buffer.
--- :MarksListGlobal - Fill the location list with all global marks in open buffers.
--- :MarksListAll - Fill the location list with all marks in all open buffers.
--- :BookmarksList - group_number Fill the location list with all bookmarks of group "group_number".
--- :BookmarksListAll - Fill the location list with all bookmarks, across all groups.
+-- :MarksListBuf - Fill the location list with all marks in the current buffer
+-- :MarksQFListBuf
+-- :MarksListGlobal - Fill the location list with all global marks in open buffers
+-- :MarksQFListGlobal
+-- :MarksListAll - Fill the location list with all marks in all open buffers
+-- :MarksQFListAll
 
 require("zen-mode").setup {
   window = {
@@ -1895,7 +1969,7 @@ augroup END
 " https://gist.github.com/romainl/379904f91fa40533175dfaec4c833f2f
 function! MyHighlights() abort
   if g:colors_name ==# 'tokyonight'
-	  hi default link CocHighlightText TabLineSel
+    hi default link CocHighlightText TabLineSel
     hi IncSearch guifg=#292e42 guibg=#bb9af7
     hi CocUnderline gui=undercurl term=undercurl
     hi default link CocErrorHighlight LspDiagnosticsUnderlineError
@@ -1916,7 +1990,6 @@ endfunction
 augroup MyColors
   autocmd!
   autocmd ColorScheme * call MyHighlights()
-  " autocmd BufWinEnter * if &filetype ==? 'coc-explorer' | setlocal winhighlight=Normal:NormalJS | endif
 augroup END
 
 " https://github.com/trapd00r/vim-syntax-todo/blob/master/syntax/todo.vim
@@ -1981,6 +2054,9 @@ function DiffCurrentQuickfixEntry() abort
   endif
 endfunction
 
+command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+                \ | diffthis | wincmd p | diffthis
+
 let base16colorspace=256
 " might as well play it safe, kids
 if has("termguicolors")
@@ -1990,7 +2066,7 @@ endif
 let g:tokyonight_style = "night"
 let g:tokyonight_italic_functions = 1
 let g:tokyonight_italic_variables = 0
-let g:tokyonight_sidebars = [ "qf", "coc-explorer", "terminal", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches", "dap-repl", "DiffviewFiles" ]
+let g:tokyonight_sidebars = [ "qf", "NvimTree", "terminal", "dapui_scopes", "dapui_breakpoints", "dapui_stacks", "dapui_watches", "dap-repl", "DiffviewFiles", "dbui" ]
 colorscheme tokyonight
 
 " customize
@@ -2118,7 +2194,7 @@ let g:projectionist_heuristics['package.json'] = {
 " lightline
 let g:lightline = {
     \ 'active': {
-    \   'left': [ [  'coc_info', 'coc_hints', 'coc_errors', 'coc_warnings', 'coc_ok'],
+    \   'left': [ [ 'coc_info', 'coc_hints', 'coc_errors', 'coc_warnings', 'coc_ok'],
     \             [ 'paste', 'gitbranch', 'filename', 'modified'] ],
     \   'right': [ [ 'lineinfo' ],
     \            [ 'percent' ],
@@ -2129,9 +2205,8 @@ let g:lightline = {
     \   'filename': 'LightlineFilenameDisplay',
     \   'fileformat': 'LightlineFileformat',
     \   'filetype': 'LightlineFiletype',
-    \ },
-    \ 'component': {
-    \   'lineinfo': '%3l  %-2c%<',
+    \   'lineinfo': 'LightlineLineInfo',
+    \   'percent': 'LightlinePercent',
     \ },
     \ 'separator': { 'left': "\ue0b4", 'right': "\ue0b6" },
     \ 'subseparator': { 'left': "\ue0b5", 'right': "\ue0b7" },
@@ -2144,8 +2219,20 @@ let g:lightline#coc#indicator_warnings = ''
 let g:lightline#coc#indicator_errors = ''
 let g:lightline#coc#indicator_info = ''
 
+function! LightlinePercent() abort
+    if winwidth(0) < 60
+        return ''
+    endif
+    let l:percent = line('.') * 100 / line('$') . '%'
+    return printf('%-4s', l:percent)
+endfunction
+
+function! LightlineLineInfo()
+  return &ft =~? 'NvimTree' ? '' : printf(' %d/%d:%-2d', line('.'), line('$'), col('.'))
+endfunction
+
 function! LightlineFilenameDisplay()
-  if &ft == 'coc-explorer'
+  if &ft == 'NvimTree'
     return ''
   else
     return winwidth(0) > 90 ? WebDevIconsGetFileTypeSymbol(LightlineFilename()) . " ". LightlineFilename() : pathshorten(fnamemodify(expand("%"), ":."))
@@ -2167,7 +2254,7 @@ function! LightlineTabname(n) abort
   return l:fname == '__Mundo__' ? 'Mundo' :
     \ l:fname == '__Mundo_Preview__' ? 'Mundo Preview' :
     \ l:fname =~ 'FZF' ? '' :
-    \ l:fname =~ '^\[coc-explorer\]' ? 'Explorer' :
+    \ l:fname =~ 'NvimTree' ? 'NvimTree' :
     \ l:fname =~ '\[Plugins\]' ? 'Plugins' :
     \ ('' != l:fname ? l:fname : '')
 endfunction
@@ -2187,8 +2274,7 @@ endfunction
 
 function! LightlineBranchformat()
   try
-    if winwidth(0) > 100 && expand('%:t') !~? 'Tagbar\|NERD' && &ft !~? 'coc-explorer' && exists('*FugitiveHead')
-    " if winwidth(0) > 80 && expand('%:t') !~? 'Tagbar\|NERD' && &ft !~? 'coc-explorer' && exists('*FugitiveHead')
+    if winwidth(0) > 100 && expand('%:t') !~? 'Tagbar\|NERD' && &ft !~? 'NvimTree' && exists('*FugitiveHead')
       let mark = ' '
       let branch = FugitiveHead()
       return branch !=# '' ? mark.branch : ''
@@ -2227,6 +2313,7 @@ vim.fn.sign_define('DapBreakpoint', {text='🟥', texthl='', linehl='', numhl=''
 vim.fn.sign_define('DapStopped', {text='🟢', texthl='', linehl='', numhl=''})
 
 -- theHamsta/nvim-dap-virtual-text
+require("nvim-dap-virtual-text").setup()
 vim.g.dap_virtual_text = true
 
 -- dap-ui
@@ -2262,6 +2349,7 @@ require("dapui").setup({
     position = "bottom", -- Can be "bottom" or "top"
   },
   floating = {
+    border = "rounded",
     max_height = nil, -- These can be integers or a float between 0 and 1.
     max_width = nil, -- Floats will be treated as percentage of your screen.
     mappings = {
@@ -2282,16 +2370,17 @@ vim.api.nvim_set_keymap('n', '<leader>td', ':lua require"jester".debug({ path_to
 EOF
 
 " vim-test
-let test#python#runner = 'pytest'
-" nmap <silent> <leader>tt :TestNearest<CR>
-nmap <silent> <leader>tt :UltestNearest<CR>
+let test#python#pytest#options = '-p no:warnings'
+let test#strategy = 'vimux'
+nmap <silent> <leader>tt :TestNearest<CR>
 nmap <silent> <leader>tf :TestFile<CR>
 nmap <silent> <leader>tp :TestLast<CR>
 nmap <silent> <leader>tv :TestVisit<CR>
 nmap <silent> <leader>ts :TestSuite<CR>
 
 "  ultest
- let g:ultest_use_pty = 1
+" let g:ultest_use_pty = 1
+" nmap <silent> <leader>tt :UltestNearest<CR>
 
 augroup move_these_to_ftplugin
   " :help ftplugin
@@ -2354,7 +2443,9 @@ set cmdheight=2
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 set shortmess+=S
+set shortmess+=F
 " shortmess=filnxtToOFsIc
+" shortmess=aoOcSF
 
 set noconfirm " Don't use dialog boxes to confirm choices
 
@@ -2462,9 +2553,9 @@ augroup CocGroup
   " :CocCommand workspace.clearWatchman
 
   " autocmd VimLeavePre * :call coc#rpc#kill()
-  "     autocmd VimLeave * if get(g:, 'coc_process_pid', 0) | call system('kill -9 -'.g:coc_process_pid) | endif
+  " autocmd VimLeave * if get(g:, 'coc_process_pid', 0) | call system('kill -9 -'.g:coc_process_pid) | endif
 
-  autocmd FileType python let b:coc_root_patterns = ['manage.py']
+  " autocmd FileType python let b:coc_root_patterns = ['app.py']
 augroup end
 
 " Applying codeAction to the selected region. Ex: `<leader>aap` for current paragraph
@@ -2618,23 +2709,6 @@ function! CopyFloatText() abort
     call win_gotoid(id)
   endif
 endfunction
-
-" coc-explorer
-nnoremap <silent> <leader>ee :CocCommand explorer --toggle<CR>
-nnoremap <silent> <leader>ef :CocCommand explorer --position floating<CR>
-
-" display fullpath in status line, used for long filenames
-function! s:ShowFilename()
-    let s:node_info = CocAction('runCommand', 'explorer.getNodeInfo', 0)
-    redraw | echohl Debug | echom exists('s:node_info.fullpath') ?
-    \ 'Filename: ' . s:node_info.fullpath : '' | echohl None
-endfunction
-
-augroup cocexplorercmds
-  autocmd!
-  autocmd BufEnter * if (winnr("$") == 1 && &filetype == 'coc-explorer') | q | endif
-  autocmd CursorMoved \[coc-explorer\]* :call <SID>ShowFilename()
-augroup END
 
 " ack.vim
 let g:ackprg = 'rg --vimgrep'
@@ -3003,7 +3077,7 @@ let g:tmux_navigator_disable_when_zoomed = 1
 
 " beacon
 let g:beacon_show_jumps = 0
-let g:beacon_ignore_buffers = ["coc-explorer", "Mundo"]
+let g:beacon_ignore_buffers = ["Mundo"]
 
 " add motions for words_like_this, etc
 " i_ i. i: i, i; i| i/ i\ i* i+ i- i#
