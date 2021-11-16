@@ -1,6 +1,6 @@
-if [ -z "$TMUX" ]; then
-  ~/bin/ta
-fi
+# if [ -z "$TMUX" ]; then
+#   ~/bin/ta
+# fi
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -641,6 +641,7 @@ alias tmn='tmux new -s'
 alias tma='tmux attach -t'
 alias tms='tmux switch-client -t'
 alias tmls='tmux ls'
+alias tag='ta ~/code/invitae'
 alias tkill="for s in \$(tmux list-sessions | awk '{print \$1}' | rg ':' -r '' | fzf); do tmux kill-session -t \$s; done;"
 # alias tkill=tmux display-popup -E "for s in \$(tmux list-sessions | awk '{print \$1}' | rg ':' -r '' | fzf); do tmux kill-session -t \$s; done;"
 
@@ -663,10 +664,9 @@ alias safedev="safe target blah dev"
 alias safestg="safe target blah stg"
 alias safeprd="safe target blah prd"
 
-
 # https://qmacro.org/autodidactics/2021/08/06/tmux-output-formatting/
 # 1. Open a popup
-# 2. Show you all the docker images on your system ... in an FZF menu
+# 2. Show you all the docker images on your system in an FZF menu
 # 3. Select your choice
 # 4. A split pane (from target pane) will run docker run --rm -it <chosen_image>
 alias dselect='tmux display-popup -E "docker image ls --format '{{.Repository}}' | fzf | xargs tmux split-window -h docker run --rm -it"'
