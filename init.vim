@@ -113,6 +113,13 @@ noremap L $
 "*** seems to remove the ability to '.' ***
 " xnoremap < <gv
 " xnoremap > >gv
+" move cursor with it
+" vnoremap <expr> > ">gv"..&shiftwidth.."l"
+" vnoremap <expr> < "<gv"..&shiftwidth.."h"
+" move cursor to beginning of line
+" vnoremap > >gv^
+" vnoremap < <gv^
+
 set shell=/usr/local/bin/zsh
 
 set title "displays current file as vim title
@@ -123,10 +130,22 @@ set t_vb= "kills the bell
 " toggle folds
 nnoremap <space><space> za
 vnoremap <space><space> za
-" zf - create fold
-" zd - delete fold under cursor
-" zR - open all folds
-" zM - close all folds
+" zf#j creates a fold from the cursor down # lines.
+" zf/ string creates a fold from the cursor to string .
+" zj moves the cursor to the next fold.
+" zk moves the cursor to the previous fold.
+" za toggle a fold at the cursor.
+" zo opens a fold at the cursor.
+" zO opens all folds at the cursor.
+" zc closes a fold under cursor.
+" zm increases the foldlevel by one.
+" zM closes all open folds.
+" zr decreases the foldlevel by one.
+" zR decreases the foldlevel to zero -- all folds will be open.
+" zd deletes the fold at the cursor.
+" zE deletes all folds.
+" [z move to start of open fold.
+" ]z move to end of open fold.
 " treesitter
 set fillchars+=fold:\    " space
 " Open files without any folding
@@ -366,6 +385,8 @@ set sessionoptions-=buffers
 set sessionoptions-=options
 " don't restore help windows
 set sessionoptions-=help
+" results with those ^: sessionoptions=blank,curdir,folds,tabpages,winsize
+set sessionoptions+=resize,winpos,terminal
 
 " split windows
 nnoremap <C-w>- :new<cr>
@@ -440,6 +461,7 @@ nnoremap <expr> <CR> &buftype ==# "quickfix" ? "\<CR>" : ":write!<CR>"
 " ZZ - Write current file, if modified, and quit. (:x = :wq = ZZ)
 " ZQ - Quit without checking for changes (same as ':q!')
 map QQ :qa!<CR>
+map QA :qa<CR>
 cabbrev q! use ZQ
 cabbrev wq use x or ZZ
 cabbrev wq! use x!
@@ -518,13 +540,15 @@ Plug 'petobens/poet-v'
 Plug 'AndrewRadev/undoquit.vim'
 "<c-w>u reopen windo
 "<c-w>U reopen tab with all windows
+
+" newer option
+" Plug 'kazhala/close-buffers.nvim'
 Plug 'Asheq/close-buffers.vim'
 " :Bdelete other    -	bdelete all buffers except the buffer in the current window
 " :Bdelete hidden   -	bdelete buffers not visible in a window
 " :Bdelete all      -	bdelete all buffers
 " :Bdelete this     -	bdelete buffer in the current window
 " :Bdelete nameless -	bdelete buffers without a name: [No Name]
-" switch some to :Bwipeout ?
 map <leader>Bdo :Bdelete other<CR>
 map <leader>Bdh :Bdelete hidden<CR>
 map <leader>Bda :Bdelete all<CR>
@@ -538,6 +562,11 @@ augroup mundoauto
   autocmd!
   autocmd User vim-mundo echom 'vim-mundo is now loaded!'
 augroup END
+
+Plug 'NTBBloodbath/rest.nvim'
+map <leader>rr <Plug>RestNvim
+map <leader>rp <Plug>RestNvimPreview
+map <leader>rL <Plug>RestNvimLast
 
 " session management
 Plug 'rmagatti/auto-session'
@@ -572,10 +601,10 @@ let g:db_ui_force_echo_notifications = 1
 
 " testing
 Plug 'vim-test/vim-test'
-Plug 'rcarriga/vim-ultest', { 'do': ':UpdateRemotePlugins' }
 
 " debugging
 Plug 'mfussenegger/nvim-dap'
+Plug 'mfussenegger/nvim-dap-python'
 Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'David-Kunz/jester'
@@ -728,6 +757,9 @@ Plug 'kevinhwang91/nvim-bqf'
 " zn or zN - create new quickfix list
 " < - previous quickfix list
 " > - next quickfix list
+
+" pretty qf
+Plug 'https://gitlab.com/yorickpeterse/nvim-pqf'
 
 Plug 'christoomey/vim-tmux-navigator'
 " If the tmux window is zoomed, keep it zoomed when moving from Vim to another pane
@@ -1113,8 +1145,8 @@ Plug 'chentau/marks.nvim'
 
 " displays colors for words/hex
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
-" let g:Hexokinase_highlighters = ['backgroundfull']
-let g:Hexokinase_highlighters = ['virtual']
+let g:Hexokinase_highlighters = ['backgroundfull']
+" let g:Hexokinase_highlighters = ['virtual']
 let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'less', 'vim', 'conf', 'tmux', 'gitconfig', 'xml', 'lua', 'stylus']
 
 " appearence and insight
@@ -1129,7 +1161,10 @@ Plug 'nixprime/cpsm', { 'do': 'PY3=ON ./install.sh' }
 
 Plug 'itchyny/lightline.vim' |
           \ Plug 'konart/vim-lightline-coc'
+
+" neovim option: https://github.com/goolord/alpha-nvim
 Plug 'mhinz/vim-startify'
+
 Plug 'folke/tokyonight.nvim'
 " Plug 'EdenEast/nightfox.nvim'
 
@@ -1251,10 +1286,13 @@ cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : '\<S-Tab>'
 cmap <expr> <c-j> wilder#in_context() ? wilder#next() : '\<c-j>'
 cmap <expr> <c-k> wilder#in_context() ? wilder#previous() : '\<c-k>'
 
+" '-I' to not respect .gitignore
 call wilder#set_option('pipeline', [
       \   wilder#branch(
       \     wilder#python_file_finder_pipeline({
-      \       'file_command': {_, arg -> stridx(arg, '.') != -1 ? ['fd', '-tf', '-H'] : ['fd', '-tf']},
+      \       'file_command': {_, arg -> stridx(arg, '.') != -1 ?
+      \         ['fd', '-tf', '-H', '-I', '-E', '.git', '-E', 'node_modules', '-E', '.venv'] :
+      \         ['fd', '-tf', '-I', '-E', '.git', '-E', 'node_modules', '-E', '.venv']},
       \       'dir_command': ['fd', '-td'],
       \       'filters': ['cpsm_filter'],
       \     }),
@@ -1356,13 +1394,15 @@ require("nvim-web-devicons").setup {}
 require("which-key").setup {}
 require("headlines").setup {}
 require("terminal").setup {}
+require('pqf').setup {}
 
 require('auto-session').setup {
   log_level = 'info',
   auto_session_enabled = true,
   auto_save_enabled = true,
   auto_restore_enabled = true,
-  pre_save_cmds = {"NvimTreeClose"}
+  auto_session_suppress_dirs = {'~/', '~/code'},
+  pre_save_cmds = {"tabdo NvimTreeClose", "Bdelete! nameless"}
 }
 
 require'nvim-tree'.setup {
@@ -1395,22 +1435,39 @@ require'nvim-tree'.setup {
   }
 }
 
+require("rest-nvim").setup({
+  -- Open request results in a horizontal split
+  result_split_horizontal = false,
+  -- Skip SSL verification, useful for unknown certificates
+  skip_ssl_verification = false,
+  -- Highlight request on run
+  highlight = {
+    enabled = true,
+    timeout = 150,
+  },
+  result = {
+    -- toggle showing URL, HTTP info, headers at top the of result window
+    show_url = true,
+    show_http_info = true,
+    show_headers = true,
+  },
+  -- Jump to request line on run
+  jump_to_request = false,
+})
+
 -- require'nvim-tree.events'.on_nvim_tree_ready(function ()
 --   vim.cmd("NvimTreeRefresh")
 -- end)
 
 require("hop").setup()
--- Set up `f` as general hop hotkey to hint character
 vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
-vim.api.nvim_set_keymap('x', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
+vim.api.nvim_set_keymap('x', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
 vim.api.nvim_set_keymap('n', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
-vim.api.nvim_set_keymap('x', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
--- Set up actions in normal mode
-local actions = { "d", "c", "<", ">", "y" }
-for _, a in ipairs(actions) do
-  vim.api.nvim_set_keymap('n', a .. 'f', a .. "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
-  vim.api.nvim_set_keymap('n', a .. 'F', a .. "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
-end
+vim.api.nvim_set_keymap('x', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
+
+-- example in docs
+vim.api.nvim_set_keymap('o', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
+vim.api.nvim_set_keymap('o', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
 
 require'marks'.setup {
   bookmark_0 = {
@@ -1463,6 +1520,7 @@ local actions = require('telescope.actions')
 -- https://github.com/nvim-telescope/telescope.nvim/blob/d0cf646f65746415294f570ec643ffd0101ca3ab/lua/telescope/mappings.lua
 require('telescope').setup {
   defaults = {
+    path_display = { truncate = 2 },
     layout_config = {
       horizontal = {
         prompt_position = "top"
@@ -1470,12 +1528,22 @@ require('telescope').setup {
     },
     sorting_strategy = "ascending",
     mappings = {
-      i = {
+      n = {
         ["<C-j>"] = actions.move_selection_next,
         ["<C-k>"] = actions.move_selection_previous,
         ["<esc>"] = actions.close,
-        ["<C-n"] = require('telescope.actions').cycle_history_next,
+        -- ['\\']    = actions.toggle_preview,
+        ["<C-n"]  = require('telescope.actions').cycle_history_next,
         ["<C-p>"] = require('telescope.actions').cycle_history_prev,
+        ['<c-d>'] = require('telescope.actions').delete_buffer,
+      },
+      i = {
+        ["<C-j>"] = actions.move_selection_next,
+        ["<C-k>"] = actions.move_selection_previous,
+        -- ['\\']    = actions.toggle_preview,
+        ["<C-n"]  = require('telescope.actions').cycle_history_next,
+        ["<C-p>"] = require('telescope.actions').cycle_history_prev,
+        ['<c-d>'] = require('telescope.actions').delete_buffer,
       },
     },
   },
@@ -1485,9 +1553,29 @@ require('telescope').setup {
     },
     grep_string = {
       sort_only_text = true,
+      -- additional_args = function(opts)
+      --   if opts.search_all == true then
+      --       return {}
+      --   end
+      --   local args_for_ext = {
+      --     ["ts"]  = "-tts",
+      --     ["js"]  = "-tjs",
+      --   }
+      --   return { args_for_ext[vim.bo.filetype] }
+      -- end,
     },
     live_grep = {
       only_sort_text = true,
+      -- additional_args = function(opts)
+      --   if opts.search_all == true then
+      --       return {}
+      --   end
+      --   local args_for_ext = {
+      --     ["ts"]  = "-tts",
+      --     ["js"]  = "-tjs",
+      --   }
+      --   return { args_for_ext[vim.bo.filetype] }
+      -- end,
     },
     buffers = {
       ignore_current_buffer = true,
@@ -1659,15 +1747,6 @@ require('nvim-treesitter.configs').setup {
   -- },
   context_commentstring = {
     enable = true,
-    config = {
-      javascript = {
-        __default = '// %s',
-        jsx_element = '{/* %s */}',
-        jsx_fragment = '{/* %s */}',
-        jsx_attribute = '// %s',
-        comment = '// %s'
-      }
-    }
   },
   -- textsubjects = {
   --     enable = true,
@@ -1753,6 +1832,9 @@ EOF
 
 augroup randomstuff
   autocmd!
+  " delete all nameless buffers on :qa
+  autocmd QuitPre * Bdelete! nameless
+
   autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if !bufexists("[Command Line]") | checktime | endif
   " highlight cursor position with Beacon on tmux pane move or enter
   autocmd FocusGained * :Beacon
@@ -2215,9 +2297,9 @@ let g:lightline = {
     \   'filename': 'LightlineTabname',
     \ },
     \ }
-let g:lightline#coc#indicator_warnings = ''
-let g:lightline#coc#indicator_errors = ''
-let g:lightline#coc#indicator_info = ''
+let g:lightline#coc#indicator_warnings = ''
+let g:lightline#coc#indicator_errors = ''
+let g:lightline#coc#indicator_info = ''
 
 function! LightlinePercent() abort
     if winwidth(0) < 60
@@ -2294,6 +2376,9 @@ call lightline#coc#register()
 lua << EOF
 -- mfussenegger/nvim-dap
 local dap = require('dap')
+require('dap-python').setup('~/.local/share/virtualenvs/debugpy/bin/python')
+require('dap-python').test_runner = 'pytest'
+
 -- dap.set_log_level('TRACE')
 
 dap.adapters.node2 = {
@@ -2378,10 +2463,6 @@ nmap <silent> <leader>tp :TestLast<CR>
 nmap <silent> <leader>tv :TestVisit<CR>
 nmap <silent> <leader>ts :TestSuite<CR>
 
-"  ultest
-" let g:ultest_use_pty = 1
-" nmap <silent> <leader>tt :UltestNearest<CR>
-
 augroup move_these_to_ftplugin
   " :help ftplugin
   autocmd!
@@ -2394,37 +2475,43 @@ augroup move_these_to_ftplugin
 augroup END
 
 " dap-ui
-nnoremap <leader>dq :lua require'dapui'.toggle()<CR>
+nnoremap <leader>dq  :lua require'dapui'.toggle()<CR>
 nnoremap <leader>due :lua require'dapui'.eval()<cr>
 vnoremap <leader>due :lua require'dapui'.eval()<cr>
 nnoremap <leader>duf :lua require'dapui'.float_element()<cr>
 nnoremap <leader>dus :lua require'dapui'.float_element("scopes")<cr>
 nnoremap <leader>dur :lua require'dapui'.float_element("repl")<cr>
 
-" nvim-dap
-nnoremap <leader>dt :lua require'dap'.toggle_breakpoint()<CR>
-nnoremap <leader>dn :lua require'dap'.continue()<CR>
-nnoremap <leader>d_ :lua require'dap'.disconnect();require"dap".close();require"dap".run_last()<CR>
+" nvim-dap-python
+nnoremap <leader>dpm :lua require('dap-python').test_method()<CR>
+nnoremap <leader>dpc :lua require('dap-python').test_class()<CR>
+vnoremap <leader>dps <ESC>:lua require('dap-python').debug_selection()<CR>
 
-nnoremap <leader>da :lua require'debugHelper'.attachToNode()<CR>
-nnoremap <leader>dA :lua require'debugHelper'.attachToRemote()<CR>
-nnoremap <leader>dc :lua require'debugHelper'.attachToChrome()<CR>
+" dap node
+nnoremap <leader>da  :lua require'debugHelper'.attachToNode()<CR>
+nnoremap <leader>dA  :lua require'debugHelper'.attachToRemote()<CR>
+nnoremap <leader>dc  :lua require'debugHelper'.attachToChrome()<CR>
+
+" nvim-dap
+nnoremap <leader>dt  :lua require'dap'.toggle_breakpoint()<CR>
+nnoremap <leader>dn  :lua require'dap'.continue()<CR>
+nnoremap <leader>d_  :lua require'dap'.disconnect();require"dap".close();require"dap".run_last()<CR>
 
 nnoremap <leader>dbc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
 nnoremap <leader>dbm :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
 nnoremap <leader>dso :lua require'dap'.step_out()<CR>
 nnoremap <leader>dsi :lua require'dap'.step_into()<CR>
 nnoremap <leader>dsv :lua require'dap'.step_over()<CR>
-nnoremap <leader>dk :lua require'dap'.up()<CR>
-nnoremap <leader>dj :lua require'dap'.down()<CR>
+nnoremap <leader>dk  :lua require'dap'.up()<CR>
+nnoremap <leader>dj  :lua require'dap'.down()<CR>
 nnoremap <leader>drv :lua require'dap'.repl.open({}, 'vsplit')<CR>
 nnoremap <leader>dro :lua require'dap'.repl.open()<CR>
 nnoremap <leader>drl :lua require'dap'.repl.run_last()<CR>
-nnoremap <leader>di :lua require'dap.ui.widgets'.hover()<CR>
-vnoremap <leader>di :lua require'dap.ui.variables'.visual_hover()<CR>
-nnoremap <leader>dI :lua require'dap.ui.widgets'.hover()<CR>
-nnoremap <leader>d? :lua local widgets=require'dap.ui.widgets';widgets.centered_float(widgets.scopes)<CR>
-nnoremap <leader>de :lua require'dap'.set_exception_breakpoints({"all"})<CR>
+nnoremap <leader>di  :lua require'dap.ui.widgets'.hover()<CR>
+vnoremap <leader>di  :lua require'dap.ui.variables'.visual_hover()<CR>
+nnoremap <leader>dI  :lua require'dap.ui.widgets'.hover()<CR>
+nnoremap <leader>d?  :lua local widgets=require'dap.ui.widgets';widgets.centered_float(widgets.scopes)<CR>
+nnoremap <leader>de  :lua require'dap'.set_exception_breakpoints({"all"})<CR>
 
 let g:vim_jsx_pretty_colorful_config = 1
 
@@ -2441,13 +2528,11 @@ set updatetime=100
 set cmdheight=2
 
 " Don't pass messages to |ins-completion-menu|.
-set shortmess+=c
-set shortmess+=S
-set shortmess+=F
+" set shortmess+=c
+" set shortmess+=S
+" set shortmess+=F
 " shortmess=filnxtToOFsIc
 " shortmess=aoOcSF
-
-set noconfirm " Don't use dialog boxes to confirm choices
 
 " leave space for git, diagnostics and marks
 set signcolumn=auto:5
@@ -2782,7 +2867,7 @@ nnoremap <silent> <Leader>fL :Lines<CR>
 nnoremap <leader>fh <cmd>Telescope command_history<cr>
 " nnoremap <silent> <Leader>fh :HistoryCmds<CR>
 
-nnoremap <leader>fH <cmd>Telescope old_files<cr>
+nnoremap <leader>fH <cmd>Telescope oldfiles<cr>
 " nnoremap <silent> <Leader>fH :History<CR>
 nnoremap <leader>fS <cmd>Telescope search_history<cr>
 " nnoremap <silent> <Leader>fS :HistorySearch<CR>
@@ -3194,6 +3279,13 @@ command! -bang -nargs=0 NewNote
   \ call vimwiki#base#edit_file(":e", strftime('~/Documents/notes/%F-%T.md'), "")
 
 command! Diary VimwikiDiaryIndex
+
+function InsertDate()
+    :.!echo "= $(date) ="
+    normal 2o
+    :start
+endfunction
+
 augroup vimwikigroup
   autocmd!
   " do not set syntax to 'vimwiki'
@@ -3212,17 +3304,24 @@ augroup vimwikigroup
   " https://vimtricks.com/p/automated-file-templates/ or read in from file
   " au BufNewFile ~/Documents/notes/diary/*.md
   " or break it out: https://levelup.gitconnected.com/reducing-boilerplate-with-vim-templates-83831f8ced12
-  autocmd BufNewFile ~/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/diary/*.md
-    \ call append(0,[
-    \ "# " . split(expand('%:r'),'/')[-1], "",
-    \ "***POMODORO***",
-    \ "***OPEN FOCUS BAR***",
-    \ "***Visible TODOs***", "",
-    \ "## Daily checklist", "",
-    \ "- [ ] Geekbot", "",
-    \ "## Todo",  "",
-    \ "## Unplanned",  "",
-    \ "## Push",  "",
-    \ "## Near Future",  "",
-    \ "## Notes"])
+  " autocmd BufNewFile ~/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/diary/*.md
+  " autocmd BufNewFile */diary/*.md call InsertDate()
+  " autocmd BufNewFile */diary/*.md
+  "   \ call append(0,[
+  "   \ "# " . split(expand('%:r'),'/')[-1], "",
+  "   \ "***POMODORO***",
+  "   \ "***OPEN FOCUS BAR***",
+  "   \ "***Visible TODOs***", "",
+  "   \ "## Daily checklist", "",
+  "   \ "- [ ] Geekbot", "",
+  "   \ "## Todo",  "",
+  "   \ "## Unplanned",  "",
+  "   \ "## Push",  "",
+  "   \ "## Near Future",  "",
+  "   \ "## Notes"])
 augroup end
+
+" some plugin is stomping this
+set shortmess+=c
+set shortmess+=S
+set shortmess+=F

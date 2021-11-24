@@ -909,6 +909,8 @@ zcomet load zsh-users/zsh-completions
 
 eval "$(pyenv init -)"
 
+source <(stern --completion=zsh)
+
 # fnm
 eval "$(fnm --log-level=quiet env --use-on-cd)"
 
@@ -921,5 +923,3 @@ export PATH="$PATH:/Users/timothy.tyrrell/.local/bin"
 
 # compinit
 zcomet compinit
-
-eval "$(pyenv init -)"
