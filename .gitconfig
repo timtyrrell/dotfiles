@@ -97,6 +97,7 @@
 	singlekey = true
 	diffFilter = delta --color-only
 [merge]
+	conflictstyle = diff3
 	summary = true
 	tool = nvim +Conflicted
 [merge "bundlelock"]

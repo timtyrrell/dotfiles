@@ -19,6 +19,9 @@ fi
 #   compinit -C
 # fi
 
+# use homebrew sqlite install
+export PATH="/usr/local/opt/sqlite/bin:$PATH"
+
 fpath=(
   $fpath
   /usr/local/share/zsh/site-functions
@@ -40,101 +43,6 @@ export LESS=FRX
 # make with the pretty colors
 autoload colors; colors
 
-# Completion for kill-like commands
-# zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
-# zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
-zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
-zstyle ':completion:*:ssh:*' tag-order hosts users
-zstyle ':completion:*:ssh:*' group-order hosts-domain hosts-host users hosts-ipaddr
-
-zstyle ':completion:*:*:docker:*' option-stacking yes
-zstyle ':completion:*:*:docker-*:*' option-stacking yes
-
-# ignore completion functions (until the _ignored completer)
-zstyle ':completion:*:functions' ignored-patterns '_*'
-
-zstyle ':completion:*' accept-exact '*(N)'
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.zshcache
-zstyle ':completion:*' special-dirs true
-
-# disable sort when completing options of any command
-# zstyle ":completion:*:git-checkout:*" sort false
-zstyle ':completion:complete:*:options' sort false
-
-# TODO fix all this: https://superuser.com/questions/265547/zsh-cdpath-and-autocompletion
-# set cd autocompletion to commonly visited directories
-cdpath=($HOME/code/invitae $HOME/code/timtyrrell)
-zstyle ':completion:*:complete:(cd|pushd):*' tag-order 'local-directories named-directories'
-
-# set list-colors to enable filename colorizing
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-# set descriptions format to enable group support
-zstyle ':completion:*:descriptions' format '[%d]'
-
-zstyle ':fzf-tab:*' show-group brief
-zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
-zstyle ':fzf-tab:*' popup-pad 200 200
-# switch group using `,` and `.`
-zstyle ':fzf-tab:*' switch-group ',' '.'
-# use input as query string when completing zlua
-zstyle ':fzf-tab:complete:_zlua:*' query-string input
-
-zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
-  '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
-zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
-
-zstyle ':fzf-tab:*' fzf-bindings 'ctrl-u:preview-half-page-up' 'ctrl-d:preview-half-page-down' 'space:accept' 'alt-k:page-up' 'alt-j:page-down'
-zstyle ':fzf-tab:*' continuous-trigger '/'
-zstyle ':fzf-tab:*' accept-line ctrl-x
-
-local preview_command='
-if [[ -d $realpath ]]; then
-  lsd --color always --icon always --depth 2 --tree $realpath
-elif [[ -f $realpath ]]; then
-  bat --pager=never --color=always --line-range :80 $realpath
-else
-	# "potato"
-	# lesspipe.sh $word | bat --color=always
-	exit 1
-fi
-'
-zstyle ':fzf-tab:complete:*' fzf-preview $preview_command
-# zstyle ':fzf-tab:complete:*.*' fzf-preview $preview_command
-# zstyle ':fzf-tab:complete:*:*' fzf-preview 'less ${(Q)realpath}'
-# export LESSOPEN="|/usr/local/bin/lesspipe.sh %s" LESS_ADVANCED_PREPROCESSOR=1
-
-# zstyle ':fzf-tab:complete:(\\|)run-help:*' fzf-preview 'run-help $word'
-# zstyle ':fzf-tab:complete:(\\|*/|)man:*' fzf-preview 'man $word'
-# zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
-	# fzf-preview 'echo ${(P)word}'
-
-# zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd --color always --icon always --depth 2 --tree $realpath'
-# zstyle ':fzf-tab:complete:git-checkout:argument-rest' fzf-preview '
-# [[ $group == "[recent branches]" || $group == "[local head]" ]] && git log --max-count=3 -p $word | delta
-# '
-# zstyle ':fzf-tab:complete:*' fzf-preview 'less $realpath'
-# zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview 'git diff $word'
-# zstyle -s ':fzf-tab:complete:git-add:*' fzf-preview str
-
-zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
-	'git diff $word'
-zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
-	'git log --color=always $word'
-zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
-	'git help $word | bat -plman --color=always'
-zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
-	'case "$group" in
-	"commit tag") git show --color=always $word ;;
-	*) git show --color=always $word | delta ;;
-	esac'
-zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
-	'case "$group" in
-	"modified file") git diff $word | delta ;;
-	"recent commit object name") git show --color=always $word | delta ;;
-	*) git log --color=always $word ;;
-	esac'
-
 # TODO: replace with https://github.com/jeffreytse/zsh-vi-mode ??
 #vim binding
 bindkey -v
@@ -147,6 +55,35 @@ bindkey '^ ' autosuggest-accept # ctrl + space to accept the current suggestion.
 bindkey '^x' autosuggest-execute # ctrl + x to execute the current suggestion
 
 export KEYTIMEOUT=5 # remove normal/insert mode switch delay
+
+# ci", ci', ci`, di", etc
+autoload -U select-quoted
+zle -N select-quoted
+for m in visual viopp; do
+  for c in {a,i}{\',\",\`}; do
+    bindkey -M $m $c select-quoted
+  done
+done
+
+# ci{, ci(, ci<, di{, etc
+autoload -U select-bracketed
+zle -N select-bracketed
+for m in visual viopp; do
+  for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
+    bindkey -M $m $c select-bracketed
+  done
+done
+
+# ic camelCase motions
+autoload -U select-word-match
+zle -N select-in-camel select-word-match
+zle -N select-a-camel select-word-match
+zstyle ':zle:*-camel' word-style normal-subword
+bindkey -M viopp ic select-in-camel
+
+# i/ and a/ path component motions
+zstyle ':zle:select-*-directory' word-style unspecified
+zstyle ':zle:select-*-directory' word-chars $'/<>=;&| \t\n'
 
 # Change cursor shape for different vi modes.
 function zle-keymap-select {
@@ -328,6 +265,7 @@ export FZF_HEADER_FILES="CTRL-s/ALT-d to select/unselect-all, CTRL-v open in nvi
 export FZF_HEADER_PASTE="CTRL-y to copy into clipboard"
 export FZF_YANK_COMMAND="--bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort'"
 
+# preview cycle window rotate: https://github.com/junegunn/fzf/commit/43f0d0c
 export FZF_HIDE_PREVIEW="--preview-window=:hidden"
 export FZF_SHOW_PREVIEW="
 --preview '([[ -f {} ]] && (bat --style=full --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200'
@@ -661,6 +599,7 @@ alias pactivate='source $(poetry env info --path)/bin/activate'
 # safe
 alias safeauth="safe auth ldap"
 alias safedev="safe target blah dev"
+alias safetst="safe target blah tst"
 alias safestg="safe target blah stg"
 alias safeprd="safe target blah prd"
 
@@ -895,10 +834,107 @@ source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 zcomet load romkatv/powerlevel10k
 zcomet load aloxaf/fzf-tab
 zcomet load sudosubin/zsh-poetry
+zcomet load zsh-vi-more/vi-motions
 zcomet load greymd/docker-zsh-completion
 zcomet load zsh-users/zsh-autosuggestions
 zcomet load zdharma-continuum/fast-syntax-highlighting
 zcomet load zsh-users/zsh-completions
+
+# Completion for kill-like commands
+# zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
+# zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
+zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm -w -w"
+zstyle ':completion:*:ssh:*' tag-order hosts users
+zstyle ':completion:*:ssh:*' group-order hosts-domain hosts-host users hosts-ipaddr
+
+zstyle ':completion:*:*:docker:*' option-stacking yes
+zstyle ':completion:*:*:docker-*:*' option-stacking yes
+
+# ignore completion functions (until the _ignored completer)
+zstyle ':completion:*:functions' ignored-patterns '_*'
+
+zstyle ':completion:*' accept-exact '*(N)'
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zshcache
+zstyle ':completion:*' special-dirs true
+
+# disable sort when completing options of any command
+# zstyle ":completion:*:git-checkout:*" sort false
+zstyle ':completion:complete:*:options' sort false
+
+# TODO fix all this: https://superuser.com/questions/265547/zsh-cdpath-and-autocompletion
+# set cd autocompletion to commonly visited directories
+cdpath=($HOME/code/invitae $HOME/code/timtyrrell)
+zstyle ':completion:*:complete:(cd|pushd):*' tag-order 'local-directories named-directories'
+
+# set list-colors to enable filename colorizing
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# set descriptions format to enable group support
+zstyle ':completion:*:descriptions' format '[%d]'
+
+zstyle ':fzf-tab:*' show-group brief
+zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+zstyle ':fzf-tab:*' popup-pad 200 200
+# switch group using `,` and `.`
+zstyle ':fzf-tab:*' switch-group ',' '.'
+# use input as query string when completing zlua
+zstyle ':fzf-tab:complete:_zlua:*' query-string input
+
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
+  '[[ $group == "[process ID]" ]] && ps --pid=$word -o cmd --no-headers -w -w'
+zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
+
+zstyle ':fzf-tab:*' fzf-bindings 'ctrl-u:preview-half-page-up' 'ctrl-d:preview-half-page-down' 'space:accept' 'alt-k:page-up' 'alt-j:page-down'
+zstyle ':fzf-tab:*' continuous-trigger '/'
+zstyle ':fzf-tab:*' accept-line ctrl-x
+
+local preview_command='
+if [[ -d $realpath ]]; then
+  lsd --color always --icon always --depth 2 --tree $realpath
+elif [[ -f $realpath ]]; then
+  bat --pager=never --color=always --line-range :80 $realpath
+else
+	# "potato"
+	# lesspipe.sh $word | bat --color=always
+	exit 1
+fi
+'
+zstyle ':fzf-tab:complete:*' fzf-preview $preview_command
+# zstyle ':fzf-tab:complete:*.*' fzf-preview $preview_command
+# zstyle ':fzf-tab:complete:*:*' fzf-preview 'less ${(Q)realpath}'
+# export LESSOPEN="|/usr/local/bin/lesspipe.sh %s" LESS_ADVANCED_PREPROCESSOR=1
+
+# zstyle ':fzf-tab:complete:(\\|)run-help:*' fzf-preview 'run-help $word'
+# zstyle ':fzf-tab:complete:(\\|*/|)man:*' fzf-preview 'man $word'
+# zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' \
+	# fzf-preview 'echo ${(P)word}'
+
+# zstyle ':fzf-tab:complete:cd:*' fzf-preview 'lsd --color always --icon always --depth 2 --tree $realpath'
+# zstyle ':fzf-tab:complete:git-checkout:argument-rest' fzf-preview '
+# [[ $group == "[recent branches]" || $group == "[local head]" ]] && git log --max-count=3 -p $word | delta
+# '
+# zstyle ':fzf-tab:complete:*' fzf-preview 'less $realpath'
+# zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview 'git diff $word'
+# zstyle -s ':fzf-tab:complete:git-add:*' fzf-preview str
+
+zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
+	'git diff $word'
+zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
+	'git log --color=always $word'
+zstyle ':fzf-tab:complete:git-help:*' fzf-preview \
+	'git help $word | bat -plman --color=always'
+zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+	'case "$group" in
+	"commit tag") git show --color=always $word ;;
+	*) git show --color=always $word | delta ;;
+	esac'
+zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
+	'case "$group" in
+	"modified file") git diff $word | delta ;;
+	"recent commit object name") git show --color=always $word | delta ;;
+	*) git log --color=always $word ;;
+	esac'
+
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -921,5 +957,5 @@ export SDKMAN_DIR="$HOME/.sdkman"
 # Created by `pipx` on 2021-10-05 19:50:54
 export PATH="$PATH:/Users/timothy.tyrrell/.local/bin"
 
-# compinit
+# Run compinit and compile its cache
 zcomet compinit

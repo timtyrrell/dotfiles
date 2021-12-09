@@ -386,7 +386,6 @@ set sessionoptions-=options
 " don't restore help windows
 set sessionoptions-=help
 " results with those ^: sessionoptions=blank,curdir,folds,tabpages,winsize
-set sessionoptions+=resize,winpos,terminal
 
 " split windows
 nnoremap <C-w>- :new<cr>
@@ -708,7 +707,7 @@ let g:glow_width = 120
 Plug 'weirongxu/plantuml-previewer.vim'
 Plug 'tyru/open-browser.vim'
 " vim .dsl syntax https://github.com/vim/vim/pull/8764
-Plug 'shuntaka9576/preview-swagger.nvim', { 'build': 'yarn install' }
+" Plug 'shuntaka9576/preview-swagger.nvim', { 'build': 'yarn install' }
 " Draw ASCII diagrams in Neovim.
 " Plug 'jbyuki/venn.nvim'
 
@@ -875,6 +874,7 @@ let g:vim_textobj_parameter_mapping = ','
 " a,
 Plug 'Julian/vim-textobj-variable-segment'
 " iv and av for variable segments, snake_case, camelCase, etc
+Plug 'rhysd/vim-textobj-anyblock'
 
 " https://github.com/mlaursen/vim-react-snippets#cheatsheet
 Plug 'mlaursen/vim-react-snippets', { 'branch': 'main' }
@@ -1035,7 +1035,7 @@ Plug 'kevinhwang91/nvim-hlslens'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
-nnoremap <leader>te :Telescope<cr>
+nnoremap <leader>te <cmd>Telescope<cr>
 
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'nvim-telescope/telescope-dap.nvim'
@@ -1046,8 +1046,10 @@ nnoremap <leader>orr <cmd>Octo review resume<cr>
 nnoremap <leader>orb <cmd>Octo review submit<cr>
 
 Plug 'ElPiloto/telescope-vimwiki.nvim'
-nnoremap <leader>vw :Telescope vimwiki<cr>
-nnoremap <leader>vg :Telescope vimwiki live_grep<cr>
+" nnoremap <leader>vw :Telescope vimwiki<cr>
+" nnoremap <leader>vg :Telescope vimwiki live_grep<cr>
+nnoremap <leader>vw <cmd>lua require('telescope').extensions.vimwiki.vimwiki()<cr>
+nnoremap <leader>vg <cmd>lua require('telescope').extensions.vimwiki.live_grep()<cr>
 
 Plug 'nvim-telescope/telescope-node-modules.nvim'
 
@@ -1055,9 +1057,11 @@ Plug 'dhruvmanila/telescope-bookmarks.nvim'
 
 Plug 'xiyaowong/telescope-emoji.nvim'
 " Plug 'nvim-telescope/telescope-symbols.nvim'
+"
+Plug 'TC72/telescope-tele-tabby.nvim'
 
-Plug 'tami5/sqlite.lua'
-Plug 'AckslD/nvim-neoclip.lua'
+" Plug 'tami5/sqlite.lua'
+" Plug 'AckslD/nvim-neoclip.lua'
 
 " Plug 'tami5/sql.nvim'
 " Plug 'nvim-telescope/telescope-frecency.nvim'
@@ -1435,6 +1439,10 @@ require'nvim-tree'.setup {
   }
 }
 
+-- require'nvim-tree.events'.on_nvim_tree_ready(function ()
+--   vim.cmd("NvimTreeRefresh")
+-- end)
+
 require("rest-nvim").setup({
   -- Open request results in a horizontal split
   result_split_horizontal = false,
@@ -1454,10 +1462,6 @@ require("rest-nvim").setup({
   -- Jump to request line on run
   jump_to_request = false,
 })
-
--- require'nvim-tree.events'.on_nvim_tree_ready(function ()
---   vim.cmd("NvimTreeRefresh")
--- end)
 
 require("hop").setup()
 vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
@@ -1532,7 +1536,7 @@ require('telescope').setup {
         ["<C-j>"] = actions.move_selection_next,
         ["<C-k>"] = actions.move_selection_previous,
         ["<esc>"] = actions.close,
-        -- ['\\']    = actions.toggle_preview,
+        -- [""]    = actions.toggle_preview,
         ["<C-n"]  = require('telescope.actions').cycle_history_next,
         ["<C-p>"] = require('telescope.actions').cycle_history_prev,
         ['<c-d>'] = require('telescope.actions').delete_buffer,
@@ -1540,7 +1544,7 @@ require('telescope').setup {
       i = {
         ["<C-j>"] = actions.move_selection_next,
         ["<C-k>"] = actions.move_selection_previous,
-        -- ['\\']    = actions.toggle_preview,
+        -- [""]    = actions.toggle_preview,
         ["<C-n"]  = require('telescope.actions').cycle_history_next,
         ["<C-p>"] = require('telescope.actions').cycle_history_prev,
         ['<c-d>'] = require('telescope.actions').delete_buffer,
@@ -1610,6 +1614,9 @@ require('telescope').setup {
       -- Available: 'brave', 'google_chrome', 'safari', 'firefox', 'firefox_dev'
       selected_browser = 'google_chrome',
     },
+    tele_tabby = {
+      use_highlighter = true,
+    },
   }
 }
 
@@ -1673,30 +1680,30 @@ require("telescope").load_extension("emoji")
 require('telescope').load_extension('ghn')
 require('telescope').load_extension('fzf')
 
-require("telescope").load_extension("neoclip")
-require('neoclip').setup({
-  history = 1000,
-  enable_persistant_history = true,
-  preview = true,
-  keys = {
-    i = {
-      select = '<cr>',
-      paste = '<c-p>',
-      paste_behind = '<c-P>',
-    },
-    n = {
-      select = '<cr>',
-      paste = 'p',
-      paste_behind = 'P',
-    },
-  },
-})
+-- require("telescope").load_extension("neoclip")
+-- require('neoclip').setup({
+--   history = 1000,
+--   enable_persistant_history = true,
+--   preview = true,
+--   keys = {
+--     i = {
+--       select = '<cr>',
+--       paste = '<c-p>',
+--       paste_behind = '<c-P>',
+--     },
+--     n = {
+--       select = '<cr>',
+--       paste = 'p',
+--       paste_behind = 'P',
+--     },
+--   },
+-- })
 
 -- nvim-telescope/telescope-dap.nvim
 -- require('telescope').load_extension('dap')
--- map('n', '<leader>ds', ':Telescope dap frames<CR>')
--- map('n', '<leader>dc', ':Telescope dap commands<CR>')
--- map('n', '<leader>db', ':Telescope dap list_breakpoints<CR>')
+-- map('n', '<leader>ds', '<cmd>lua require'telescope'.extensions.dap.frames{}<CR>')
+-- map('n', '<leader>dc', '<cmd>lua require'telescope'.extensions.dap.commands{}<CR>')
+-- map('n', '<leader>db', '<cmd>lua require'telescope'.extensions.dap.list_breakpoints{}<CR>')
 
 require("octo").setup({
   submit_win = {
@@ -1736,25 +1743,9 @@ require('nvim-treesitter.configs').setup {
   matchup = {
     enable = true,
   },
-  -- incremental_selection = {
-  --   enable = true,
-  --   keymaps = {
-  --     init_selection = "gnn",
-  --     node_incremental = "grn",
-  --     scope_incremental = "grc",
-  --     node_decremental = "grm",
-  --   },
-  -- },
   context_commentstring = {
     enable = true,
   },
-  -- textsubjects = {
-  --     enable = true,
-  --     keymaps = {
-  --         ['.'] = 'textsubjects-smart',
-  --         [';'] = 'textsubjects-container-outer',
-  --     }
-  -- },
   -- textobjects = {
   --   select = {
   --     enable = true,
@@ -1833,7 +1824,8 @@ EOF
 augroup randomstuff
   autocmd!
   " delete all nameless buffers on :qa
-  autocmd QuitPre * Bdelete! nameless
+  " this caused https://github.com/kevinhwang91/nvim-bqf window issues
+  " autocmd QuitPre * Bdelete! nameless
 
   autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if !bufexists("[Command Line]") | checktime | endif
   " highlight cursor position with Beacon on tmux pane move or enter
@@ -2540,9 +2532,22 @@ set signcolumn=auto:5
 " set signcolumn=auto:4-9
 " set signcolumn=yes:8
 
-" use C-j, C-k to move in comletion list
+" use C-j, C-k to move in completion list
 inoremap <expr> <C-j> pumvisible() ? "\<C-n>" : "\<C-j>"
 inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
+
+" also allow <tab>/<s-tab> to move in completion list.
+" <tab> /<s-tab> snippet mappings take precedence
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
 
 " Use <c-space> to trigger completion
 inoremap <silent><expr> <c-space> coc#refresh()
@@ -2678,9 +2683,13 @@ nmap <leader>afo <Plug>(coc-format)
 nmap <leader>oi :<C-u>CocCommand tsserver.organizeImports<cr>
 
 " add prettier command
-:command! -nargs=0 Prettier :CocCommand prettier.formatFile
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
+" Add `:Format` command to format current buffer.
+command! -nargs=0 Format :call CocAction('format')
 " Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call CocActionAsync('fold', <f-args>)
+command! -nargs=? Fold :call CocAction('fold', <f-args>)
+" Add `:OR` command for organize imports of the current buffer.
+command! -nargs=0 OR :call CocActionAsync('runCommand', 'editor.action.organizeImport')
 
 " Map function and class text objects
 xmap if <Plug>(coc-funcobj-i)
@@ -2745,7 +2754,6 @@ set pumheight=20
 " tell coc how to navigate to next snippet placeholder
 let g:coc_snippet_next = '<Tab>'
 let g:coc_snippet_prev = '<S-Tab>'
-" let g:coc_node_path = '/usr/local/bin/node' " use node v14?
 " COC.SNIPPET END
 
 " Do default action for next item.
@@ -2757,11 +2765,11 @@ nnoremap <silent><nowait> <space>k :<C-u>CocPrev<CR>
 command -nargs=0 Swagger :CocCommand swagger.render
 
 " switch diagnostic to float for full message displaty
-" nmap <leader>? :call coc#config('diagnostic.messageTarget', 'echo')<CR>
-" nmap <leader>? :call coc#config('diagnostic.virtualText', v:true)<CR>
-" make it toggle
-" nmap <leader>? :call coc#config('diagnostic.messageTarget', 'float')<CR>
-" nmap <leader>? :call coc#config('diagnostic.virtualText', v:false)<CR>
+" nmap <leader>cf :call coc#config('diagnostic.messageTarget', 'echo')<CR>
+" nmap <leader>cf :call coc#config('diagnostic.virtualText', v:true)<CR>
+" " make it toggle
+" nmap <leader>ct :call coc#config('diagnostic.messageTarget', 'float')<CR>
+" nmap <leader>ct :call coc#config('diagnostic.virtualText', v:false)<CR>
 
 " coc-fzf remappings
 let g:coc_fzf_opts= ['--layout=reverse']
@@ -2830,32 +2838,34 @@ let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.7 } }
 " !^music	inverse-prefix-exact-match	Items that do not start with music
 " !.mp3$	inverse-suffix-exact-match	Items that do not end with .mp3
 
-" nnoremap <leader>ff <cmd>Telescope git_files<cr>
-" nnoremap <leader>ff <cmd>Telescope find_files<cr>
-nnoremap <silent> <Leader>ff :Files<CR>
+" nnoremap <leader>ff <cmd>lua require('telescope.builtin').git_files()<cr>
+" nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
+nnoremap <silent> <Leader>ff <cmd>Files<CR>
 " to set search folder
-nnoremap <Leader>fF :Files<space>
+nnoremap <Leader>fF <cmd>Files<space>
 " nmap <c-a-p> :cd ~/projects<cr>:Files<cr> " airblade/vim-rooter sets the current path and this switches to a new project
+
+nnoremap <silent> <Leader>ft <cmd>lua require('telescope').extensions.tele_tabby.list()<CR>
 
 nnoremap <silent> <Leader>fp :call fzf#vim#files('', { 'source': g:FzfFilesSource(), 'options': '--tiebreak=index'})<CR>
 
-nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
 " nnoremap <Leader>fb :Buffers<CR>
 " let g:fzf_buffers_jump = 1
 
 " Lines in the current buffer
-nnoremap <leader>fB <cmd>Telescope current_buffer_fuzzy_find<cr>
+nnoremap <leader>fB <cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>
 " nnoremap <Leader>fB :BLines<CR>
 
 " live grep exact word match
-" nnoremap <leader>fl <cmd>Telescope live_grep<cr>
+" nnoremap <leader>fl <cmd>lua require('telescope.builtin').live_grep()<cr>
 " live grep fuzzy match
 " nnoremap <leader>fL <cmd>lua require('telescope.builtin')
 "       \ .grep_string({
 "       \   only_sort_text = true,
 "       \   search = ''
 "       \ })<cr>
-nnoremap <silent> <Leader>fl :RgLines<CR>
+nnoremap <silent> <Leader>fl <cmd>RgLines<CR>
 
 " Lines in loaded buffers
 nnoremap <leader>fz <cmd>lua require('telescope.builtin')
@@ -2864,27 +2874,27 @@ nnoremap <leader>fz <cmd>lua require('telescope.builtin')
       \   grep_open_files = true
       \ })<cr>
 nnoremap <silent> <Leader>fL :Lines<CR>
-nnoremap <leader>fh <cmd>Telescope command_history<cr>
+nnoremap <leader>fh <cmd>lua require('telescope.builtin').command_history()<cr>
 " nnoremap <silent> <Leader>fh :HistoryCmds<CR>
 
-nnoremap <leader>fH <cmd>Telescope oldfiles<cr>
+nnoremap <leader>fH <cmd>lua require('telescope.builtin').oldfiles()<cr>
 " nnoremap <silent> <Leader>fH :History<CR>
-nnoremap <leader>fS <cmd>Telescope search_history<cr>
+nnoremap <leader>fS <cmd>lua require('telescope.builtin').search_history()<cr>
 " nnoremap <silent> <Leader>fS :HistorySearch<CR>
-nnoremap <silent> <Leader>fg :Telescope git_status<CR>
+nnoremap <silent> <Leader>fg <cmd>lua require('telescope.builtin').git_status()<cr>
 " nnoremap <silent> <Leader>fg :GFiles?<CR>
-nnoremap <leader>fc <cmd>Telescope git_commits<cr>
+nnoremap <leader>fc <cmd>lua require('telescope.builtin').git_commits()<cr>
 " nnoremap <silent> <Leader>fc :Commits<CR>
-nnoremap <leader>fC <cmd>Telescope git_bcommits<cr>
+nnoremap <leader>fC <cmd>lua require('telescope.builtin').git_bcommits()<cr>
 " nnoremap <silent> <Leader>fC :BCommits<CR>
-nnoremap <leader>fm <cmd>Telescope marks<cr>
+nnoremap <leader>fm <cmd>lua require('telescope.builtin').marks()<cr>
 " nnoremap <silent> <Leader>fm :Marks<CR>
-nnoremap <leader>fM <cmd>Telescope keymaps<cr>
+nnoremap <leader>fM <cmd>lua require('telescope.builtin').keymaps()<cr>
 " nnoremap <silent> <Leader>fM :Maps<CR>
 
-nnoremap <leader>fs <cmd>Telescope spell_suggest<cr>
+nnoremap <leader>fs <cmd>lua require('telescope.builtin').spell_suggest()<cr>
 
-nnoremap <leader>fr <cmd>Telescope resume<cr>
+nnoremap <leader>fr <cmd>lua require('telescope.builtin').resume()<cr>
 
 nnoremap <silent> <leader>bd :BD<CR>
 
