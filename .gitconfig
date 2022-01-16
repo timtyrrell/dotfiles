@@ -36,6 +36,8 @@
 	d = diff
 	se = !git rev-list --all | xargs git grep -F
 	up = pull --rebase origin
+	recent-branches = for-each-ref --sort=committerdate refs/heads/ --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(color:red)%(objectname:short)%(color:reset) - %(contents:subject) - %(authorname) (%(color:green)%(committerdate:relative)%(color:reset))'
+	recent-local-branches = !"git reflog | grep 'checkout:' | head | awk '{print $8}' | awk '!x[$0]++'"
 [branch]
 	autoSetupMerge = always
 	autoSetupRebase = always
@@ -81,8 +83,8 @@
   file-style = bold yellow ul
   hunk-header-decoration-style = yellow box
   line-numbers = true
-  minus-color = "#340001"
-  plus-color = "#012800"
+  minus-color = normal "#340001"
+  plus-color = syntax "#012800"
   whitespace-error-style = 22 reverse
 [fetch]
 	prune = true

@@ -26,10 +26,10 @@
 " CTRL-O  go to [count] Older cursor position in jump list
 " CTRL-I  go to [count] newer cursor position in jump list
 " '.      go to position where last change was made (in current buffer)
-" (			  [count] sentences backward
-" )			  [count] sentences forward
-" {			  [count] paragraphs backward
-" }			  [count] paragraphs forward
+" (			[count] sentences backward
+" )			[count] sentences forward
+" {			[count] paragraphs backward
+" }			[count] paragraphs forward
 " '<			To the first line or character of the last selected Visual area
 " '>			To the last line or character of the last selected Visual area
 " g;			Go to [count] older position in change list.
@@ -71,6 +71,7 @@
 " ". 	    last inserted text
 " ": 	    last executed command
 " "/ 	    last found pattern
+" "Ay       any upper case letter APPENDS to register
 
 """" special register
 " "0      'y' copied text is stored in the nameless register `""`, also `"0`. `c`、`d`、`s`、`x` does not override this register.
@@ -89,7 +90,7 @@ nnoremap c "_c
 nnoremap C "_C
 
 " copy paragraph
-nnoremap cp vap:t'><CR>
+" nnoremap cp vap:t'><CR>
 
 " insert mode paste from the clipboard just like on mac
 inoremap <C-v> <C-r>*
@@ -206,7 +207,7 @@ nnoremap <leader>tc :tabclose<CR>
 nnoremap <leader>tn :tabnew<CR>
 nnoremap <leader>tl :tablast<CR>
 nnoremap <leader>to :tabonly<cr>
-nnoremap <leader>tm :tabmove
+nnoremap <leader>tm :tabmove<Space>
 nnoremap <leader>1 1gt
 nnoremap <leader>2 2gt
 nnoremap <leader>3 3gt
@@ -331,7 +332,6 @@ set virtualedit=block
 set selection=old
 
 set complete-=t " disable searching tags
-nnoremap <silent><leader>vr :call execute('source $MYVIMRC')<cr>:echo 'vim config reloaded!'<cr>
 
 " Toggle spell checking on and off with `,s`
 nmap <silent> <leader>ss :set spell!<CR>
@@ -391,10 +391,15 @@ set sessionoptions-=help
 nnoremap <C-w>- :new<cr>
 nnoremap <C-w><bar> :vnew<cr>
 
+function! InsertFilePath()
+  execute 'normal i'.expand('%:p:h').'/'
+endfunction
+noremap <leader>ef :call InsertFilePath()<CR>
+
 " open :e based on current file path
 noremap <Leader>ep :e <C-R>=expand('%:p:h') . '/' <CR>
 " Opens a new tab with the current buffer's path
-noremap <leader>et :tabedit <C-r>=expand("%:p:h")<CR>/
+noremap <leader>eb :tabedit <C-r>=expand("%:p:h")<CR>/
 " Prompt to open file with same name, different extension
 noremap <leader>er :e <C-R>=expand("%:r")."."<CR>
 
@@ -462,10 +467,10 @@ nnoremap <expr> <CR> &buftype ==# "quickfix" ? "\<CR>" : ":write!<CR>"
 map QQ :qa!<CR>
 map QA :qa<CR>
 cabbrev q! use ZQ
-cabbrev wq use x or ZZ
-cabbrev wq! use x!
-cabbrev wqa use xa
-cabbrev wqa! use xa!
+cabbrev wq use :x or ZZ
+cabbrev wq! use :x!
+cabbrev wqa use :xa
+cabbrev wqa! use :xa!
 
 " speedup :StartTime - :h g:python3_host_prog
 let g:python3_host_prog = '/usr/local/bin/python3'
@@ -512,7 +517,6 @@ let g:coc_global_extensions = [
           \ 'coc-stylelintplus',
           \ 'coc-svg',
           \ 'coc-swagger',
-          \ 'coc-tslint-plugin',
           \ 'coc-tsserver',
           \ 'coc-vimlsp',
           \ 'coc-webpack',
@@ -521,19 +525,6 @@ let g:coc_global_extensions = [
           \ ]
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } } |
            \ Plug 'junegunn/fzf.vim'
-
-" code formatting config
-Plug 'editorconfig/editorconfig-vim'
-let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-
-augroup editconfigcmd
-  autocmd!
-  autocmd FileType gitcommit let b:EditorConfig_disable = 1
-augroup END
-
-" Plug 'plytophogy/vim-virtualenv'
-Plug 'PieterjanMontens/vim-pipenv'
-Plug 'petobens/poet-v'
 
 " buffer management
 Plug 'AndrewRadev/undoquit.vim'
@@ -591,6 +582,19 @@ map <Leader>v<C-l> :VimuxClearTerminalScreen<CR>
 map <Leader>vc :VimuxClearRunnerHistory<CR>
 map <Leader>vx :VimuxInterruptRunner<CR>
 
+" REPL usage
+function! VimuxSlime()
+  call VimuxClearTerminalScreen()
+  call VimuxRunCommand(@v, 0)
+  call VimuxSendKeys("Enter")
+endfunction
+
+" If text is selected, save it in the v buffer and send that buffer it to tmux
+vmap <leader>vs "vy :call VimuxSlime()<CR>
+" Select current paragraph and send it to tmux
+nmap <leader>vs vip<leader>vs<CR>
+nmap <leader>vf ggVG<leader>vs<CR>
+
 " dbs
 Plug 'tpope/vim-dadbod'
 Plug 'kristijanhusak/vim-dadbod-ui'
@@ -603,6 +607,17 @@ Plug 'vim-test/vim-test'
 
 " debugging
 Plug 'mfussenegger/nvim-dap'
+
+" Plug 'plytophogy/vim-virtualenv'
+" Plug 'PieterjanMontens/vim-pipenv'
+" Plug 'petobens/poet-v'
+" ?????????????
+" Figure out the system Python for Neovim.
+if exists("$VIRTUAL_ENV")
+    let g:python3_host_prog=substitute(system("which -a python3 | head -n2 | tail -n1"), "\n", '', 'g')
+else
+    let g:python3_host_prog=substitute(system("which python3"), "\n", '', 'g')
+endif
 Plug 'mfussenegger/nvim-dap-python'
 Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'rcarriga/nvim-dap-ui'
@@ -648,15 +663,14 @@ set list listchars=tab:→\ ,space:⋅,trail:•,nbsp:␣,extends:▶,precedes:�
 " extends:⟩,precedes:⟨,tab:│\ ,eol:, tab:<->
 let g:indent_blankline_char = '▏'
 " let g:indent_blankline_char_list = ['|', '¦', '┆', '┊']
-let g:indent_blankline_filetype_exclude = [ 'startify', 'NvimTree' ]
+let g:indent_blankline_filetype_exclude = [ 'startify', 'NvimTree', 'vim-plug' ]
 let g:indent_blankline_buftype_exclude = ['terminal']
+let g:indent_blankline_bufname_exclude = ['README.md', '.*\.py']
 let g:indent_blankline_show_first_indent_level = v:true
 let g:indent_blankline_show_trailing_blankline_indent = v:false
 let g:indent_blankline_show_current_context = v:true
 let g:indent_blankline_show_current_context_start = v:true
-" let g:indent_blankline_context_patterns = [ 'declaration', 'expression', 'pattern', 'primary_expression', 'statement', 'switch_body', 'jsx_element', 'jsx_self_closing_element', 'import_statement']
-" let g:indent_blankline_context_patterns = [ 'def', 'class', 'return', 'function', 'method', '^if', '^while', 'jsx_element', '^for', '^object', '^table', 'block', 'arguments', 'if_statement', 'else_clause', 'jsx_element', 'jsx_self_closing_element', 'try_statement', 'catch_clause', 'import_statement', 'operation_type' ]
-let g:indent_blankline_context_patterns = [ 'declaration', 'expression', 'pattern', 'primary_expression', 'statement', 'switch_body' ,'def', 'class', 'return', 'function', 'method', '^if', '^while', 'jsx_element', '^for', '^object', '^table', 'block', 'arguments', 'else_clause', '^jsx', 'try_statement', 'catch_clause', 'import_statement', 'operation_type' ]
+let g:indent_blankline_context_patterns = ['declaration', 'expression', 'pattern', 'primary_expression', 'statement', 'switch_body' ,'def', 'class', 'return', '^func', 'method', '^if', 'while', 'jsx_element', 'for', 'object', 'table', 'block', 'arguments', 'else_clause', '^jsx', 'try', 'catch_clause', 'import_statement', 'operation_type', 'with', 'except', 'arguments', 'argument_list', 'dictionary', 'element', 'tuple']
 
 augroup tmuxgroups
   autocmd!
@@ -747,7 +761,20 @@ nmap <leader><leader> :HopWord<cr>
 vmap <leader><leader> :HopWord<cr>
 nmap <leader>/ :HopPattern<cr>
 
+Plug 'ggandor/lightspeed.nvim'
+" nmap <expr> f reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_f" : "f"
+" nmap <expr> F reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_F" : "F"
+" nmap <expr> t reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_t" : "t"
+" nmap <expr> T reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_T" : "T"
+
 Plug 'drmingdrmer/vim-toggle-quickfix'
+
+" quickfix item opening helper
+Plug 'yssl/qfenter'
+let g:qfenter_keymap = {}
+let g:qfenter_keymap.vopen = ['<C-v>']
+let g:qfenter_keymap.hopen = ['<C-s>', '<C-x>']
+let g:qfenter_keymap.topen = ['<C-t>']
 
 Plug 'kevinhwang91/nvim-bqf'
 " https://github.com/kevinhwang91/nvim-bqf#function-table
@@ -758,7 +785,7 @@ Plug 'kevinhwang91/nvim-bqf'
 " > - next quickfix list
 
 " pretty qf
-Plug 'https://gitlab.com/yorickpeterse/nvim-pqf'
+Plug 'https://gitlab.com/yorickpeterse/nvim-pqf.git'
 
 Plug 'christoomey/vim-tmux-navigator'
 " If the tmux window is zoomed, keep it zoomed when moving from Vim to another pane
@@ -858,6 +885,7 @@ Plug 'kana/vim-textobj-user'
 Plug 'kana/vim-textobj-line'
 " adds 'al' and 'il' motions for a line
 " 'il' ignores leading and trailing spaces. 'al' ignoes EOL
+
 Plug 'kana/vim-textobj-indent'
 " ai	<Plug>(textobj-indent-a)
 " ii	<Plug>(textobj-indent-i)
@@ -868,12 +896,17 @@ Plug 'kana/vim-textobj-indent'
 " ik	<Plug>(textobj-key-i)
 " av	<Plug>(textobj-value-a)
 " iv	<Plug>(textobj-value-i)
+
 Plug 'sgur/vim-textobj-parameter'
 let g:vim_textobj_parameter_mapping = ','
 " i,
 " a,
-Plug 'Julian/vim-textobj-variable-segment'
+
 " iv and av for variable segments, snake_case, camelCase, etc
+Plug 'Julian/vim-textobj-variable-segment'
+
+" ib is a union of i(, i{, i[, i', i" and i<
+" ab is a union of a(, a{, a[, a', a" and a<
 Plug 'rhysd/vim-textobj-anyblock'
 
 " https://github.com/mlaursen/vim-react-snippets#cheatsheet
@@ -882,12 +915,11 @@ Plug 'mlaursen/vim-react-snippets', { 'branch': 'main' }
 " review linenumber before jump
 Plug 'nacro90/numb.nvim'
 
-" https://github.com/metakirby5/codi.vim
-Plug 'michaelb/sniprun', {'do': 'bash install.sh'}
-nmap <leader>snr <Plug>SnipRun
-" nmap <leader>sn <Plug>SnipRunOperator
-" vmap sn <Plug>SnipRun
-nmap <leader>snc <Plug>SnipClose
+Plug 'metakirby5/codi.vim'
+let g:codi#aliases = {
+  \ 'javascriptreact': 'javascript',
+  \ 'typescriptreact': 'typescript',
+  \ }
 
 " diff visual selections
 Plug 'andrewradev/linediff.vim'
@@ -1034,6 +1066,7 @@ Plug 'kevinhwang91/nvim-hlslens'
 
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
+Plug 'rcarriga/nvim-notify'
 Plug 'nvim-telescope/telescope.nvim'
 nnoremap <leader>te <cmd>Telescope<cr>
 
@@ -1057,8 +1090,9 @@ Plug 'dhruvmanila/telescope-bookmarks.nvim'
 
 Plug 'xiyaowong/telescope-emoji.nvim'
 " Plug 'nvim-telescope/telescope-symbols.nvim'
-"
+
 Plug 'TC72/telescope-tele-tabby.nvim'
+Plug 'LinArcX/telescope-env.nvim'
 
 " Plug 'tami5/sqlite.lua'
 " Plug 'AckslD/nvim-neoclip.lua'
@@ -1118,10 +1152,15 @@ Plug 'psliwka/vim-smoothie'
 Plug 'Konfekt/FastFold'
 let g:fastfold_savehook = 1
 " Plug 'Jorengarenar/vim-syntaxMarkerFold' ?
+" Plug 'anuvyklack/pretty-fold.nvim'
 
 " no recent updates, try this? https://github.com/edluffy/specs.nvim
 Plug 'danilamihailov/beacon.nvim'
 let g:beacon_ignore_filetypes = ['git', 'startify']
+let g:beacon_show_jumps = 0
+let g:beacon_ignore_buffers = ["Mundo"]
+let g:beacon_focus_gained = 1
+
 if !&diff
   let g:beacon_show_jumps = 0
   let g:beacon_ignore_buffers = [
@@ -1159,15 +1198,18 @@ let g:WebDevIconsOS = 'Darwin'
 Plug 'bryanmylee/vim-colorscheme-icons'
 
 " massive cmdline improvement
-Plug 'gelguy/wilder.nvim', { 'do': ':UpdateRemotePlugins' }
+function! UpdateRemotePlugins(...)
+  " Needed to refresh runtime files
+  let &rtp=&rtp
+  UpdateRemotePlugins
+endfunction
+
+Plug 'gelguy/wilder.nvim', { 'do': function('UpdateRemotePlugins') }
 Plug 'romgrk/fzy-lua-native', { 'do': 'make' }
 Plug 'nixprime/cpsm', { 'do': 'PY3=ON ./install.sh' }
 
 Plug 'itchyny/lightline.vim' |
           \ Plug 'konart/vim-lightline-coc'
-
-" neovim option: https://github.com/goolord/alpha-nvim
-Plug 'mhinz/vim-startify'
 
 Plug 'folke/tokyonight.nvim'
 " Plug 'EdenEast/nightfox.nvim'
@@ -1200,8 +1242,8 @@ Plug 'airblade/vim-rooter'
 let g:rooter_patterns = ['!.git/worktrees', '.git', 'Makefile']
 " trigger by symlinks, also
 let g:rooter_resolve_links = 1
-" to stop echo on change
-" let g:rooter_silent_chdir = 1
+" to stop echo on change **KEEP ON**, echoes filename to cmdline
+let g:rooter_silent_chdir = 1
 
 " life
 Plug 'dstein64/vim-startuptime'
@@ -1267,6 +1309,21 @@ Plug 'folke/which-key.nvim'
 " bugfix
 " fix CursorHold perf bug
 Plug 'antoinemadec/FixCursorHold.nvim'
+
+" typescript fork of 'ianding1/leetcode.vim'
+Plug 'briemens/leetcode.vim'
+let g:leetcode_solution_filetype='typescript'
+let g:leetcode_username='timtyrrell'
+let g:leetcode_browser='firefox'
+let g:leetcode_problemset='algorithms'
+let g:leetcode_hide_paid_only=1
+let g:leetcode_hide_topics=1
+let g:leetcode_hide_companies=1
+nnoremap <leader>ll :LeetCodeList<cr>
+nnoremap <leader>lt :LeetCodeTest<cr>
+nnoremap <leader>ls :LeetCodeSubmit<cr>
+nnoremap <leader>li :LeetCodeSignIn<cr>
+nnoremap <leader>lr :LeetCodeReset<cr>
 
 call plug#end()
 
@@ -1406,10 +1463,10 @@ require('auto-session').setup {
   auto_save_enabled = true,
   auto_restore_enabled = true,
   auto_session_suppress_dirs = {'~/', '~/code'},
-  pre_save_cmds = {"tabdo NvimTreeClose", "Bdelete! nameless"}
+  pre_save_cmds = {"lua require'nvim-tree'.setup()", "tabdo NvimTreeClose", "Bdelete! nameless"}
 }
 
-require'nvim-tree'.setup {
+require('nvim-tree').setup {
   disable_netrw       = false,
   hijack_netrw        = false,
   ignore_ft_on_setup  = {"startify"},
@@ -1469,7 +1526,6 @@ vim.api.nvim_set_keymap('x', 'f', "<cmd>lua require'hop'.hint_char1({ direction 
 vim.api.nvim_set_keymap('n', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
 vim.api.nvim_set_keymap('x', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
 
--- example in docs
 vim.api.nvim_set_keymap('o', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
 vim.api.nvim_set_keymap('o', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
 
@@ -1678,7 +1734,7 @@ require('telescope').load_extension('fzf')
 require('telescope').load_extension('bookmarks')
 require("telescope").load_extension("emoji")
 require('telescope').load_extension('ghn')
-require('telescope').load_extension('fzf')
+require('telescope').load_extension('env')
 
 -- require("telescope").load_extension("neoclip")
 -- require('neoclip').setup({
@@ -1714,20 +1770,14 @@ require("octo").setup({
     },
 })
 
+-- treesitter markdown parser with octo buffers
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+parser_config.markdown.used_by = "octo"
+
 require('numb').setup {
    show_numbers = true, -- Enable 'number' for the window while peeking
    show_cursorline = true -- Enable 'cursorline' for the window while peeking
 }
-
-require('sniprun').setup({
-  display = {
-    "VirtualTextOk",              -- "display ok results as virtual text (multiline is shortened)
-    "VirtualTextErr",          -- "display error results as virtual text
-    -- "TempFloatingWindow",      -- "display results in a floating window
-    "LongTempFloatingWindow",  -- "same as above, but only long results. To use with VirtualText__
-    --"Terminal"                 -- "display results in a vertical split
-  },
-})
 
 require('nvim-treesitter.configs').setup {
   ensure_installed = "maintained",
@@ -1828,8 +1878,6 @@ augroup randomstuff
   " autocmd QuitPre * Bdelete! nameless
 
   autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if !bufexists("[Command Line]") | checktime | endif
-  " highlight cursor position with Beacon on tmux pane move or enter
-  autocmd FocusGained * :Beacon
   " Make it so that if files are changed externally (ex: changing git branches) update the vim buffers automatically
   autocmd FileChangedShellPost *
     \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
@@ -1841,6 +1889,7 @@ augroup randomstuff
   " autocmd BufRead,BufNewFile */graphql/queries/*.js set syntax=graphql
   autocmd BufNewFile,BufRead .eslintrc,.prettierrc,.lintstagedrc set filetype=jsonc
   autocmd BufNewFile,BufRead *.build,.env* set filetype=sh
+  autocmd BufNewFile,BufRead *.template set filetype=nginx
   " per reddit, Vim doesn't have an autocommand for graphql files. You will have to manually add this line to your config - not sure if needed
   autocmd BufRead,BufNewFile *.graphql,*.graphqls,*.gql setfiletype graphql
 augroup END
@@ -2365,6 +2414,8 @@ let g:lightline.colorscheme = 'tokyonight'
 " register compoments:
 call lightline#coc#register()
 
+nnoremap <silent><leader>vr <cmd>call execute('source $MYVIMRC')<cr><cmd>lua require('notify')('vim config reloaded!')<cr>
+
 lua << EOF
 -- mfussenegger/nvim-dap
 local dap = require('dap')
@@ -2436,6 +2487,18 @@ require("dapui").setup({
   windows = { indent = 1 },
 })
 
+-- use nvim-dap events to open and close the windows automatically
+local dap, dapui = require("dap"), require("dapui")
+dap.listeners.after.event_initialized["dapui_config"] = function()
+  dapui.open()
+end
+dap.listeners.before.event_terminated["dapui_config"] = function()
+  dapui.close()
+end
+dap.listeners.before.event_exited["dapui_config"] = function()
+  dapui.close()
+end
+
 -- David-Kunz/jester
 vim.api.nvim_set_keymap('n', '<leader>td', ':lua require"jester".debug({ path_to_jest = "node_modules/.bin/jest" })<cr>', {})
 -- vim.api.nvim_set_keymap('n', '<leader>t_', ':lua require"jester".run_last({ cmd = "./node_modules/.bin/jest -t '$result' -- $file" })<cr>', {})
@@ -2490,6 +2553,7 @@ nnoremap <leader>dn  :lua require'dap'.continue()<CR>
 nnoremap <leader>d_  :lua require'dap'.disconnect();require"dap".close();require"dap".run_last()<CR>
 
 nnoremap <leader>dbc :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+nnoremap <leader>dbx :lua require'dap'.clear_breakpoints()<CR>
 nnoremap <leader>dbm :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
 nnoremap <leader>dso :lua require'dap'.step_out()<CR>
 nnoremap <leader>dsi :lua require'dap'.step_into()<CR>
@@ -2520,11 +2584,29 @@ set updatetime=100
 set cmdheight=2
 
 " Don't pass messages to |ins-completion-menu|.
-" set shortmess+=c
-" set shortmess+=S
-" set shortmess+=F
+set shortmess+=c
+set shortmess+=S
+set shortmess+=F
 " shortmess=filnxtToOFsIc
 " shortmess=aoOcSF
+
+" wilder workaround based on https://github.com/neovim/neovim/issues/14304
+function! SetShortmessF(on) abort
+  if a:on
+    set shortmess+=F
+  else
+    set shortmess-=F
+  endif
+  return ''
+endfunction
+
+nnoremap <expr> : SetShortmessF(1) . ':'
+
+augroup WilderShortmessFix
+  autocmd!
+  autocmd CmdlineLeave * call SetShortmessF(0)
+augroup END
+" wilder workaround based on https://github.com/neovim/neovim/issues/14304
 
 " leave space for git, diagnostics and marks
 set signcolumn=auto:5
@@ -2555,30 +2637,6 @@ inoremap <silent><expr> <c-space> coc#refresh()
 " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
 " position. Coc only does snippet and additional edit on confirm.
 inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-" https://github.com/yarnpkg/berry/pull/2598 or use zip file
-" yarn 2 pnp goto definition support
-function! OpenZippedFile(f)
-  " get number of new (empty) buffer
-  let l:b = bufnr('%')
-  " construct full path
-  let l:f = substitute(a:f, '.zip/', '.zip::', '')
-  let l:f = substitute(l:f, '/zip:', 'zipfile:', '')
-
-  " swap back to original buffer
-  b #
-  " delete new one
-  exe 'bd! ' . l:b
-  " open buffer with correct path
-  sil exe 'e ' . l:f
-  " read in zip data
-  call zip#Read(l:f, 1)
-endfunction
-
-augroup yarngroup
-  autocmd!
-  autocmd BufReadCmd /zip:*.yarn/cache/*.zip/* call OpenZippedFile(expand('<afile>'))
-augroup END
 
 " Use `[g` and `]g` to navigate diagnostics
 " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
@@ -2630,7 +2688,7 @@ augroup CocGroup
   autocmd User CocLocationsChange ++nested call s:coc_qf_jump2loc(g:coc_jump_locations)
 
   " disable autocomplete for vimwiki, ctrl+space to trigger in insert mode
-  autocmd FileType vimwiki let b:coc_suggest_disable = 1
+  " autocmd FileType vimwiki let b:coc_suggest_disable = 1
   " have snippets complete, only? mess with this: https://github.com/neoclide/coc.nvim/blob/804a007033bd9506edb9c62b4e7d2b36203ba479/doc/coc.txt#L908
 
   " close preview when completion is done
@@ -2685,7 +2743,8 @@ nmap <leader>oi :<C-u>CocCommand tsserver.organizeImports<cr>
 " add prettier command
 command! -nargs=0 Prettier :CocCommand prettier.formatFile
 " Add `:Format` command to format current buffer.
-command! -nargs=0 Format :call CocAction('format')
+command! -nargs=0 Format :call CocActionAsync('format')
+
 " Add `:Fold` command to fold current buffer.
 command! -nargs=? Fold :call CocAction('fold', <f-args>)
 " Add `:OR` command for organize imports of the current buffer.
@@ -2802,6 +2861,30 @@ function! CopyFloatText() abort
     call win_gotoid(id)
   endif
 endfunction
+
+" https://github.com/yarnpkg/berry/pull/2598 or use zip file
+" yarn 2 pnp goto definition support
+function! OpenZippedFile(f)
+  " get number of new (empty) buffer
+  let l:b = bufnr('%')
+  " construct full path
+  let l:f = substitute(a:f, '.zip/', '.zip::', '')
+  let l:f = substitute(l:f, '/zip:', 'zipfile:', '')
+
+  " swap back to original buffer
+  b #
+  " delete new one
+  exe 'bd! ' . l:b
+  " open buffer with correct path
+  sil exe 'e ' . l:f
+  " read in zip data
+  call zip#Read(l:f, 1)
+endfunction
+
+augroup yarngroup
+  autocmd!
+  autocmd BufReadCmd /zip:*.yarn/cache/*.zip/* call OpenZippedFile(expand('<afile>'))
+augroup END
 
 " ack.vim
 let g:ackprg = 'rg --vimgrep'
@@ -3102,77 +3185,8 @@ command! -nargs=+ FindAndReplaceAll call FindAndReplace(<f-args>)
 " nmap  S  :%s//g<LEFT><LEFT>
 " nmap <expr>  M  ':%s/' . @/ . '//g<LEFT><LEFT>'
 
-" startify
-
-" disable tab name for startify, enable for all the rest
-augroup StartifyTypes
-  autocmd!
-  autocmd FileType * set showtabline=2
-  autocmd FileType startify setlocal showtabline=0
-  " remap o to open
-  autocmd User Startified nmap <buffer> o <plug>(startify-open-buffers)
-augroup END
-
-function ConcatDevIcon(path)
-  return WebDevIconsGetFileTypeSymbol(a:path) ." ". a:path
-endfunction
-
-" returns all modified files of the current git repo
-function! s:gitModified()
-  let files = systemlist('git ls-files -m 2>/dev/null')
-  return map(files, "{'line': ConcatDevIcon(v:val), 'path': v:val}")
-endfunction
-
-" same as above, but show untracked files, honoring .gitignore
-function! s:gitUntracked()
-  let files = systemlist('git ls-files -o --exclude-standard 2>/dev/null')
-  return map(files, "{'line': ConcatDevIcon(v:val), 'path': v:val}")
-endfunction
-
-" when opening file from screen, keep vcs root as dir
-let g:startify_change_to_vcs_root = 1
-let g:webdevicons_enable_startify = 1
-let g:startify_enable_special = 0 " don't show <empty buffer> and <quit>.
-let g:startify_session_autoload = 1
-let g:startify_lists = [
-        \ { 'type': function('s:gitModified'),  'header': ['   git ✹modified✹']},
-        \ { 'type': function('s:gitUntracked'), 'header': ['   git ✭untracked✭']},
-        \ { 'type': 'sessions',  'header': ['   Sessions']       },
-        \ { 'type': 'bookmarks', 'header': ['   Bookmarks']      },
-        \ { 'type': 'commands',  'header': ['   Commands']       },
-        \ ]
-
-let g:ascii = [
-        \ "           *     ,MMM8&&&.            *     ",
-        \ "                MMMM88&&&&&    .            ",
-        \ "               MMMM88&&&&&&&                ",
-        \ "   *           MMM88&&&&&&&&                ",
-        \ "               MMM88&&&&&&&&                ",
-        \ "               'MMM88&&&&&&'                ",
-        \ "                 'MMM8&&&'      *           ",
-        \ "        |\\___/|                            ",
-        \ "        )     (             .              '",
-        \ "       =\\     /=                           ",
-        \ "         )===(       *                      ",
-        \ "        /     \\                            ",
-        \ "        |     |                             ",
-        \ "       /       \\                           ",
-        \ "       \\       /                           ",
-        \ "_/\\_/\\_/\\__ __/_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_/\\_",
-        \ "|  |  |  |( (  |  |  |  |  |  |  |  |  |  | ",
-        \ "|  |  |  | ) ) |  |  |  |  |  |  |  |  |  | ",
-        \ "|  |  |  |(_(  |  |  |  |  |  |  |  |  |  | ",
-        \ "|  |  |  |  |  |  |  |  |  |  |  |  |  |  | ",
-        \ "|  |  |  |  |  |  |  |  |  |  |  |  |  |  | ",
-        \ ]
-let g:startify_custom_header = startify#center(g:ascii)
-
 " Disable tmux navigator when zooming the Vim pane
 let g:tmux_navigator_disable_when_zoomed = 1
-
-" beacon
-let g:beacon_show_jumps = 0
-let g:beacon_ignore_buffers = ["Mundo"]
 
 " add motions for words_like_this, etc
 " i_ i. i: i, i; i| i/ i\ i* i+ i- i#
@@ -3211,7 +3225,6 @@ nnoremap <leader>bg :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") 
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
 " vimwiki & friends
-
 let g:vim_markdown_new_list_item_indent = 0
 let g:vim_markdown_auto_insert_bullets = 1
 let g:vim_markdown_conceal = 0
@@ -3219,6 +3232,10 @@ let g:vim_markdown_conceal_code_blocks = 0
 let g:vimwiki_hl_headers = 1 " highlight headers with different colors
 let g:vimwiki_hl_cb_checked = 2 " highlight completed tasks and line
 let g:vim_markdown_fenced_languages = ['viml=vim', 'bash=sh', 'javascript=js']
+" let g:vimwiki_url_maxsave = 0 " display full url path
+
+" fix `gx` command https://github.com/plasticboy/vim-markdown/issues/372#issuecomment-394237720
+nnoremap <Plug> <Plug>Markdown_OpenUrlUnderCursor
 
 " trying to make markdown snippets work
 " let g:vimwiki_table_mappings=0
@@ -3330,8 +3347,3 @@ augroup vimwikigroup
   "   \ "## Near Future",  "",
   "   \ "## Notes"])
 augroup end
-
-" some plugin is stomping this
-set shortmess+=c
-set shortmess+=S
-set shortmess+=F

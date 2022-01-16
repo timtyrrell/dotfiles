@@ -39,6 +39,8 @@ export LC_CTYPE=en_US.UTF-8
 
 # set for git delta, iirc
 export LESS=FRX
+# telescope and less? https://github.com/nvim-telescope/telescope.nvim/issues/253#issuecomment-730071741
+# export LESS=iMRS
 
 # make with the pretty colors
 autoload colors; colors
@@ -54,7 +56,8 @@ bindkey  "^[[F"   end-of-line # End key
 bindkey '^ ' autosuggest-accept # ctrl + space to accept the current suggestion. right arrow or EOL, also works
 bindkey '^x' autosuggest-execute # ctrl + x to execute the current suggestion
 
-export KEYTIMEOUT=5 # remove normal/insert mode switch delay
+# remove normal/insert mode switch delay
+export KEYTIMEOUT=5
 
 # ci", ci', ci`, di", etc
 autoload -U select-quoted
@@ -111,18 +114,21 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000000
 SAVEHIST=10000000
 
-# options https://gist.github.com/mattmc3/c490d01751d6eb80aa541711ab1d54b1#file-1-setopts-zsh-L50
-setopt inc_append_history         # sessions will append their history list to the history file
+# options https://gist.github.com/mattmc3/c490d01751d6eb80aa541711ab1d54b1
+setopt inc_append_history      # write to the history file immediately, not when the shell exits
 setopt always_to_end
-# setopt appendhistory         # sessions will append their history list to the history file
-setopt extendedglob          # Treat the ‘#’, ‘~’ and ‘^’ characters as part of filename
-setopt auto_cd               # if a command isn't valid, but is a directory, cd to that dir
-setopt nonomatch             # tell zsh to pass the unevaluated argument like bash
-setopt interactivecomments   # Allow comments even in interactive shells.
-setopt hist_ignore_all_dups  # Delete old recorded entry if new entry is a duplicate
+setopt extendedglob            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of filename
+setopt auto_cd                 # if a command isn't valid, but is a directory, cd to that dir
+setopt nonomatch               # tell zsh to pass the unevaluated argument like bash
+setopt interactivecomments     # Allow comments even in interactive shells.
+setopt hist_ignore_all_dups    # Delete old recorded entry if new entry is a duplicate
+setopt hist_ignore_dups        # don't record an event that was just recorded again
+setopt hist_ignore_space       # don't record an event starting with a space
+setopt hist_reduce_blanks      # remove superfluous blanks from each command line being added to the history list
+setopt hist_save_no_dups       # don't write a duplicate event to the history file
 # setopt share_history         # Share history between all sessions.
-setopt prompt_subst          # parameter expansion, command substitution and arithmetic expansion are performed in prompts
-setopt auto_resume            # attempt to resume existing job before creating a new process
+setopt prompt_subst            # parameter expansion, command substitution and arithmetic expansion are performed in prompts
+setopt auto_resume             # attempt to resume existing job before creating a new process (vim!)
 
 # don't append failed command to ~/.zsh_history
 zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }
@@ -161,70 +167,6 @@ if [ -z "$TMUX" ]; then
   bindkey -M vicmd "^Z" fg-widget
   bindkey -M viins "^Z" fg-widget
 fi
-
-# fg () {
-#   _CMD=$(jobs -l | grep nvim | awk '{print $3}');
-#   echo _CMD
-    # echo $1
-    # if [[ "nvim" == "$1" ]]; then
-    #     _CMD=$(ps -o cmd --no-headers $(jobs -l | awk '/\[[0-9]\]\+/{print $2}'));
-    # else
-    #     _CMD=$(ps -o cmd --no-headers $(jobs -l | awk '/\['$1'\]/{print $2}'));
-    # fi;
-    # title $(basename $(echo $_CMD | awk '{print $1}')) "$_CMD";
-    # unset _CMD;
-    # builtin fg $*;
-# }
-
-# fkill: npm install --global fkill-cli
-fkill_full() {
-    local pid
-    if [ "$UID" != "0" ]; then
-        pid=$(ps -f -u $UID | sed 1d | fzf-tmux -p 90%,90% --ansi --multi --preview-window=:hidden | awk '{print $2}')
-    else
-        pid=$(ps -ef | sed 1d | fzf-tmux -p 90%,90% --ansi --multi --preview-window=:hidden | awk '{print $2}')
-    fi
-
-    if [ "x$pid" != "x" ]
-    then
-        echo $pid | xargs kill -${1:-9}
-    fi
-}
-
-# find-in-file - usage: fif <SEARCH_TERM>
-fif() {
-  if [ ! "$#" -gt 0 ]; then
-    echo "Need a string to search for!";
-    return 1;
-  fi
-
-  rg --files-with-matches --no-messages "$1" | fzf-tmux -p 90%,90% --preview "rg --ignore-case --pretty --context 10 '$1' {}"
-}
-
-gcr() {
-  git checkout -b $1 origin/$1
-}
-
-# do instead? https://github.com/tpope/vim-rhubarb/commit/964d48f
-git() {
-  if command -v hub >/dev/null; then
-    command hub "$@"
-  else
-    command git "$@"
-  fi
-}
-
-function tree-git-ignore {
-    # tree respecting gitignore
-
-    local ignored=$(git ls-files -ci --others --directory --exclude-standard)
-    local ignored_filter=$(echo "$ignored" \
-                    | egrep -v "^#.*$|^[[:space:]]*$" \
-                    | sed 's~^/~~' \
-                    | sed 's~/$~~' \
-                    | tr "\\n" "|")
-    tree --prune -I ".git|${ignored_filter: : -1}" "$@"
-}
 
 # default apps
 # I have no idea why I have to unset this but otherwise I don't get LESS paging
@@ -316,486 +258,14 @@ _fzf_compgen_dir() {
   fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
-# directly executing the command (CTRL-X CTRL-R)
-fzf-history-widget-accept() {
-  fzf-history-widget
-  zle accept-line
-}
-zle     -N     fzf-history-widget-accept
-# bindkey '^X^R' fzf-history-widget-accept
+# zle -N kube-toggle
+# bindkey '^]' kube-toggle  # ctrl-] to toggle kubecontext in powerlevel10k prompt
 
-in_tmux () {
-  if [ -n "$TMUX" ]; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-# tm - create new tmux session, or switch to existing one. Works from within tmux too
-# `tm` will allow you to select your tmux session via fzf.
-# `tm irc` will attach to the irc session (if it exists), else it will create it.
-tm() {
-  [[ -n "$TMUX" ]] && change="switch-client" || change="attach-session"
-  if [ $1 ]; then
-    tmux $change -t "$1" 2>/dev/null || (tmux new-session -d -s $1 && tmux $change -t "$1"); return
-  fi
-  session=$(tmux list-sessions -F "#{session_name}" 2>/dev/null | fzf-tmux -p 90%,90% -preview-window=:hidden --exit-0) &&  tmux $change -t "$session" || echo "No sessions found."
-}
-
-tmt() {
-  if [[ -z "$TMUX" ]]; then
-    tmux attach -t "$session_name"
-  else
-    tmux switch-client -t "$session_name"
-  fi
-}
-
-# fs() {
-# local -r fmt='#{session_id}:|#S|(#{session_attached} attached)'
-# { tmux display-message -p -F "$fmt" && tmux list-sessions -F "$fmt"; } \
-#   | awk '!seen[$1]++' \
-#   | column -t -s'|' \
-#   | fzf -q '$' --reverse --prompt 'switch session: ' -1 \
-#   | cut -d':' -f1 \
-#   | xargs tmux switch-client -t
-# }
-
-# would need to do a workaround like: https://newbedev.com/errors-from-whatis-command-unable-to-rebuild-database-with-makewhatis
-# fman() {
-#   man -k . | fzf-tmux -p 90%,90% -preview-window=:hidden --prompt='Man> ' | awk '{print $1}' | xargs -r man
-# }
-
-# fman() {
-#   man -k . | fzf -q "$1" --prompt='man> '  --preview $'echo {} | tr -d \'()\' | awk \'{printf "%s ", $2} {print $1}\' | xargs -r man | col -bx | bat -l man -p --color always' | tr -d '()' | awk '{printf "%s ", $2} {print $1}' | xargs -r man
-# }
-# Get the colors in the opened man page itself
-# export MANPATH="/usr/share/man"
-# export MANPAGER="sh -c 'col -bx | bat -l man -p --paging always'"
-
-# fstash - easier way to deal with stashes
-# enter shows you the contents of the stash
-# ctrl-d shows a diff of the stash against your current HEAD
-# ctrl-b checks the stash out as a branch, for easier merging
-fstash() {
-  local out q k sha
-  while out=$(
-    git stash list --pretty="%C(yellow)%h %>(14)%Cgreen%cr %C(blue)%gs" |
-    fzf-tmux -p 90%,90% --ansi --no-sort --query="$q" --print-query \
-        --expect=ctrl-d,ctrl-b);
-  do
-    mapfile -t out <<< "$out"
-    q="${out[0]}"
-    k="${out[1]}"
-    sha="${out[-1]}"
-    sha="${sha%% *}"
-    [[ -z "$sha" ]] && continue
-    if [[ "$k" == 'ctrl-d' ]]; then
-      git diff $sha
-    elif [[ "$k" == 'ctrl-b' ]]; then
-      git stash branch "stash-$sha" $sha
-      break;
-    else
-      git stash show -p $sha
-    fi
-  done
-}
-
-# fgst - pick files from `git status -s`
-is_in_git_repo() {
-  git rev-parse HEAD > /dev/null 2>&1
-}
-
-fgst() {
-  is_in_git_repo || return
-
-  local cmd="${FZF_CTRL_T_COMMAND:-"command git status -s"}"
-
-  eval "$cmd" | FZF_DEFAULT_OPTS="--height ${FZF_TMUX_HEIGHT:-40%} --reverse $FZF_DEFAULT_OPTS $FZF_CTRL_T_OPTS" fzf -m "$@" | while read -r item; do
-    echo "$item" | awk '{print $2}'
-  done
-  echo
-}
-
-# quick rebase with origin
-function greb() {
-  REMOTE=${1:-main}
-  git fetch origin && git rebase origin/${REMOTE}
-}
-
-# USAGE:
-# git fixup
-# git rebase -i master --autosquash
-# https://fle.github.io/git-tip-keep-your-branch-clean-with-fixup-and-autosquash.html
-
-function git-fixup () {
-  git log --oneline -n 20 | fzf-tmux -p 90%,90% | cut -f 1 | xargs git commit --no-verify --fixup
-}
-
-# Install (one or multiple) selected application(s)
-# using "brew search" as source input
-# mnemonic [B]rew [I]nstall [P]lugin
-bip() {
-  local inst=$(brew search | fzf-tmux -p 90%,90% -m)
-
-  if [[ $inst ]]; then
-    for prog in $(echo $inst);
-    do; brew install $prog; done;
-  fi
-}
-# Update (one or multiple) selected application(s)
-# mnemonic [B]rew [U]pdate [P]lugin
-bup() {
-  local upd=$(brew leaves | fzf-tmux -p 90%,90% -m)
-
-  if [[ $upd ]]; then
-    for prog in $(echo $upd);
-    do; brew upgrade $prog; done;
-  fi
-}
-# Delete (one or multiple) selected application(s)
-# mnemonic [B]rew [C]lean [P]lugin (e.g. uninstall)
-bcp() {
-  local uninst=$(brew leaves | fzf-tmux -p 90%,90% -m)
-
-  if [[ $uninst ]]; then
-    for prog in $(echo $uninst);
-    do; brew uninstall $prog; done;
-  fi
-}
-
-# fbr - checkout git branch (including remote branches), sorted by most recent commit, limit 30 last branches
-fbr() {
-  local branches branch
-  branches=$(git for-each-ref --count=30 --sort=-committerdate refs/heads/ --format="%(refname:short)") &&
-  branch=$(echo "$branches" |
-           fzf-tmux -p 90%,90% -preview-window=:hidden) &&
-  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
-}
-
-alias glNoGraph='git log --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr% C(auto)%an" "$@"'
-_gitLogLineToHash="echo {} | grep -o '[a-f0-9]\{7\}' | head -1"
-_viewGitLogLine="$_gitLogLineToHash | xargs -I % sh -c 'git show --color=always % | diff-so-fancy'"
-
-# fcoc_preview - checkout git commit with previews
-fcoc_preview() {
-  local commit
-  commit=$( glNoGraph |
-    fzf-tmux -p 90%,90% --no-sort --reverse --tiebreak=index --no-multi \
-        --ansi --preview="$_viewGitLogLine" ) &&
-  git checkout $(echo "$commit" | sed "s/ .*//")
-}
-
-# fshow_preview - git commit browser with previews
-fshow_preview() {
-    glNoGraph |
-        fzf-tmux -p 90%,90% --no-sort --reverse --tiebreak=index --no-multi \
-            --ansi --preview="$_viewGitLogLine" \
-                --header "enter to view, alt-y to copy hash" \
-                --bind "enter:execute:$_viewGitLogLine   | less -R" \
-                --bind "alt-y:execute:$_gitLogLineToHash | xclip"
-}
-
-# fco_preview - checkout git branch/tag, with a preview showing the commits between the tag/branch and HEAD
-fco_preview() {
-  local tags branches target
-  branches=$(
-    git --no-pager branch --all \
-      --format="%(if)%(HEAD)%(then)%(else)%(if:equals=HEAD)%(refname:strip=3)%(then)%(else)%1B[0;34;1mbranch%09%1B[m%(refname:short)%(end)%(end)" \
-    | sed '/^$/d') || return
-  tags=$(
-    git --no-pager tag | awk '{print "\x1b[35;1mtag\x1b[m\t" $1}') || return
-  target=$(
-    (echo "$branches"; echo "$tags") |
-    fzf-tmux -p 90%,90% --no-hscroll --no-multi -n 2 \
-        --ansi --preview="git --no-pager log -150 --pretty=format:%s '..{2}'") || return
-  git checkout $(awk '{print $2}' <<<"$target" )
-}
-
-# change all these with these
-git_reset_hard_remote() {
-  local commit
-  commit=$( git branch --show-current ) &&
-  git reset --hard origin/$(echo "$commit")
-}
-
-git_reset_hard_local() {
-  local commit
-  commit=$( git branch --show-current ) &&
-  git reset --hard $(echo "$commit")
-}
-
-# checkout existing branch otherwise create new branch
-gcob() {
-	BRANCH=$1
-	ARGS=$2
-
-  if [ "$BRANCH" = "" ] ||
-		 [ "$BRANCH" = "-" ]; then
-    git checkout $BRANCH
-	elif [ "$BRANCH $ARGS" = "-- ." ]; then
-    git checkout -- .
-  else
-    git checkout $(git show-ref --verify --quiet refs/heads/$BRANCH || echo '-b') $BRANCH
-  fi
-}
-
-gpull() {
-  if [ $# -eq 0 ]
-    then
-      BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
-    else
-      BRANCH=${1}
-  fi
-  git pull origin "${BRANCH}"
-}
-
-gpush() {
-  BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
-  git push -u origin "${BRANCH}"
-}
-
-# aliases
-alias ls='lsd'
-alias ll='ls -l'
-alias la='ls -a'
-alias lla='ls -la'
-alias lt='ls --tree'
-alias lart='ls -lart'
-alias md='mkdir -p'
-alias rd='rmdir'
-alias tree='tree-git-ignore'
-alias cl='clear'
-
-#vim
-alias vi='nvim'
-alias vim='nvim'
-alias n='nvim'
-alias wl='watchman watch-list'
-alias wda='watchman watch-del-all'
-
-# tmux
-alias tmn='tmux new -s'
-alias tma='tmux attach -t'
-alias tms='tmux switch-client -t'
-alias tmls='tmux ls'
-alias tag='ta ~/code/invitae'
-alias tkill="for s in \$(tmux list-sessions | awk '{print \$1}' | rg ':' -r '' | fzf); do tmux kill-session -t \$s; done;"
-# alias tkill=tmux display-popup -E "for s in \$(tmux list-sessions | awk '{print \$1}' | rg ':' -r '' | fzf); do tmux kill-session -t \$s; done;"
-
-# docker
-alias dc='docker-compose'
-alias dcu='docker-compose up'
-alias dcd='docker-compose down'
-alias dcps='docker-compose ps'
-alias kt='kubetail'
-alias ks='stern -l'
-alias kctx='kubectx'
-alias kns='kubens'
-
-# python
-alias pactivate='source $(poetry env info --path)/bin/activate'
-
-# safe
-alias safeauth="safe auth ldap"
-alias safedev="safe target blah dev"
-alias safetst="safe target blah tst"
-alias safestg="safe target blah stg"
-alias safeprd="safe target blah prd"
-
-# https://qmacro.org/autodidactics/2021/08/06/tmux-output-formatting/
-# 1. Open a popup
-# 2. Show you all the docker images on your system in an FZF menu
-# 3. Select your choice
-# 4. A split pane (from target pane) will run docker run --rm -it <chosen_image>
-alias dselect='tmux display-popup -E "docker image ls --format '{{.Repository}}' | fzf | xargs tmux split-window -h docker run --rm -it"'
-
-# another option: https://github.com/natkuhn/Chrome-debug
-alias chrome-debug='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222&'
-
-# used in 'gnap' alias
-gref() {
-  command git --no-pager diff --cached --stat | command grep "|\s*0$" | awk '{system("command git reset " $1)}'
-}
-
-# only run lint on changes
-# "git diff --name-only | grep -E '.(js|ts|tsx)$' | xargs eslint --fix"
-
-ch() {
-  local cols sep
-  cols=$(( COLUMNS / 3 ))
-  sep='{::}'
-
-  # Chrome search
-  # cp -f ~/Library/Application\ Support/Google/Chrome/Default/History /tmp/h
-  # Chromium search https://github.com/Eloston/ungoogled-chromium
-  cp -f ~/Library/ApplicationSupport/Chromium/Default/History /tmp/h
-
-  sqlite3 -separator $sep /tmp/h \
-    "select substr(title, 1, $cols), url
-     from urls order by last_visit_time desc" |
-  awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
-  fzf-tmux -p 90%,90% --ansi --multi --preview-window=:hidden | sed 's#.*\(https*://\)#\1#' | xargs open -a "Chromium"
-}
-
-# Default `fold` to screen width and break at spaces
-function fold {
-  if [ $# -eq 0 ]; then
-    /usr/bin/fold -w $COLUMNS -s
-  else
-    /usr/bin/fold $*
-  fi
-}
-
-# Use `fzf` against system dictionary
-function spell {
-  cat /usr/share/dict/words | fzf-tmux -p 90%,90% --preview 'wn {} -over | fold' --preview-window=up:60%
-}
-
-# Lookup definition of word using `wn $1 -over`.
-# If $1 is not provided, we'll use the `spell` command to pick a word.
-#
-# Requires:
-#   brew install wordnet
-#   brew install fzf
-function dic {
-  if [ $# -eq 0 ]; then
-    wn `spell` -over | fold
-  else
-    wn $1 -over | fold
-  fi
-}
-
-:e() {
-    if [[ -z $VIM_TERMINAL ]]; then
-        # maybe something like this instead? nvim **'\t'
-        nvim "$@"
-    else
-        for f; do
-            echo -e "\033]51;[\"drop\", \"$f\"]\007"
-        done
-    fi
-}
-
-# Select a docker container to start and attach to
-function da() {
-  local cid
-  cid=$(docker ps -a | sed 1d | fzf -1 -q "$1" | awk '{print $1}')
-
-  [ -n "$cid" ] && docker start "$cid" && docker attach "$cid"
-}
-
-# Select a running docker container to stop
-function ds() {
-  local cid
-  cid=$(docker ps | sed 1d | fzf -q "$1" | awk '{print $1}')
-
-  [ -n "$cid" ] && docker stop "$cid"
-}
-
-# Select a docker container to remove
-function drm() {
-  local cid
-  cid=$(docker ps -a | sed 1d | fzf -q "$1" | awk '{print $1}')
-
-  [ -n "$cid" ] && docker rm "$cid"
-}
-
-# Select a docker image or images to remove
-function drmi() {
-  docker images | sed 1d | fzf -q "$1" --no-sort -m --tac | awk '{ print $3 }' | xargs -r docker rmi
-}
-
-# git aliases
-alias g='git'
-alias ga='git add'
-alias gap='git add -p'
-alias gnap='git add -N --ignore-removal . && gap && gref'
-# alias gnap='git add $(git ls-files -N -add -o --exclude-standard) || git add -N --ignore-removal . && gap && gref'
-alias gb="git branch --format='%(HEAD) %(color:yellow)%(refname:short)%(color:reset) - %(contents:subject) %(color:green)(%(committerdate:relative)) [%(authorname)]' --sort=-committerdate"
-alias gc='git commit -v'
-alias gca='git commit -a -v'
-alias gcf='git commit --fixup'
-alias gcl='git clean -f -d'
-alias gd='git diff'
-alias gds='git diff --staged'
-alias gdc='git diff --cached'
-alias glod='git log --oneline --decorate'
-alias glola='git log --graph --decorate --pretty=oneline --abbrev-commit --all'
-alias gp='git push'
-alias gpf='git pushf'
-alias gpu='git pull'
-alias gpr='git pull --rebase'
-alias pulls='git browse -- pulls'
-alias branches='git browse -- branches'
-# alias open-PLACEHOLDER='git browse PLACEHOLDER'
-alias gst='git status -sb'
-alias gstl='git status'
-alias ghst='gh pr status'
-alias ghpr='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" |  { read first rest ; echo $first ; } | xargs gh pr checkout'
-alias ghd='gh pr list | fzf-tmux -p 90%,90% --preview "gh pr diff --color=always {+1}" |  { read first rest ; echo $first ; } | xargs gh pr diff'
-alias gs='fbr'
-alias gr='git rebase'
-alias grc='git rebase --continue'
-alias gra='git rebase --abort'
-alias grs='git rebase --skip'
-alias gmc='git merge --continue'
-alias gma='git merge --abort'
-alias gms='git merge --skip'
-alias gcp='git cherry-pick'
-alias gcpa='git cherry-pick --abort'
-alias gcps='git cherry-pick --skip'
-alias gcpc='git cherry-pick --continue'
-alias gco='git checkout'
-# alias gcob='git checkout -b'
-alias gcop='git checkout -p' # interactive hunk revert
-alias gres='git restore --staged .'
-alias gappend='git add . && git commit --amend -C HEAD'
-alias gamend='git commit --amend -C HEAD'
-alias gappendyolo='git add . && HUSKY_SKIP_HOOKS=1 git commit --amend -C HEAD'
-alias gclean 'git clean -fd'
-alias unstage='git restore --staged .'
-alias grestore="git restore --staged . && git restore ."
-alias reset_authors='git commit --amend --reset-author -C HEAD'
-alias grhr="git_reset_hard_remote"
-alias grhl="git_reset_hard_local"
-alias stash="git add . && git add stash"
-alias wip="git add . && HUSKY_SKIP_HOOKS=1 gc -m 'wip [ci skip]'"
-alias undo="git reset HEAD~1 --mixed"
-alias unwip="undo"
-# alias unwip="git reset --soft 'HEAD^' && git restore --staged ."
-alias nuke="unwip && grestore"
-alias pokey="gco main && gpr && gco - && gr -"
-alias gup="git up"
-alias hokey="pokey"
-alias sha="git rev-parse HEAD"
-alias cannonball="git add . && git commit --amend -C HEAD && git push --force-with-lease"
-alias cannonballyolo="git add . && HUSKY_SKIP_HOOKS=1 git commit --amend -C HEAD && git push --force-with-lease"
-alias fix='nvim +/HEAD `git diff --name-only | uniq`'
-
-# tmux alias
-alias tmux_plugins_install="~/.tmux/plugins/tpm/bin/install_plugins"
-alias tmux_plugins_update="~/.tmux/plugins/tpm/bin/update_plugins all"
-alias tmux_plugins_clean="~/.tmux/plugins/tpm/bin/clean_plugins"
-
-# random alias
-alias be="bundle exec"
-alias nvm="fnm"
-alias strat="start"
-alias ns="npm start"
-alias barf="rm -rf node_modules && npm i"
-alias rimraf="rm -rf node_modules"
-
-# brew tap jason0x43/homebrew-neovim-nightly
-# brew cask install neovim-nightly
-alias update-neovim-nightly="brew reinstall neovim-nightly"
-alias brew-tmux-head="brew reinstall tmux"
-alias brew-install="brew bundle install --global"
-alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
-alias brewup="brew update; brew upgrade; brew cleanup"
-alias crate-update="cargo install-update -a"
-
-alias reload='source ~/.zshrc; echo -e "\n\u2699  \e[33mZSH config reloaded\e[0m \u2699"'
+export DOTFILES="$HOME/code/timtyrrell/dotfiles"
+# source $DOTFILES/zsh/init_tasks --source_only
+source $DOTFILES/zsh/utils.zsh --source_only
+source $DOTFILES/zsh/aliases.zsh --source_only
+# source $DOTFILES/zsh/mode --source_only
 
 # remove duplicates in $PATH
 typeset -aU path
@@ -824,17 +294,13 @@ export RUBY_CONFIGURE_OPTS="--with-openssl-dir=$(brew --prefix openssl@1.1)"
 # bindkey '^T' fzf-completion #context (dir) aware completion
 # bindkey '^I' $fzf_default_completion
 
-# Clone zcomet if necessary
-if [[ ! -f ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh ]]; then
-  command git clone https://github.com/agkozak/zcomet.git ${ZDOTDIR:-${HOME}}/.zcomet/bin
-fi
-
 source ${ZDOTDIR:-${HOME}}/.zcomet/bin/zcomet.zsh
 
 zcomet load romkatv/powerlevel10k
 zcomet load aloxaf/fzf-tab
 zcomet load sudosubin/zsh-poetry
 zcomet load zsh-vi-more/vi-motions
+zcomet load mattmc3/zman
 zcomet load greymd/docker-zsh-completion
 zcomet load zsh-users/zsh-autosuggestions
 zcomet load zdharma-continuum/fast-syntax-highlighting
@@ -894,9 +360,8 @@ if [[ -d $realpath ]]; then
 elif [[ -f $realpath ]]; then
   bat --pager=never --color=always --line-range :80 $realpath
 else
-	# "potato"
-	# lesspipe.sh $word | bat --color=always
-	exit 1
+  # lesspipe.sh $word | bat --color=always
+  exit 1
 fi
 '
 zstyle ':fzf-tab:complete:*' fzf-preview $preview_command
@@ -939,16 +404,16 @@ zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
-
 # eval "$(perl -I$HOME/perl5/lib/perl5 -Mlocal::lib=$HOME/perl5)"
 
 eval "$(pyenv init -)"
 
 source <(stern --completion=zsh)
+# setup kubecolor completion
+compdef kubecolor=kubectl
 
 # fnm
-eval "$(fnm --log-level=quiet env --use-on-cd)"
+eval "$(fnm --version-file-strategy=recursive --log-level=quiet env --use-on-cd)"
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
@@ -956,6 +421,37 @@ export SDKMAN_DIR="$HOME/.sdkman"
 
 # Created by `pipx` on 2021-10-05 19:50:54
 export PATH="$PATH:/Users/timothy.tyrrell/.local/bin"
+
+### some plugin above stomps the pbcopy yank so I moved it near the bottom
+# vi-mode yank
+function vi-yank-pbcopy {
+  zle vi-yank
+  echo "$CUTBUFFER" | pbcopy
+}
+zle -N vi-yank-pbcopy
+bindkey -M vicmd 'y' vi-yank-pbcopy
+
+function vi-put-after-pbcopy {
+  CUTBUFFER=$(pbpaste)
+  zle vi-put-after
+}
+zle -N vi-put-after-pbcopy
+bindkey -M vicmd 'p' vi-put-after-pbcopy
+
+function vi-put-before-pbcopy {
+  CUTBUFFER=$(pbpaste)
+  zle vi-put-before
+}
+zle -N vi-put-before-pbcopy
+bindkey -M vicmd 'P' vi-put-before-pbcopy
+
+# directly executing the command (CTRL-X CTRL-R)
+fzf-history-widget-accept() {
+  fzf-history-widget
+  zle accept-line
+}
+zle     -N     fzf-history-widget-accept
+bindkey '^X^R' fzf-history-widget-accept
 
 # Run compinit and compile its cache
 zcomet compinit

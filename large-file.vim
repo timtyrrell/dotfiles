@@ -16,7 +16,7 @@ set noloadplugins
 
 "     set foldmethod=manual
 "     syntax clear
-"     syntax off    " hmmm, which one to use?
+"     syntax off
 "     filetype off
 "     set noundofile
 "     set noswapfile
@@ -25,5 +25,5 @@ set noloadplugins
 
 " augroup BigFileDisable
 "     autocmd!
-"     autocmd BufWinEnter * if getfsize(expand("%")) > 512 * 1024 | exec DisableSyntaxTreesitter() | endif
+"     autocmd BufReadPost * if getfsize(expand("%")) > 512 * 1024 | exec DisableSyntaxTreesitter() | endif
 " augroup END
