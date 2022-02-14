@@ -79,13 +79,13 @@
 	compactionHeuristic = true
 	colorMoved = default
 [delta]
-  commit-decoration-style = bold yellow box ul
-  file-style = bold yellow ul
-  hunk-header-decoration-style = yellow box
-  line-numbers = true
-  minus-color = normal "#340001"
-  plus-color = syntax "#012800"
-  whitespace-error-style = 22 reverse
+	commit-decoration-style = bold yellow box ul
+	file-style = bold yellow ul
+	hunk-header-decoration-style = yellow box
+	line-numbers = true
+	minus-color = normal "#340001"
+	plus-color = syntax "#012800"
+	whitespace-error-style = 22 reverse
 [fetch]
 	prune = true
 	pruneTags = true
@@ -94,12 +94,12 @@
 [include]
 	path = ~/.gitconfig.local
 [init]
-  defaultBranch = main
+	defaultBranch = main
 [interactive]
 	singlekey = true
 	diffFilter = delta --color-only
 [merge]
-	conflictstyle = diff3
+	conflictstyle = zdiff3
 	summary = true
 	tool = nvim +Conflicted
 [merge "bundlelock"]
@@ -111,7 +111,7 @@
 [mergetool "vim-conflicted"]
 	cmd = nvim +Conflicted
 [pull]
-  rebase = true
+	rebase = true
 [push]
 	default = simple
 	followTags = true
@@ -119,8 +119,8 @@
 	autosquash = true
 	autostash = true
 [rerere]
-  enabled = true
-  autoupdate = true
+	enabled = true
+	autoupdate = true
 [user]
 	useconfigonly = true
 	name = Tim Tyrrell
@@ -140,3 +140,6 @@
 	format = ssh
 [gpg "ssh"]
 	defaultKeyCommand = ssh-add -L
+[blame]
+	markUnblamableLines = true
+	markIgnoredLines = true

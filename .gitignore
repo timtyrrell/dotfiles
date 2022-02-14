@@ -13,3 +13,4 @@ tags
 .env.dev.*
 .env.prd.*
 .env.stg.*
+algo/

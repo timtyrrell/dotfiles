@@ -1,4 +1,5 @@
 {
+  "coverage.enabled": false,
   "css.validate": false,
   "less.validate": false,
   "scss.validate": false,
@@ -59,16 +60,20 @@
     "markdown",
     "sass"
   ],
+  "semanticTokens.filetypes": ["*"],
   "hover.target": "float",
   "hover.autoHide": true,
   "coc.source.file.ignorePatterns": [],
   "codeLens.enable": true,
+  "codeLens.position": "eol",
   "codeLens.separator": "|->",
-  "javascript.implementationsCodeLens.enable": false,
-  "javascript.referencesCodeLens.enable": false,
+  "javascript.autoClosingTags": true,
+  "javascript.implementationsCodeLens.enable": true,
+  "javascript.referencesCodeLens.enable": true,
   "javascript.referencesCodeLens.showOnAllFunctions": false,
-  "typescript.implementationsCodeLens.enable": false,
-  "typescript.referencesCodeLens.enable": false,
+  "typescript.autoClosingTags": true,
+  "typescript.implementationsCodeLens.enable": true,
+  "typescript.referencesCodeLens.enable": true,
   "typescript.referencesCodeLens.showOnAllFunctions": false,
   "coc.source.emoji.filetypes": [
     "markdown", "jsonc"
@@ -109,6 +114,12 @@
   "html.autoClosingTags": true,
   "html.autoCreateQuotes": true,
   "html.completion.attributeDefaultValue": "doublequotes",
+  "html.filetypes": [
+    "html",
+    "handlebars",
+    "htmldjango",
+    "blade"
+  ],
   "javascript.preferences.quoteStyle": "double",
   "javascript.suggestionActions.enabled": false,
   "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": true,
@@ -185,8 +196,5 @@
   "react-refactor.produceClass": false,
   "coc.preferences.rootPatterns": [
     ".git"
-  ],
-  "yaml.schemas": {
-      "kubernetes": "/*.yaml"
-  }
+  ]
 }

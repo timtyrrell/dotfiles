@@ -102,9 +102,9 @@ nnoremap <leader>> V`]>
 " reselect pasted text. gv, reselects the last visual selection
 nnoremap gp `[v`]
 
-" first character of line, end of line TODO trial
-noremap H 0
-noremap L $
+" first character of line, end of line
+" noremap H 0
+" noremap L $
 
 " scroll through time instead of space TODO (find non-mouse combo)
 " map <ScrollWheelUp> :later 10m<CR>
@@ -175,7 +175,8 @@ set wildignorecase
 set wildignore+=tags
 set wildignore+=package-lock.json
 set wildignore+=**/*.xml
-set wildignore+=**/node_modules/*
+" off for telescope-node_modules usage
+" set wildignore+=**/node_modules/*
 set wildignore+=**/.git/*
 
 " give low priority to files matching the defined patterns.
@@ -227,7 +228,7 @@ au TabLeave * let g:lasttab = tabpagenr()
 " add < and > to matched pairs
 set matchpairs+=<:>
 
-" Clear cmd line message after 5 seconds
+" Clear cmd line message after X seconds
 function! s:empty_message(timer)
   if mode() ==# 'n'
     echon ''
@@ -276,6 +277,14 @@ augroup numbertoggle
   " or by filetype
   " autocmd BufNewFile,BufRead *.myfile setlocal norelativenumber
 augroup END
+
+" disable relative numbers
+nnoremap <leader>rn :set rnu!<cr>
+
+" Toggle relative line numbers when entering Command mode (helpful for pair programming sessions)
+" Open up Command mode ':' -> Partner can look for absolute line number -> Write down number -> Press enter
+" autocmd CmdlineEnter * if &number | set norelativenumber | endif | redraw
+" autocmd CmdLineLeave * if &number | set relativenumber | endif
 
 " force decimal-based arithmetic on increment/decrement
 set nrformats=
@@ -333,7 +342,7 @@ set selection=old
 
 set complete-=t " disable searching tags
 
-" Toggle spell checking on and off with `,s`
+" Toggle spell checking on/off
 nmap <silent> <leader>ss :set spell!<CR>
 set spelllang=en_us
 set complete+=kspell
@@ -350,7 +359,7 @@ function! FzfSpell()
   let suggestions = spellsuggest(expand('<cword>'))
   return fzf#run({'source': suggestions, 'sink': function('FzfSpellSink'), 'options': '--preview-window hidden', 'down': 20})
 endfunction
-" nnoremap z= :call FzfSpell()<CR>
+nnoremap z= :call FzfSpell()<CR>
 nmap <silent> <leader>sz :call FzfSpell()<CR>
 " try https://github.com/lewis6991/spellsitter.nvim ?
 
@@ -432,7 +441,7 @@ function! ToggleMaxWins()
     let g:windowMax=1
   endif
 endfunction
-nnoremap <C-w>o :call ToggleMaxWins()<cr>
+nnoremap <C-w>m :call ToggleMaxWins()<cr>
 
 " hide the command history buffer. Use fzf :History instead
 nnoremap q: <nop>
@@ -457,7 +466,7 @@ nnoremap <silent> <Leader>jj :%!python -m json.tool<CR>
 
 " save with Enter *except* in quickfix buffers
 " https://vi.stackexchange.com/questions/3127/how-to-map-enter-to-custom-command-except-in-quick-fix
-nnoremap <expr> <CR> &buftype ==# "quickfix" ? "\<CR>" : ":write!<CR>"
+nnoremap <expr> <silent> <CR> &buftype ==# "quickfix" ? "\<CR>" : ":write!<CR>"
 " another option
 " autocmd FileType qf nnoremap <buffer> <cr> <cr>
 
@@ -475,8 +484,8 @@ cabbrev wqa! use :xa!
 " speedup :StartTime - :h g:python3_host_prog
 let g:python3_host_prog = '/usr/local/bin/python3'
 let g:loaded_python_provider = 0
-" skip perl check
 let g:loaded_perl_provider = 0
+" let g:loaded_node_provider = 1
 
 call plug#begin('~/.config/nvim/plugged')
 " if branch changes from master to main `git remote set-head origin -a` in `~/config/nvim/plugged/[plugin]`
@@ -487,6 +496,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'master', 'do': 'yarn install --frozen-lock
            \ Plug 'wellle/tmux-complete.vim' " coc completion from open tmux panes
 let g:coc_enable_locationlist = 0
 let g:coc_global_extensions = [
+          \ 'coc-coverage',
           \ 'coc-css',
           \ 'coc-cssmodules',
           \ 'coc-dash-complete',
@@ -532,18 +542,12 @@ Plug 'AndrewRadev/undoquit.vim'
 "<c-w>U reopen tab with all windows
 
 " newer option
-" Plug 'kazhala/close-buffers.nvim'
-Plug 'Asheq/close-buffers.vim'
-" :Bdelete other    -	bdelete all buffers except the buffer in the current window
-" :Bdelete hidden   -	bdelete buffers not visible in a window
-" :Bdelete all      -	bdelete all buffers
-" :Bdelete this     -	bdelete buffer in the current window
-" :Bdelete nameless -	bdelete buffers without a name: [No Name]
-map <leader>Bdo :Bdelete other<CR>
-map <leader>Bdh :Bdelete hidden<CR>
-map <leader>Bda :Bdelete all<CR>
-map <leader>Bdt :Bdelete this<CR>
-map <leader>Bdn :Bdelete nameless<CR>
+Plug 'kazhala/close-buffers.nvim'
+map <leader>Bdo :BDelete other<CR>
+map <leader>Bdh :BDelete hidden<CR>
+map <leader>Bda :BDelete all<CR>
+map <leader>Bdt :BDelete this<CR>
+map <leader>Bdn :BDelete nameless<CR>
 
 " undo tree visualizer
 Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
@@ -560,10 +564,10 @@ map <leader>rL <Plug>RestNvimLast
 
 " session management
 Plug 'rmagatti/auto-session'
-Plug 'rmagatti/session-lens'
 
 Plug 'preservim/vimux'
-let g:VimuxUseNearest = 0
+let g:VimuxUseNearest = 1
+let g:VimuxOrientation = "v"
 " Combine VimuxZoomRunner and VimuxInspectRunner in one function.
 function! VimuxZoomInspectRunner()
   if exists("g:VimuxRunnerIndex")
@@ -593,6 +597,7 @@ endfunction
 vmap <leader>vs "vy :call VimuxSlime()<CR>
 " Select current paragraph and send it to tmux
 nmap <leader>vs vip<leader>vs<CR>
+" send contents of entire file to tmux
 nmap <leader>vf ggVG<leader>vs<CR>
 
 " dbs
@@ -607,6 +612,29 @@ Plug 'vim-test/vim-test'
 
 " debugging
 Plug 'mfussenegger/nvim-dap'
+
+Plug 'ThePrimeagen/harpoon'
+" left index finger
+nnoremap <silent>\f :lua require("harpoon.ui").toggle_quick_menu()<CR>
+nnoremap <silent>\d :lua require("harpoon.cmd-ui").toggle_quick_menu()<CR>
+
+" lift the finger to do sth "dangerous"
+nnoremap <silent>\g :lua require("harpoon.mark").add_file()<CR>
+nnoremap <silent>\f :lua require("harpoon.mark").add_file()<CR>
+
+" right home row, no finger lifting required
+nnoremap <silent>\j :lua require("harpoon.ui").nav_file(1)<CR>
+nnoremap <silent>\k :lua require("harpoon.ui").nav_file(2)<CR>
+nnoremap <silent>\l :lua require("harpoon.ui").nav_file(3)<CR>
+nnoremap <silent>\; :lua require("harpoon.ui").nav_file(4)<CR>
+
+nnoremap <silent>\n :lua require("harpoon.ui").nav_next()<CR>
+nnoremap <silent>\p :lua require("harpoon.ui").nav_prev()<CR>
+
+nnoremap <silent>\tj :lua require("harpoon.tmux").gotoTerminal(1)<CR>
+nnoremap <silent>\tk :lua require("harpoon.tmux").gotoTerminal(2)<CR>
+nnoremap <silent>\cj :lua require("harpoon.tmux").sendCommand(1, 1)<CR>
+nnoremap <silent>\ck :lua require("harpoon.tmux").sendCommand(1, 2)<CR>
 
 " Plug 'plytophogy/vim-virtualenv'
 " Plug 'PieterjanMontens/vim-pipenv'
@@ -682,13 +710,13 @@ Plug 'tmux-plugins/vim-tmux'
 " https://github.com/nvim-treesitter/nvim-treesitter/issues/1019#issuecomment-812976740
 let g:polyglot_disabled = [
         \ 'bash', 'comment', 'css', 'graphql',
-        \ 'html', 'javascript', 'jsdoc', 'json',
+        \ 'html', 'javascript', 'javascriptreact', 'jsdoc', 'json',
         \ 'jsonc', 'jsx', 'lua', 'python', 'regex', 'rspec', 'ruby',
         \ 'sh', 'svg', 'tmux', 'tsx', 'typescript', 'typescriptreact', 'yaml']
 Plug 'sheerun/vim-polyglot'
 let g:polyglot_disabled = ['sensible']
-" let g:polyglot_disabled = ['ftdetect']
-" let g:polyglot_disabled = ['autoindent']
+let g:polyglot_disabled = ['ftdetect']
+let g:polyglot_disabled = ['autoindent']
 let g:markdown_fenced_languages = ['ruby', 'vim']
 Plug 'z0mbix/vim-shfmt', { 'for': 'sh' }
 let g:shfmt_fmt_on_save = 1
@@ -720,6 +748,14 @@ let g:glow_width = 120
 
 Plug 'weirongxu/plantuml-previewer.vim'
 Plug 'tyru/open-browser.vim'
+let g:netrw_nogx = 1 " disable netrw's gx mapping.
+let g:openbrowser_default_search = 'duckduckgo'
+nmap gx <Plug>(openbrowser-smart-search)
+vmap gx <Plug>(openbrowser-smart-search)
+Plug 'tyru/open-browser-github.vim'
+nnoremap <leader>ogp <cmd>OpenGithubPullReq<cr>
+nnoremap <leader>ogj <cmd>OpenGithubProject<cr>
+
 " vim .dsl syntax https://github.com/vim/vim/pull/8764
 " Plug 'shuntaka9576/preview-swagger.nvim', { 'build': 'yarn install' }
 " Draw ASCII diagrams in Neovim.
@@ -915,7 +951,8 @@ Plug 'mlaursen/vim-react-snippets', { 'branch': 'main' }
 " review linenumber before jump
 Plug 'nacro90/numb.nvim'
 
-Plug 'metakirby5/codi.vim'
+" Plug 'metakirby5/codi.vim'
+Plug 'timtyrrell/codi.vim'
 let g:codi#aliases = {
   \ 'javascriptreact': 'javascript',
   \ 'typescriptreact': 'typescript',
@@ -959,7 +996,7 @@ nmap <leader>ge :Gedit<cr>
 " :Gedit main:file.js to open file version in another branch
 " :Gedit " go back to normal file from read-only view in Gstatus window
 
-nmap <leader>gc :Gcommit<cr>
+nmap <leader>gc :Git commit<cr>
 
 nmap <leader>gr :Gread<cr>:update<cr>
 " :Gread main:file.js to replace file from one in another branch
@@ -981,7 +1018,23 @@ vnoremap <Leader>GB :GBrowse!<CR>
 " Copy current line url to clipboard
 nnoremap <Leader>GB :.GBrowse!<CR>
 
-nmap <leader>gs :Git<cr>
+augroup fugitive_ext
+  autocmd!
+  " Browse to the commit under my cursor
+  autocmd FileType fugitiveblame nnoremap <buffer> <leader>Gb :execute ":GBrowse " . expand("<cword>")<cr>
+  " autocmd FileType vim-plug nnoremap <buffer> <silent> gx :call PlugGx()<cr>
+augroup END
+
+function! s:ToggleGitStatus() abort
+  for l:winnr in range(1, winnr('$'))
+    if !empty(getwinvar(l:winnr, 'fugitive_status'))
+      execute l:winnr.'close'
+    else
+      Git
+    endif
+  endfor
+endfunction
+nnoremap <leader>gs :call <SID>ToggleGitStatus()<CR>
 " P (on the file you want to run patch on)
 " <C-N> or <C-P> to jump to the next/previous file
 " - on a file, stages (or unstages) the entire file.
@@ -1222,6 +1275,23 @@ nnoremap <leader>ve :VenterToggle<CR>
 " center current buffer only
 Plug 'folke/zen-mode.nvim'
 nnoremap <leader>zm :ZenMode<CR>
+" treesitter focus on current scope
+Plug 'folke/twilight.nvim'
+nnoremap <leader>zt :Twilight<CR>
+
+Plug 'hoschi/yode-nvim'
+map  <leader>yc :YodeCreateSeditorFloating<CR>
+map  <leader>yr :YodeCreateSeditorReplace<CR>
+nmap <leader>ybd :YodeBufferDelete<cr>
+imap <leader>ybd <esc>:YodeBufferDelete<cr>
+map  <leader>yd :BDelete glob=yode*<cr>
+
+" these commands fall back to overwritten keys when cursor is in split window
+" <c-w>w to move to float, next float, or back to main window
+map  <C-W>r :YodeLayoutShiftWinDown<CR>
+map  <C-W>R :YodeLayoutShiftWinUp<CR>
+map  <C-W>J :YodeLayoutShiftWinBottom<CR>
+map  <C-W>K :YodeLayoutShiftWinTop<CR>
 
 Plug 'voldikss/vim-browser-search'
 nmap <silent> <Leader>bs <Plug>SearchNormal
@@ -1234,7 +1304,8 @@ let g:browser_search_engines = {
   \ 'stackoverflow':'https://stackoverflow.com/search?q=%s',
   \ }
 
-Plug 'meain/vim-package-info', { 'do': 'npm install' }
+Plug 'MunifTanjim/nui.nvim'
+Plug 'vuki656/package-info.nvim'
 
 " monorepo
 Plug 'airblade/vim-rooter'
@@ -1270,6 +1341,13 @@ Plug 'ferrine/md-img-paste.vim'
 " horizontal lines for vimwiki
 Plug 'lukas-reineke/headlines.nvim'
 
+Plug 'LudoPinelli/comment-box.nvim'
+nnoremap <Leader>bb :CBlbox<CR>
+vnoremap <Leader>bb :CBlbox<CR>
+nnoremap <Leader>bc :CBcbox<CR>
+vnoremap <Leader>bc :CBcbox<CR>
+nnoremap <Leader>bl :CBline<CR>
+
 " scratch window
 Plug 'mtth/scratch.vim'
 " persist scratch file for project session
@@ -1304,7 +1382,7 @@ Plug 'folke/which-key.nvim'
 " let g:hardtime_ignore_quickfix = 1
 " let g:hardtime_ignore_buffer_patterns = ['help', 'nofile', 'nowrite', 'man']
 " let g:hardtime_allow_different_key = 1
-" let g:hardtime_maxcount = 2
+" let g:hardtime_maxcount = 3
 
 " bugfix
 " fix CursorHold perf bug
@@ -1347,13 +1425,13 @@ cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : '\<S-Tab>'
 cmap <expr> <c-j> wilder#in_context() ? wilder#next() : '\<c-j>'
 cmap <expr> <c-k> wilder#in_context() ? wilder#previous() : '\<c-k>'
 
-" '-I' to not respect .gitignore
+" '-I' to not respect .gitignore, '-H' show hidden files
 call wilder#set_option('pipeline', [
       \   wilder#branch(
       \     wilder#python_file_finder_pipeline({
       \       'file_command': {_, arg -> stridx(arg, '.') != -1 ?
-      \         ['fd', '-tf', '-H', '-I', '-E', '.git', '-E', 'node_modules', '-E', '.venv'] :
-      \         ['fd', '-tf', '-I', '-E', '.git', '-E', 'node_modules', '-E', '.venv']},
+      \         ['fd', '-tf', '-H', '-I', '-E', '.git', '-E', '.venv'] :
+      \         ['fd', '-tf']},
       \       'dir_command': ['fd', '-td'],
       \       'filters': ['cpsm_filter'],
       \     }),
@@ -1450,12 +1528,44 @@ vim.o.foldtext = [[substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'
 vim.wo.foldnestmax = 3
 vim.wo.foldminlines = 1
 
-require("tabout").setup {}
-require("nvim-web-devicons").setup {}
-require("which-key").setup {}
-require("headlines").setup {}
-require("terminal").setup {}
+require('harpoon').setup {}
+require('yode-nvim').setup {}
+require('tabout').setup {}
+require('nvim-web-devicons').setup {}
+require('which-key').setup {}
+require('headlines').setup {
+  vimwiki = {
+      source_pattern_start = "^```",
+      source_pattern_end = "^```$",
+      dash_pattern = "^---+$",
+      headline_pattern = "^#+",
+      headline_highlights = { "Headline" },
+      codeblock_highlight = "CodeBlock",
+      dash_highlight = "Dash",
+  },
+}
+require('terminal').setup {}
 require('pqf').setup {}
+
+require('package-info').setup({
+  autostart = true,
+  package_manager = 'npm'
+})
+-- Show package versions
+vim.api.nvim_set_keymap("n", "<leader>ns", ":lua require('package-info').show()<CR>", { silent = true, noremap = true })
+-- Hide package versions
+vim.api.nvim_set_keymap("n", "<leader>nc", ":lua require('package-info').hide()<CR>", { silent = true, noremap = true })
+-- Update package on line
+vim.api.nvim_set_keymap("n", "<leader>nu", ":lua require('package-info').update()<CR>", { silent = true, noremap = true })
+-- Delete package on line
+vim.api.nvim_set_keymap("n", "<leader>nd", ":lua require('package-info').delete()<CR>", { silent = true, noremap = true })
+-- Install a new package
+vim.api.nvim_set_keymap("n", "<leader>ni", ":lua require('package-info').install()<CR>", { silent = true, noremap = true })
+-- Reinstall dependencies
+vim.api.nvim_set_keymap("n", "<leader>nr", ":lua require('package-info').reinstall()<CR>", { silent = true, noremap = true })
+-- Install a different package version
+vim.api.nvim_set_keymap("n", "<leader>np", ":lua require('package-info').change_version()<CR>", { silent = true, noremap = true })
+
 
 require('auto-session').setup {
   log_level = 'info',
@@ -1463,8 +1573,62 @@ require('auto-session').setup {
   auto_save_enabled = true,
   auto_restore_enabled = true,
   auto_session_suppress_dirs = {'~/', '~/code'},
-  pre_save_cmds = {"lua require'nvim-tree'.setup()", "tabdo NvimTreeClose", "Bdelete! nameless"}
+  pre_save_cmds = {"lua require'nvim-tree'.setup()", "tabdo NvimTreeClose", "BDelete! nameless", "BDelete! hidden", "BDelete glob=yode*"}
 }
+
+vim.cmd([[
+    hi BqfPreviewBorder guifg=#50a14f ctermfg=71
+    hi link BqfPreviewRange Search
+]])
+
+require('bqf').setup({
+    auto_enable = true,
+    auto_resize_height = true,
+    preview = {
+        win_height = 12,
+        win_vheight = 12,
+        delay_syntax = 80,
+        border_chars = {'┃', '┃', '━', '━', '┏', '┓', '┗', '┛', '█'},
+        should_preview_cb = function(bufnr)
+            local ret = true
+            local bufname = vim.api.nvim_buf_get_name(bufnr)
+            local fsize = vim.fn.getfsize(bufname)
+            if fsize > 100 * 1024 then
+                -- skip file size greater than 100k
+                ret = false
+            elseif bufname:match('^fugitive://') then
+                -- skip fugitive buffer
+                ret = false
+            end
+            return ret
+        end
+    },
+    -- make `drop` and `tab drop` preferred
+    func_map = {
+        open = '<cr>',
+        openc = 'O', -- open item, close quickfix
+        drop = 'o', -- open item, close quickfix
+        split = '<C-s>',
+        vsplit = '<C-v>',
+        tabdrop = '<C-t>',
+        tab = 't',
+        tabb = 'T', -- open item in new tab, keep current focus
+        tabc = '',
+        ptogglemode = 'zp', -- toggle preview window between normal and max size
+        sclear = 'z<Tab>', -- clear signs
+        filter = 'zn', -- create new list for signed items
+        filterr = 'zN', -- create new list for non-signed items
+        fzffilter = 'zf', -- fzf mode
+        prevthis = '<', -- go to previous quickfix list in quickfix window
+        nexthist = '>', -- go to next quickfix list in quickfix window
+    },
+    filter = {
+        fzf = {
+            action_for = {['ctrl-s'] = 'split', ['ctrl-t'] = 'tab drop'},
+            extra_opts = {'--bind', 'ctrl-o:toggle-all', '--prompt', '> '}
+        }
+    }
+})
 
 require('nvim-tree').setup {
   disable_netrw       = false,
@@ -1500,7 +1664,7 @@ require('nvim-tree').setup {
 --   vim.cmd("NvimTreeRefresh")
 -- end)
 
-require("rest-nvim").setup({
+require('rest-nvim').setup({
   -- Open request results in a horizontal split
   result_split_horizontal = false,
   -- Skip SSL verification, useful for unknown certificates
@@ -1520,7 +1684,7 @@ require("rest-nvim").setup({
   jump_to_request = false,
 })
 
-require("hop").setup()
+require('hop').setup()
 vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
 vim.api.nvim_set_keymap('x', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
 vim.api.nvim_set_keymap('n', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
@@ -1563,7 +1727,8 @@ require'marks'.setup {
 -- :MarksListAll - Fill the location list with all marks in all open buffers
 -- :MarksQFListAll
 
-require("zen-mode").setup {
+require("twilight").setup {}
+require('zen-mode').setup {
   window = {
     backdrop = 0.95, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
     -- height and width can be:
@@ -1736,7 +1901,7 @@ require("telescope").load_extension("emoji")
 require('telescope').load_extension('ghn')
 require('telescope').load_extension('env')
 
--- require("telescope").load_extension("neoclip")
+-- require('telescope').load_extension('neoclip')
 -- require('neoclip').setup({
 --   history = 1000,
 --   enable_persistant_history = true,
@@ -1761,7 +1926,7 @@ require('telescope').load_extension('env')
 -- map('n', '<leader>dc', '<cmd>lua require'telescope'.extensions.dap.commands{}<CR>')
 -- map('n', '<leader>db', '<cmd>lua require'telescope'.extensions.dap.list_breakpoints{}<CR>')
 
-require("octo").setup({
+require('octo').setup({
   submit_win = {
       approve_review = "<C-p>",            -- approve review
       comment_review = "<C-m>",            -- comment review
@@ -1771,8 +1936,8 @@ require("octo").setup({
 })
 
 -- treesitter markdown parser with octo buffers
-local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-parser_config.markdown.used_by = "octo"
+local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
+parser_config.markdown.filetype_to_parsername = "octo"
 
 require('numb').setup {
    show_numbers = true, -- Enable 'number' for the window while peeking
@@ -1873,10 +2038,6 @@ EOF
 
 augroup randomstuff
   autocmd!
-  " delete all nameless buffers on :qa
-  " this caused https://github.com/kevinhwang91/nvim-bqf window issues
-  " autocmd QuitPre * Bdelete! nameless
-
   autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if !bufexists("[Command Line]") | checktime | endif
   " Make it so that if files are changed externally (ex: changing git branches) update the vim buffers automatically
   autocmd FileChangedShellPost *
@@ -1970,17 +2131,6 @@ augroup vimenterauto
   autocmd VimEnter * call OnVimEnter()
 augroup END
 
-function! OpenURLUnderCursor()
-  let s:uri = expand('<cWORD>')
-  let s:uri = substitute(s:uri, '?', '\\?', '')
-  let s:uri = shellescape(s:uri, 1)
-  if s:uri != ''
-    silent exec "!open '".s:uri."'"
-   :redraw!
-  endif
-endfunction
-nnoremap gx :call OpenURLUnderCursor()<CR>
-
 " TODO use this to fix duplicate git org and repo name link
 " Press gx to open the GitHub URL for a plugin or a commit with the default browser.
 " function! s:plug_gx()
@@ -2009,18 +2159,27 @@ function! PlugGx()
                   \ : getline(search('^- .*:$', 'bn'))[2:-2]
   else
     " in .vimrc.bundles
-    let l:name = matchlist(l:line, '\v/([A-Za-z0-9\-_\.]+)')[1]
+    try
+      let l:name = matchlist(l:line, '\v/([A-Za-z0-9\-_\.]+)')[1]
+    catch
+      let l:name = "browsersearch"
+    endtry
   endif
 
-  let l:uri  = get(get(g:plugs, l:name, {}), 'uri', '')
-  if l:uri !~? 'github.com'
-    return
+  if (l:name ==# 'browsersearch')
+    echo "NOPE"
+  else
+    let l:uri  = get(get(g:plugs, l:name, {}), 'uri', '')
+    if l:uri !~? 'github.com'
+      return
+    endif
+    let l:repo = matchstr(l:uri, '[^:/]*/'.l:name)
+    let l:url  = empty(l:sha)
+                \ ? 'https://github.com/'.l:repo
+                \ : printf('https://github.com/%s/commit/%s', l:repo, l:sha)
+    call netrw#BrowseX(l:url, 0)
   endif
-  let l:repo = matchstr(l:uri, '[^:/]*/'.l:name)
-  let l:url  = empty(l:sha)
-              \ ? 'https://github.com/'.l:repo
-              \ : printf('https://github.com/%s/commit/%s', l:repo, l:sha)
-  call netrw#BrowseX(l:url, 0)
+
 endfunction
 
 augroup PlugGx
@@ -2445,7 +2604,7 @@ require("nvim-dap-virtual-text").setup()
 vim.g.dap_virtual_text = true
 
 -- dap-ui
-require("dapui").setup({
+require('dapui').setup({
   icons = { expanded = "▾", collapsed = "▸" },
   mappings = {
     -- Use a table to apply multiple mappings
@@ -2610,9 +2769,6 @@ augroup END
 
 " leave space for git, diagnostics and marks
 set signcolumn=auto:5
-" set signcolumn=yes:9
-" set signcolumn=auto:4-9
-" set signcolumn=yes:8
 
 " use C-j, C-k to move in completion list
 inoremap <expr> <C-j> pumvisible() ? "\<C-n>" : "\<C-j>"
@@ -2620,11 +2776,11 @@ inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
 
 " also allow <tab>/<s-tab> to move in completion list.
 " <tab> /<s-tab> snippet mappings take precedence
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+" inoremap <silent><expr> <TAB>
+"       \ pumvisible() ? "\<C-n>" :
+"       \ <SID>check_back_space() ? "\<TAB>" :
+"       \ coc#refresh()
+" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 function! s:check_back_space() abort
   let col = col('.') - 1
@@ -2634,33 +2790,86 @@ endfunction
 " Use <c-space> to trigger completion
 inoremap <silent><expr> <c-space> coc#refresh()
 
-" Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
-" position. Coc only does snippet and additional edit on confirm.
+" Use <cr> to confirm completion
 inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
-" Use `[g` and `]g` to navigate diagnostics
-" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 nmap <silent> [G <Plug>(coc-diagnostic-prev-error)
 nmap <silent> ]G <Plug>(coc-diagnostic-next-error)
 
-" Navigate through git changes on file
-nmap <silent> [h <Plug>(coc-git-nextchunk)
-nmap <silent> ]h <Plug>(coc-git-prevchunk)
-nmap <leader>uc :CocCommand git.chunkUndo<cr>
-vmap <leader>uc :CocCommand git.chunkUndo<cr>
+" navigate chunks of current buffer
+nmap [h <Plug>(coc-git-prevchunk)
+nmap ]h <Plug>(coc-git-nextchunk)
+" :CocCommand git.chunkStage
+
+" navigate conflicts of current buffer
+nmap [k <Plug>(coc-git-prevconflict)
+nmap ]k <Plug>(coc-git-nextconflict)
+
+nmap <silent> <space>gs <Plug>(coc-git-chunkinfo)
+omap <silent> ig <Plug>(coc-git-chunk-inner)
+xmap <silent> ig <Plug>(coc-git-chunk-inner)
+nmap <silent> <space>uc :CocCommand git.chunkUndo<cr>
+vmap <silent> <space>uc :CocCommand git.chunkUndo<cr>
 
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gD <Plug>(coc-declaration)
 nmap <silent> gr <Plug>(coc-references)
-nmap <silent> gu <Plug>(coc-references-used)
-" find all file references
-nmap <leader>afr :<C-u>CocCommand tsserver.findAllFileReferences<cr>
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> <space>gi <Plug>(coc-implementation)
+nmap <silent> <space>gu <Plug>(coc-references-used)
+nmap <silent> <space>go <Plug>(coc-refactor)
 
-nmap <leader>cu :CocOutline<cr>
+nmap <space>cn <Plug>(coc-rename)
+nmap <space>ce <Plug>(coc-codelens-action)
+nmap <space>ca <Plug>(coc-codeaction)
+nmap <space>cc <Plug>(coc-codeaction-cursor)
+nmap <space>cl <Plug>(coc-codeaction-line)
+nmap <space>cf <Plug>(coc-fix-current)
+
+nmap <space>co :CocOutline<cr>
+nmap <space>cki :CHI<cr>
+nmap <space>cko :CHO<cr>
+nmap <space>cs :CocSearch <C-R><C-W><CR>
+nmap <silent> <space>cr :<C-u>CocRestart<CR>
+
+" show outline for each tab automatically
+" autocmd VimEnter,Tabnew *.ts,*.js,*.tsx,*.jsx
+" 		\ if empty(&buftype) | call CocActionAsync('showOutline', 1) | endif
+
+" nmap <space> <Plug>(coc-format)
+" nmap <space> :<C-u>CocCommand eslint.executeAutofix<cr>
+" nmap <space> :<C-u>CocCommand tsserver.organizeImports<cr>
+" nmap <space> :<C-u>CocCommand tsserver.findAllFileReferences<cr>
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
+command! -nargs=0 Format :call CocActionAsync('format')
+command! -nargs=? Fold :call CocAction('fold', <f-args>)
+command! -nargs=0 OR :call CocActionAsync('runCommand', 'editor.action.organizeImport')
+command! -nargs=0 CHI :call CocActionAsync('runCommand', 'document.showIncomingCalls')
+command! -nargs=0 CHO :call CocActionAsync('runCommand', 'document.showOutgoingCalls')
+
+" apply codeAction to the selected region. Ex: `<space>aap` for current paragraph
+vmap <space>a <Plug>(coc-codeaction-selected)
+nmap <space>a <Plug>(coc-codeaction-selected)
+
+" Map function and class text objects
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
+
+nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
+inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
+inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
+vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
+vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
 
 " Use K to show documentation in preview window.
 nnoremap <silent> K :call <SID>show_documentation()<CR>
@@ -2675,101 +2884,52 @@ function! s:show_documentation()
   endif
 endfunction
 
-augroup CocGroup
-  autocmd!
-  " Highlight the symbol and its references when holding the cursor.
-  autocmd CursorHold * silent call CocActionAsync('highlight')
+" https://github.com/neoclide/coc.nvim/issues/1775
+let g:coc_disable_transparent_cursor = 1
 
-  " Setup formatexpr specified filetype(s).
-  autocmd FileType typescript,json setl formatexpr=CocActionAsync('formatSelected')
-  " Update signature help on jump placeholder.
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-  autocmd User CocQuickfixChange :CocList --normal quickfix
-  autocmd User CocLocationsChange ++nested call s:coc_qf_jump2loc(g:coc_jump_locations)
+" max items to show in popup list
+set pumheight=20
 
-  " disable autocomplete for vimwiki, ctrl+space to trigger in insert mode
-  " autocmd FileType vimwiki let b:coc_suggest_disable = 1
-  " have snippets complete, only? mess with this: https://github.com/neoclide/coc.nvim/blob/804a007033bd9506edb9c62b4e7d2b36203ba479/doc/coc.txt#L908
+" tell coc how to navigate to next snippet placeholder
+let g:coc_snippet_next = '<Tab>'
+let g:coc_snippet_prev = '<S-Tab>'
 
-  " close preview when completion is done
-  autocmd CompleteDone * if pumvisible() == 0 | pclose | endif
+" Do default action for next item.
+nnoremap <silent><nowait> <space>an :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent><nowait> <space>ap :<C-u>CocPrev<CR>
 
-  " make sure to kill coc pid when closing nvim (not sure if needed)
-  autocmd VimLeavePre * if get(g:, 'coc_process_pid', 0)
-      \	| call system('kill -9 '.g:coc_process_pid) | endif
-  " run this also?
-  " :CocCommand workspace.clearWatchman
+command -nargs=0 Swagger :CocCommand swagger.render
 
-  " autocmd VimLeavePre * :call coc#rpc#kill()
-  " autocmd VimLeave * if get(g:, 'coc_process_pid', 0) | call system('kill -9 -'.g:coc_process_pid) | endif
+" switch diagnostic to float for full message displaty
+" nmap <leader>cf :call coc#config('diagnostic.messageTarget', 'echo')<CR>
+" nmap <leader>cf :call coc#config('diagnostic.virtualText', v:true)<CR>
+" " make it toggle
+" nmap <leader>ct :call coc#config('diagnostic.messageTarget', 'float')<CR>
+" nmap <leader>ct :call coc#config('diagnostic.virtualText', v:false)<CR>
 
-  " autocmd FileType python let b:coc_root_patterns = ['app.py']
-augroup end
+" coc-fzf remappings
+let g:coc_fzf_opts= ['--layout=reverse']
+let g:coc_fzf_preview='right:50%'
+let g:coc_fzf_preview_fullscreen=0
+let g:coc_fzf_preview_toggle_key='\'
 
-" Applying codeAction to the selected region. Ex: `<leader>aap` for current paragraph
-" I have no idea why <leader> will not work here.....
-vmap ,a <Plug>(coc-codeaction-selected)
-nmap ,a <Plug>(coc-codeaction-selected)
+nnoremap <silent><nowait> <space>za :<C-u>CocFzfList actions<CR>
+nnoremap <silent><nowait> <space>zd :<C-u>CocFzfList diagnostics --current-buf<CR>
+nnoremap <silent><nowait> <space>zD :<C-u>CocFzfList diagnostics<CR>
+nnoremap <silent><nowait> <space>zc :<C-u>CocFzfList commands<CR>
+nnoremap <silent><nowait> <space>ze :<C-u>CocFzfList extensions<CR>
+nnoremap <silent><nowait> <space>zl :<C-u>CocFzfList location<CR>
+nnoremap <silent><nowait> <space>zL :<C-u>CocFzfList<CR>
+nnoremap <silent><nowait> <space>zo :<C-u>CocFzfList outline<CR>
+nnoremap <silent><nowait> <space>zs :<C-u>CocFzfList symbols<CR>
+nnoremap <silent><nowait> <space>zS :<C-u>CocFzfList symbols <C-R><C-W><CR>
+nnoremap <silent><nowait> <space>zn :<C-u>CocFzfList snippets<CR>
+nnoremap <silent><nowait> <space>zv :<C-u>CocFzfList services<CR>
+nnoremap <silent><nowait> <space>zr :<C-u>CocFzfListResume<CR>
+nnoremap <silent><nowait> <space>zy :<C-u>CocFzfList yank<CR>
 
-" Coc search
-nnoremap <leader>ce :CocSearch <C-R><C-W><CR>
-
-" Symbol renaming
-nmap <leader>rn <Plug>(coc-rename)
-
-" refactor split
-nmap <silent> go <Plug>(coc-refactor)
-
-" apply codeAction to the current buffer.
-nmap <leader>ab <Plug>(coc-codeaction)
-" apply codeaction under the cursor
-nmap <leader>ac <Plug>(coc-codeaction-cursor)
-" execute codelens action on current line
-nmap <leader>al <Plug>(coc-codelens-action)
-
-" Apply AutoFix to problem on the current line.
-nmap <leader>afl <Plug>(coc-fix-current)
-
-" Display actions on the current line
-nmap <leader>cal :CocAction<cr>
-
-" fix eslint (all)
-nmap <leader>afa :<C-u>CocCommand eslint.executeAutofix<cr>
-" format file
-nmap <leader>afo <Plug>(coc-format)
-" auto fix imports
-nmap <leader>oi :<C-u>CocCommand tsserver.organizeImports<cr>
-
-" add prettier command
-command! -nargs=0 Prettier :CocCommand prettier.formatFile
-" Add `:Format` command to format current buffer.
-command! -nargs=0 Format :call CocActionAsync('format')
-
-" Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call CocAction('fold', <f-args>)
-" Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR :call CocActionAsync('runCommand', 'editor.action.organizeImport')
-
-" Map function and class text objects
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
-nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-" restart when coc gets wonky
-nnoremap <silent> <leader>cr :<C-u>CocRestart<CR>
-nnoremap <silent> <leader>cs :<C-u>CocStart<CR>
-
-" nvim-bqf
+nnoremap <silent><nowait> <Leader>zf :call <SID>coc_qf_diagnostic()<CR>
 function! s:coc_qf_diagnostic() abort
   if !get(g:, 'coc_service_initialized', 0)
     return
@@ -2802,65 +2962,38 @@ function! s:coc_qf_jump2loc(locs) abort
   endif
 endfunction
 
-" COC.SNIPPET START
 
-" https://github.com/neoclide/coc.nvim/issues/1775
-let g:coc_disable_transparent_cursor = 1
+augroup CocGroup
+  autocmd!
+  " Highlight the symbol and its references when holding the cursor.
+  autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" max items to show in popup list
-set pumheight=20
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocActionAsync('formatSelected')
+  " Update signature help on jump placeholder.
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  autocmd User CocQuickfixChange :CocList --normal quickfix
+  " automatically open quickfix for coc-references, etc. conflicts with CocFzfList
+  " autocmd User CocLocationsChange ++nested call s:coc_qf_jump2loc(g:coc_jump_locations)
 
-" tell coc how to navigate to next snippet placeholder
-let g:coc_snippet_next = '<Tab>'
-let g:coc_snippet_prev = '<S-Tab>'
-" COC.SNIPPET END
+  " disable autocomplete for vimwiki, ctrl+space to trigger in insert mode
+  " autocmd FileType vimwiki let b:coc_suggest_disable = 1
+  " have snippets complete, only? mess with this: https://github.com/neoclide/coc.nvim/blob/804a007033bd9506edb9c62b4e7d2b36203ba479/doc/coc.txt#L908
 
-" Do default action for next item.
-nnoremap <silent><nowait> <space>j :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent><nowait> <space>k :<C-u>CocPrev<CR>
+  " close preview when completion is done
+  autocmd CompleteDone * if pumvisible() == 0 | pclose | endif
 
-" coc-swagger
-command -nargs=0 Swagger :CocCommand swagger.render
+  " make sure to kill coc pid when closing nvim (not sure if needed)
+  autocmd VimLeavePre * if get(g:, 'coc_process_pid', 0)
+      \	| call system('kill -9 '.g:coc_process_pid) | endif
+  " run this also?
+  " :CocCommand workspace.clearWatchman
 
-" switch diagnostic to float for full message displaty
-" nmap <leader>cf :call coc#config('diagnostic.messageTarget', 'echo')<CR>
-" nmap <leader>cf :call coc#config('diagnostic.virtualText', v:true)<CR>
-" " make it toggle
-" nmap <leader>ct :call coc#config('diagnostic.messageTarget', 'float')<CR>
-" nmap <leader>ct :call coc#config('diagnostic.virtualText', v:false)<CR>
+  " autocmd VimLeavePre * :call coc#rpc#kill()
+  " autocmd VimLeave * if get(g:, 'coc_process_pid', 0) | call system('kill -9 -'.g:coc_process_pid) | endif
 
-" coc-fzf remappings
-let g:coc_fzf_opts= ['--layout=reverse']
-let g:coc_fzf_preview='down:80%'
-let g:coc_fzf_preview_fullscreen=0
-let g:coc_fzf_preview_toggle_key='\'
-
-nnoremap <silent><nowait> <leader>za :<C-u>CocFzfList actions<CR>
-nnoremap <silent><nowait> <leader>zd :<C-u>CocFzfList diagnostics --current-buf<CR>
-nnoremap <silent><nowait> <leader>zD :<C-u>CocFzfList diagnostics<CR>
-nnoremap <silent><nowait> <leader>zc :<C-u>CocFzfList commands<CR>
-nnoremap <silent><nowait> <leader>ze :<C-u>CocFzfList extensions<CR>
-nnoremap <silent><nowait> <leader>zl :<C-u>CocFzfList location<CR>
-nnoremap <silent><nowait> <leader>zL :<C-u>CocFzfList<CR>
-nnoremap <silent><nowait> <leader>zo :<C-u>CocFzfList outline<CR>
-nnoremap <silent><nowait> <leader>zs :<C-u>CocFzfList symbols<CR>
-nnoremap <silent><nowait> <leader>zS :<C-u>CocFzfList symbols <C-R><C-W><CR>
-nnoremap <silent><nowait> <leader>zn :<C-u>CocFzfList snippets<CR>
-nnoremap <silent><nowait> <leader>zv :<C-u>CocFzfList services<CR>
-nnoremap <silent><nowait> <leader>zr :<C-u>CocFzfListResume<CR>
-nnoremap <silent><nowait> <leader>zy :<C-u>CocFzfList yank<CR>
-nnoremap <silent><nowait> <space>cd :call <SID>coc_qf_diagnostic()<CR>
-
-function! CopyFloatText() abort
-  let id = win_getid()
-  let winid = coc#float#get_float_win()
-  if winid
-    call win_gotoid(winid)
-    execute 'normal! ggvGy'
-    call win_gotoid(id)
-  endif
-endfunction
+  " autocmd FileType python let b:coc_root_patterns = ['app.py']
+augroup end
 
 " https://github.com/yarnpkg/berry/pull/2598 or use zip file
 " yarn 2 pnp goto definition support
@@ -2899,6 +3032,7 @@ set grepformat=%f:%l:%c:%m
 " nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
 " grep word under cursor all buffers in current window into quickfix
 nnoremap <leader><bs> :AckWindow! <C-R><C-W><CR>
+nnoremap <space><bs> :Ack! <C-R><C-W><CR>
 
 " fzf.vim
 " nnoremap <C-w>- :new<cr>
@@ -3171,6 +3305,9 @@ vnoremap <leader>rl "9y:s/<c-r>9/<c-r>9/g<left><left>
 nnoremap <leader>rl viw"9y:s/<c-r>9/<c-r>9/g<left><left>
 nnoremap <leader>dw y:%s/\<<c-r>"\>//g<cr>
 " vnoremap <leader>dw y:%s/\<<c-r>"\>//g<cr>
+
+nmap cg* *Ncgn
+nnoremap g. /\V<C-r>"<CR>cgn<C-a><Esc>
 
 " Find and Replace in all files
 function! FindAndReplace( ... )
