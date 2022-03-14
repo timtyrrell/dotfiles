@@ -239,7 +239,7 @@ endfunction
 " https://thevaluable.dev/vim-expert/
 augroup cmd_msg_cls
   autocmd!
-  autocmd CmdlineLeave :  call timer_start(10000, funcref('s:empty_message'))
+  autocmd CmdlineLeave : call timer_start(10000, funcref('s:empty_message'))
 augroup END
 
 augroup checktimegroup
@@ -270,6 +270,10 @@ set breakindentopt=shift:2
 nnoremap <expr> j v:count ? (v:count > 5 ? "m'" . v:count : '') . 'j' : 'gj'
 nnoremap <expr> k v:count ? (v:count > 5 ? "m'" . v:count : '') . 'k' : 'gk'
 
+" use neovim nightly filetype detection
+let g:do_filetype_lua = 1
+let g:did_load_filetypes = 0
+
 augroup numbertoggle
   autocmd!
   autocmd BufEnter,FocusGained *.*,.* set relativenumber
@@ -298,7 +302,7 @@ nnoremap - <C-x>
 " dot repetition over visual line selections.
 xnoremap . :norm.<CR>
 
-" run marco over visual lines (using qq to record)
+" run macro over visual lines (using qq to record)
 xnoremap Q :'<,'>:normal @q<CR>
 
 " backup/undo management
@@ -335,7 +339,7 @@ set ignorecase
 set infercase " enhances ignorecase
 set smartcase
 set inccommand=nosplit "highlight :s in realtime
-set diffopt+=vertical
+set diffopt+=vertical,algorithm:patience
 " allows block selections to operate across lines regardless of the underlying text
 set virtualedit=block
 set selection=old
@@ -361,7 +365,6 @@ function! FzfSpell()
 endfunction
 nnoremap z= :call FzfSpell()<CR>
 nmap <silent> <leader>sz :call FzfSpell()<CR>
-" try https://github.com/lewis6991/spellsitter.nvim ?
 
 " keep windows same size when opening/closing splits
 set equalalways
@@ -456,7 +459,7 @@ set mouse=
 " bind '"\C-z":"fg\n"'
 
 " format json
-nnoremap <silent> <Leader>jj :%!python -m json.tool<CR>
+nnoremap <silent> <Leader>jj :set ft=json<CR>:%!python -m json.tool<CR>
 
 " format html
 " nnoremap <silent> <Leader>ti :%!tidy -config ~/.config/tidy_config.txt %<CR>
@@ -466,7 +469,12 @@ nnoremap <silent> <Leader>jj :%!python -m json.tool<CR>
 
 " save with Enter *except* in quickfix buffers
 " https://vi.stackexchange.com/questions/3127/how-to-map-enter-to-custom-command-except-in-quick-fix
-nnoremap <expr> <silent> <CR> &buftype ==# "quickfix" ? "\<CR>" : ":write!<CR>"
+" nnoremap <expr> <silent> <CR> &buftype ==# "quickfix" ? "\<CR>" : ":write!<CR>"
+nnoremap <Enter> :w<Enter>
+nnoremap <leader><Enter> :w !sudo tee %<Enter>
+" Keep default CR behaviour for quickfix list
+autocmd BufReadPost quickfix nnoremap <buffer> <CR> <CR>
+" can check type, not just name like:
 " another option
 " autocmd FileType qf nnoremap <buffer> <cr> <cr>
 
@@ -551,6 +559,8 @@ map <leader>Bdn :BDelete nameless<CR>
 
 " undo tree visualizer
 Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
+nmap <Leader>mt :MundoToggle<CR>
+let g:mundo_right=1
 
 augroup mundoauto
   autocmd!
@@ -576,15 +586,15 @@ function! VimuxZoomInspectRunner()
     call VimuxTmux("copy-mode")
   endif
 endfunction
-map <Leader>vv :call VimuxZoomInspectRunner()<CR>
-map <Leader>vp :VimuxPromptCommand<CR>
-map <Leader>vl :VimuxRunLastCommand<CR>
-map <Leader>vi :VimuxInspectRunner<CR>
-map <leader>vz :VimuxZoomRunner<CR>
-map <Leader>vq :VimuxCloseRunner<CR>
+map <Leader>vv     :call VimuxZoomInspectRunner()<CR>
+map <Leader>vp     :VimuxPromptCommand<CR>
+map <Leader>vl     :VimuxRunLastCommand<CR>
+map <Leader>vi     :VimuxInspectRunner<CR>
+map <leader>vz     :VimuxZoomRunner<CR>
+map <Leader>vq     :VimuxCloseRunner<CR>
 map <Leader>v<C-l> :VimuxClearTerminalScreen<CR>
-map <Leader>vc :VimuxClearRunnerHistory<CR>
-map <Leader>vx :VimuxInterruptRunner<CR>
+map <Leader>vc     :VimuxClearRunnerHistory<CR>
+map <Leader>vx     :VimuxInterruptRunner<CR>
 
 " REPL usage
 function! VimuxSlime()
@@ -597,8 +607,15 @@ endfunction
 vmap <leader>vs "vy :call VimuxSlime()<CR>
 " Select current paragraph and send it to tmux
 nmap <leader>vs vip<leader>vs<CR>
-" send contents of entire file to tmux
-nmap <leader>vf ggVG<leader>vs<CR>
+" send contents of entire buffer to tmux
+nmap <leader>vb ggVG<leader>vs<CR>
+" run file
+nmap <Leader>vf :call VimuxRunCommand("clear; node " . bufname("%"))<CR>
+
+" REPL
+" vnoremap <leader>rn :w !node<Enter>
+" vnoremap <leader>rr :w !ruby<Enter>
+" vnoremap <leader>rp :w !python<Enter>
 
 " dbs
 Plug 'tpope/vim-dadbod'
@@ -669,6 +686,9 @@ Plug 'JoosepAlviste/nvim-ts-context-commentstring'
 " Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'mfussenegger/nvim-ts-hint-textobject'
 
+" use tree-sitter highlighting for spellchecker
+Plug 'lewis6991/spellsitter.nvim'
+
 Plug 'andrewradev/sideways.vim'
 nnoremap <A-Left> :SidewaysLeft<cr>
 nnoremap <A-Right> :SidewaysRight<cr>
@@ -714,6 +734,7 @@ let g:polyglot_disabled = [
         \ 'jsonc', 'jsx', 'lua', 'python', 'regex', 'rspec', 'ruby',
         \ 'sh', 'svg', 'tmux', 'tsx', 'typescript', 'typescriptreact', 'yaml']
 Plug 'sheerun/vim-polyglot'
+" Plug 'sheerun/vim-polyglot', { 'commit': '2c5af8f' }
 let g:polyglot_disabled = ['sensible']
 let g:polyglot_disabled = ['ftdetect']
 let g:polyglot_disabled = ['autoindent']
@@ -734,7 +755,6 @@ let g:mkdp_auto_start = 0
 let g:mkdp_filetypes = ['markdown']
 nmap <leader>mp <Plug>MarkdownPreview
 nmap <leader>ms <Plug>MarkdownPreviewStop
-
 " display images in neovim
 " https://github.com/edluffy/hologram.nvim
 
@@ -771,6 +791,19 @@ Plug 'tpope/vim-abolish'
 " Title Case (crt)
 
 Plug 'mileszs/ack.vim'
+let g:ackprg = 'rg --vimgrep'
+" Don't jump to first match
+cnoreabbrev Ack Ack!
+
+" use ripgrep for grep
+set grepprg=rg\ --vimgrep\ --no-heading
+set grepformat=%f:%l:%c:%m
+
+" grep word under cursor in entire project into quickfix
+" nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
+" grep word under cursor all buffers in current window into quickfix
+nnoremap <leader><bs> :AckWindow! <C-R><C-W><CR>
+nnoremap <space><bs> :Ack! <C-R><C-W><CR>
 
 " enhanced matchit
 let g:loaded_matchit = 1
@@ -864,6 +897,10 @@ Plug 'tpope/vim-jdaddy'
 " ["x]gwij                Merge the JSON from the register into the innermost JSON.  Merging extends objects, concatenates strings and arrays, and adds numbers.
 " ["x]gwaj                Merge the JSON from the register into the outermost JSON.
 
+Plug 'mogelbrod/vim-jsonpath'
+" :JsonPath: Echoes the path to the identifier under the cursor.
+" :JsonPath path.to.prop
+
 Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-apathy'
 "gf support
@@ -927,23 +964,18 @@ Plug 'kana/vim-textobj-indent'
 " ii	<Plug>(textobj-indent-i)
 " aI	<Plug>(textobj-indent-same-a)
 " iI	<Plug>(textobj-indent-same-i)
-" Plug 'vimtaku/vim-textobj-keyvalue'
+Plug 'vimtaku/vim-textobj-keyvalue'
 " ak	<Plug>(textobj-key-a)
 " ik	<Plug>(textobj-key-i)
 " av	<Plug>(textobj-value-a)
 " iv	<Plug>(textobj-value-i)
 
-Plug 'sgur/vim-textobj-parameter'
-let g:vim_textobj_parameter_mapping = ','
-" i,
-" a,
-
+" Plug 'Julian/vim-textobj-variable-segment'
 " iv and av for variable segments, snake_case, camelCase, etc
-Plug 'Julian/vim-textobj-variable-segment'
 
+Plug 'rhysd/vim-textobj-anyblock'
 " ib is a union of i(, i{, i[, i', i" and i<
 " ab is a union of a(, a{, a[, a', a" and a<
-Plug 'rhysd/vim-textobj-anyblock'
 
 " https://github.com/mlaursen/vim-react-snippets#cheatsheet
 Plug 'mlaursen/vim-react-snippets', { 'branch': 'main' }
@@ -976,7 +1008,7 @@ Plug 'tpope/vim-fugitive' |
            \ Plug 'tpope/vim-rhubarb' | "GitHub extension for fugitive.vim
 
 " https://github.com/tpope/vim-fugitive/issues/1446
-" old version of husky at work....
+" fix older husky versions
 let g:fugitive_pty = 0
 
 " Fugitive mapping
@@ -984,39 +1016,62 @@ nmap <leader>gb :Git blame<cr>
 nmap <leader>gB :%Git blame<cr>
 nmap <leader>gd :Gdiff<cr>
 
-nmap <leader>gl :Gclog<cr>
-nmap <leader>gL :Gclog -- %<cr>
+" list names of changes files in quickfix
+nnoremap <silent><leader>gt <cmd>Git difftool --name-only<CR>
+" list all locations of changed files in quickfix
+nnoremap <silent><leader>gT <cmd>Git difftool<CR>
+
+" Location list no jump log of current file and general commit log (gL)
+nnoremap <silent><Leader>gl <cmd>0Git log<CR>
+nnoremap <silent><Leader>gL <cmd>Git log<CR>
+
+nmap <leader>gc :Gclog<cr>
+nmap <leader>gC :Gclog -- %<cr>
 " :0Glog " see history of current file
 " nmap <leader>gL :Gclog -100<cr>
 " G log to see commits
 " 'o' to see diff, 'O' to open in new tab
 " coo to checkout and switch to that commit
 
-nmap <leader>ge :Gedit<cr>
+" :Gedit is 'git checkout %' => reverts work tree file to index, be careful!
+nnoremap <Leader>ge :Gedit<Space>
+nnoremap <silent><Leader>ge :Gedit <bar> only<CR>
 " :Gedit main:file.js to open file version in another branch
 " :Gedit " go back to normal file from read-only view in Gstatus window
 
-nmap <leader>gc :Git commit<cr>
+nmap <leader>go :Git commit<cr>
 
 nmap <leader>gr :Gread<cr>:update<cr>
 " :Gread main:file.js to replace file from one in another branch
 
 nmap <leader>gg :Ggrep
+" Grepping git trees and commits messages. '!' to run it async.
+" git grep 'foo bar' [branch/SHA]
+" git log --grep='foobar' to search commit messages
+" git log -Sfoobar (when 'foobar' was added/removed)
+nnoremap <Leader>g/ :Ggrep! -Hnri --quiet<Space>
+nnoremap <Leader>g? :Git! log --grep=
+" nnoremap <Leader>gS :Git! log -S<Space>
+nnoremap <Leader>g* :Ggrep! -Hnri --quiet <C-r>=expand("<cword>")<CR><CR>
 
-" Add the entire file to the staging area
-nnoremap <Leader>gaf :Gw<CR>
+nnoremap <silent><Leader>gP <cmd>Git push<CR>
+nnoremap <silent><Leader>gp <cmd>Git pull<CR>
+nnoremap <silent><Leader>gf <cmd>Git fetch<CR>
 
 " Open visual selection in browser
 vnoremap <Leader>Gb :GBrowse<CR>
-
 " Open current line in the browser
 nnoremap <Leader>Gb :.GBrowse<CR>
 
 " Copy visual selection url to clipboard
 vnoremap <Leader>GB :GBrowse!<CR>
-
 " Copy current line url to clipboard
 nnoremap <Leader>GB :.GBrowse!<CR>
+
+" Add <cfile> to index and save
+nnoremap <silent><Leader>gw <cmd>Gwrite<CR>
+" gW useful in 3 way merge diffs: choose a buffer and use gW to use all that versions' changes, i.e., --ours/theirs
+nnoremap <silent><Leader>gW <cmd>Gwrite!<CR>
 
 augroup fugitive_ext
   autocmd!
@@ -1035,13 +1090,26 @@ function! s:ToggleGitStatus() abort
   endfor
 endfunction
 nnoremap <leader>gs :call <SID>ToggleGitStatus()<CR>
+nnoremap <leader>gS :0Git<CR>
 " P (on the file you want to run patch on)
 " <C-N> or <C-P> to jump to the next/previous file
 " - on a file, stages (or unstages) the entire file.
 " = shows the git diff of the file your cursor is on.
 " - on a hunk, stages (or unstages) the hunk.
 " - in a visual selection, stages (or unstages) the selected lines in the hunk.
-" cvc - commits the staged changes in verbose mode.
+" cc                      Create a commit.
+" ca                      Amend the last commit and edit the message.
+" ce                      Amend the last commit without editing the message.
+" cw                      Reword the last commit.
+" cvc                     Create a commit with -v.
+" cva                     Amend the last commit with -v
+" cf                      Create a `fixup!` commit for the commit under the cursor.
+" cF                      Create a `fixup!` commit for the commit under the cursor and immediately rebase it.
+" cs                      Create a `squash!` commit for the commit under the cursor.
+" cS                      Create a `squash!` commit for the commit under the cursor and immediately rebase it.
+" cA                      Create a `squash!` commit for the commit under the cursor and edit the message.
+" crc                     Revert the commit under the cursor.
+" crn                     Revert the commit under the cursor in the index and work tree, but do not actually commit the changes.
 " :GV to open commit browser, git log options to the command, e.g. :GV -S foobar.
 " :GV! will only list commits that affected the current file
 " :GV? fills the location list with the revisions of the current file
@@ -1050,6 +1118,9 @@ nnoremap <leader>gs :call <SID>ToggleGitStatus()<CR>
 " do - `diffget` (obtain)
 " dp - `diffput`
 " staging hunks: https://vi.stackexchange.com/questions/10368/git-fugitive-how-to-git-add-a-visually-selected-chunk-of-code/10369#10369
+
+" put changed file names from previous commit into the quickfix list
+command -nargs=? -bar Gshow call setqflist(map(systemlist("git show --pretty='' --name-only <args>"), '{"filename": v:val, "lnum": 1}'))
 
 " command line mergetool
 Plug 'christoomey/vim-conflicted'
@@ -1131,13 +1202,8 @@ nnoremap <leader>ors <cmd>Octo review start<cr>
 nnoremap <leader>orr <cmd>Octo review resume<cr>
 nnoremap <leader>orb <cmd>Octo review submit<cr>
 
-Plug 'ElPiloto/telescope-vimwiki.nvim'
-" nnoremap <leader>vw :Telescope vimwiki<cr>
-" nnoremap <leader>vg :Telescope vimwiki live_grep<cr>
-nnoremap <leader>vw <cmd>lua require('telescope').extensions.vimwiki.vimwiki()<cr>
-nnoremap <leader>vg <cmd>lua require('telescope').extensions.vimwiki.live_grep()<cr>
-
 Plug 'nvim-telescope/telescope-node-modules.nvim'
+nnoremap <leader>fn <cmd>Telescope node_modules list<cr>
 
 Plug 'dhruvmanila/telescope-bookmarks.nvim'
 
@@ -1155,7 +1221,6 @@ Plug 'LinArcX/telescope-env.nvim'
 
 Plug 'fannheyward/telescope-coc.nvim'
 
-Plug 'camgraff/telescope-tmux.nvim'
 Plug 'norcalli/nvim-terminal.lua'
 " https://github.com/akinsho/toggleterm.nvim
 
@@ -1170,27 +1235,18 @@ Plug 'kyazdani42/nvim-tree.lua'
 nnoremap <silent> <leader>ee :NvimTreeFindFile<CR>
 nnoremap <silent> <leader>et :NvimTreeToggle<CR>
 nnoremap <silent> <leader>er :NvimTreeRefresh<CR>
-" NvimTreeOpen, NvimTreeClose, NvimTreeFocus, NvimTreeFindFileToggle, and NvimTreeResize
+" NvimTreeOpen, NvimTreeClose, NvimTreeFocus, NvimTreeFindFileToggle, NvimTreeResize, NvimTreeCollapse
+" NvimTreeCollapseKeepBuffers
 let g:nvim_tree_indent_markers = 1 "0 by default, this option shows indent markers when folders are open
 let g:nvim_tree_git_hl = 1 "0 by default, will enable file highlight for git attributes (can be used without the icons).
 let g:nvim_tree_highlight_opened_files = 1
-let g:nvim_tree_disable_window_picker = 0
-let g:nvim_tree_window_picker_exclude = {
-    \   'filetype': [
-    \     'notify',
-    \     'packer',
-    \     'qf'
-    \   ],
-    \   'buftype': [
-    \     'terminal'
-    \   ]
-    \ }
 
 " https://levelup.gitconnected.com/git-worktrees-the-best-git-feature-youve-never-heard-of-9cd21df67baf
 Plug 'ThePrimeagen/git-worktree.nvim'
 
 " regex explain - :ExplainPattern {pattern} or :ExplainPattern {register}
 Plug 'Houl/ExplainPattern'
+Plug 'bennypowers/nvim-regexplainer'
 
 Plug 'tpope/vim-scriptease'
 " https://codeinthehole.com/tips/debugging-vim-by-example/#why-isn-t-syntax-highlighting-working-as-i-want
@@ -1201,6 +1257,7 @@ Plug 'tpope/vim-scriptease'
 " visiblity
 " TODO: try ? https://github.com/karb94/neoscroll.nvim
 Plug 'psliwka/vim-smoothie'
+let g:smoothie_base_speed = 30
 
 Plug 'Konfekt/FastFold'
 let g:fastfold_savehook = 1
@@ -1243,7 +1300,7 @@ Plug 'chentau/marks.nvim'
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 let g:Hexokinase_highlighters = ['backgroundfull']
 " let g:Hexokinase_highlighters = ['virtual']
-let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'less', 'vim', 'conf', 'tmux', 'gitconfig', 'xml', 'lua', 'stylus']
+let g:Hexokinase_ftEnabled = ['css', 'html', 'javascript', 'typescript', 'typescriptreact', 'javascriptreact', 'less', 'vim', 'conf', 'tmux', 'gitconfig', 'xml', 'lua', 'stylus', 'sh']
 
 " appearence and insight
 Plug 'ryanoasis/vim-devicons'
@@ -1389,14 +1446,15 @@ Plug 'folke/which-key.nvim'
 Plug 'antoinemadec/FixCursorHold.nvim'
 
 " typescript fork of 'ianding1/leetcode.vim'
-Plug 'briemens/leetcode.vim'
+" Plug 'briemens/leetcode.vim'
+Plug 'mbledkowski/neuleetcode.vim'
 let g:leetcode_solution_filetype='typescript'
 let g:leetcode_username='timtyrrell'
 let g:leetcode_browser='firefox'
 let g:leetcode_problemset='algorithms'
-let g:leetcode_hide_paid_only=1
-let g:leetcode_hide_topics=1
-let g:leetcode_hide_companies=1
+let g:leetcode_hide_paid_only=0
+let g:leetcode_hide_topics=0
+let g:leetcode_hide_companies=0
 nnoremap <leader>ll :LeetCodeList<cr>
 nnoremap <leader>lt :LeetCodeTest<cr>
 nnoremap <leader>ls :LeetCodeSubmit<cr>
@@ -1519,6 +1577,20 @@ set shada=!,'0,f0,<50,s10,h
 
 lua << EOF
 
+-- diff with clipboard
+function _G.compare_to_clipboard()
+  local ftype = vim.api.nvim_eval("&filetype")
+  vim.cmd("vsplit")
+  vim.cmd("enew")
+  vim.cmd("normal! P")
+  vim.cmd("setlocal buftype=nowrite")
+  vim.cmd("set filetype="..ftype)
+  vim.cmd("diffthis")
+  vim.cmd([[execute "normal! \<C-w>h"]])
+  vim.cmd("diffthis")
+end
+-- :call v:lua.compare_to_clipboard()<CR>
+
 -- fold settings
 vim.wo.foldmethod = "expr"
 vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
@@ -1528,20 +1600,24 @@ vim.o.foldtext = [[substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'
 vim.wo.foldnestmax = 3
 vim.wo.foldminlines = 1
 
+require('regexplainer').setup {}
 require('harpoon').setup {}
 require('yode-nvim').setup {}
 require('tabout').setup {}
 require('nvim-web-devicons').setup {}
 require('which-key').setup {}
+require('spellsitter').setup()
 require('headlines').setup {
   vimwiki = {
-      source_pattern_start = "^```",
-      source_pattern_end = "^```$",
-      dash_pattern = "^---+$",
-      headline_pattern = "^#+",
-      headline_highlights = { "Headline" },
-      codeblock_highlight = "CodeBlock",
-      dash_highlight = "Dash",
+    source_pattern_start = "^```",
+    source_pattern_end = "^```$",
+    dash_pattern = "^---+$",
+    headline_pattern = "^#+",
+    headline_highlights = { "Headline" },
+    codeblock_highlight = "CodeBlock",
+    dash_highlight = "Dash",
+    dash_string = "-",
+    fat_headlines = true,
   },
 }
 require('terminal').setup {}
@@ -1566,6 +1642,17 @@ vim.api.nvim_set_keymap("n", "<leader>nr", ":lua require('package-info').reinsta
 -- Install a different package version
 vim.api.nvim_set_keymap("n", "<leader>np", ":lua require('package-info').change_version()<CR>", { silent = true, noremap = true })
 
+-- Open sub-folds at current code block level
+local function open_sub_folds()
+  local line_data = vim.api.nvim_win_get_cursor(0) -- returns {row, col}
+  local fold_closed = vim.fn.foldclosed(line_data[1])
+  if fold_closed == -1 then -- not folded
+    return  "zczO"
+  else -- if fold - then open normall
+    return "zO"
+  end
+end
+vim.keymap.set( "n", "zO", open_sub_folds, { remap = false, expr = true } )
 
 require('auto-session').setup {
   log_level = 'info',
@@ -1657,6 +1744,24 @@ require('nvim-tree').setup {
     mappings = {
       list = {}
     }
+  },
+  actions = {
+    change_dir = {
+      enable = true,
+      global = false,
+    },
+    open_file = {
+      quit_on_open = false,
+      resize_window = false,
+      window_picker = {
+        enable = false,
+        chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
+        exclude = {
+          filetype = { "notify", "packer", "qf", "diff", "fugitive", "fugitiveblame", },
+          buftype  = { "nofile", "terminal", "help", },
+        }
+      }
+    }
   }
 }
 
@@ -1683,6 +1788,12 @@ require('rest-nvim').setup({
   -- Jump to request line on run
   jump_to_request = false,
 })
+
+require'lightspeed'.setup {
+  -- jump_to_unique_chars = false,
+  -- safe_labels = {} ,
+  -- repeat_ft_with_target_char = false,
+}
 
 require('hop').setup()
 vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
@@ -1746,6 +1857,7 @@ local actions = require('telescope.actions')
 require('telescope').setup {
   defaults = {
     path_display = { truncate = 2 },
+    wrap_results = true,
     layout_config = {
       horizontal = {
         prompt_position = "top"
@@ -1891,10 +2003,8 @@ require('telescope').load_extension('gh')
 -- | `<c-r>` | request run rerun                            |
 -- Telescope gh gist
 -- Telescope gh issues
-require('telescope').load_extension('tmux')
 require('telescope').load_extension('coc')
 require("telescope").load_extension("git_worktree")
-require('telescope').load_extension('vimwiki')
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('bookmarks')
 require("telescope").load_extension("emoji")
@@ -2098,13 +2208,6 @@ augroup end
 
 " quickfix
 nmap <Leader>qq <Plug>window:quickfix:loop
-
-" vim-mundo
-nmap <Leader>mt :MundoToggle<CR>
-let g:mundo_right=1
-
-" vim-smoothie
-let g:smoothie_base_speed = 30
 
 " Run PlugUpgrade and PlugUpdate every day automatically when entering Vim.
 function! OnVimEnter() abort
@@ -2613,6 +2716,7 @@ require('dapui').setup({
     remove = "d",
     edit = "e",
     repl = "r",
+    toggle = "t",
   },
   sidebar = {
     -- You can change the order of elements in the sidebar
@@ -2802,6 +2906,7 @@ nmap <silent> ]G <Plug>(coc-diagnostic-next-error)
 nmap [h <Plug>(coc-git-prevchunk)
 nmap ]h <Plug>(coc-git-nextchunk)
 " :CocCommand git.chunkStage
+" :CocCommand git.chunkUnstage
 
 " navigate conflicts of current buffer
 nmap [k <Plug>(coc-git-prevconflict)
@@ -2834,6 +2939,20 @@ nmap <space>cki :CHI<cr>
 nmap <space>cko :CHO<cr>
 nmap <space>cs :CocSearch <C-R><C-W><CR>
 nmap <silent> <space>cr :<C-u>CocRestart<CR>
+
+" autocmd VimEnter,Tabnew *
+"   \ if empty(&buftype) | call CocActionAsync('showOutline', 1) | endif
+
+autocmd BufEnter * call CheckOutline()
+function! CheckOutline() abort
+  if &filetype ==# 'coctree' && winnr('$') == 1
+    if tabpagenr('$') != 1
+      close
+    else
+      bdelete
+    endif
+  endif
+endfunction
 
 " show outline for each tab automatically
 " autocmd VimEnter,Tabnew *.ts,*.js,*.tsx,*.jsx
@@ -3019,21 +3138,6 @@ augroup yarngroup
   autocmd BufReadCmd /zip:*.yarn/cache/*.zip/* call OpenZippedFile(expand('<afile>'))
 augroup END
 
-" ack.vim
-let g:ackprg = 'rg --vimgrep'
-" Don't jump to first match
-cnoreabbrev Ack Ack!
-
-" use ripgrep for grep
-set grepprg=rg\ --vimgrep\ --no-heading
-set grepformat=%f:%l:%c:%m
-
-" grep word under cursor in entire project into quickfix
-" nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
-" grep word under cursor all buffers in current window into quickfix
-nnoremap <leader><bs> :AckWindow! <C-R><C-W><CR>
-nnoremap <space><bs> :Ack! <C-R><C-W><CR>
-
 " fzf.vim
 " nnoremap <C-w>- :new<cr>
 " nnoremap <C-w><bar> :vnew<cr>
@@ -3058,26 +3162,27 @@ let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.7 } }
 " nnoremap <leader>ff <cmd>lua require('telescope.builtin').git_files()<cr>
 " nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>
 nnoremap <silent> <Leader>ff <cmd>Files<CR>
+
 " to set search folder
-nnoremap <Leader>fF <cmd>Files<space>
+nnoremap <silent> <Leader>fF :Files<space>
 " nmap <c-a-p> :cd ~/projects<cr>:Files<cr> " airblade/vim-rooter sets the current path and this switches to a new project
 
-nnoremap <silent> <Leader>ft <cmd>lua require('telescope').extensions.tele_tabby.list()<CR>
+nnoremap <silent> <Leader>fT <cmd>lua require('telescope').extensions.tele_tabby.list()<CR>
 
 nnoremap <silent> <Leader>fp :call fzf#vim#files('', { 'source': g:FzfFilesSource(), 'options': '--tiebreak=index'})<CR>
 
-nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
-" nnoremap <Leader>fb :Buffers<CR>
+nnoremap <silent> <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>
+" nnoremap <silent> <Leader>fb :Buffers<CR>
 " let g:fzf_buffers_jump = 1
 
 " Lines in the current buffer
-nnoremap <leader>fB <cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>
-" nnoremap <Leader>fB :BLines<CR>
+nnoremap <silent><leader>fB <cmd>lua require('telescope.builtin').current_buffer_fuzzy_find()<cr>
+" nnoremap <silent> <Leader>fB :BLines<CR>
 
 " live grep exact word match
-" nnoremap <leader>fl <cmd>lua require('telescope.builtin').live_grep()<cr>
+" nnoremap <silent> <leader>fl <cmd>lua require('telescope.builtin').live_grep()<cr>
 " live grep fuzzy match
-" nnoremap <leader>fL <cmd>lua require('telescope.builtin')
+" nnoremap <silent> <leader>fL <cmd>lua require('telescope.builtin')
 "       \ .grep_string({
 "       \   only_sort_text = true,
 "       \   search = ''
@@ -3085,56 +3190,65 @@ nnoremap <leader>fB <cmd>lua require('telescope.builtin').current_buffer_fuzzy_f
 nnoremap <silent> <Leader>fl <cmd>RgLines<CR>
 
 " Lines in loaded buffers
-nnoremap <leader>fz <cmd>lua require('telescope.builtin')
+nnoremap <silent> <leader>fz <cmd>lua require('telescope.builtin')
       \.live_grep({
       \   prompt_title = 'find string in open buffers...',
       \   grep_open_files = true
       \ })<cr>
 nnoremap <silent> <Leader>fL :Lines<CR>
-nnoremap <leader>fh <cmd>lua require('telescope.builtin').command_history()<cr>
+nnoremap <silent> <leader>fh <cmd>lua require('telescope.builtin').command_history()<cr>
 " nnoremap <silent> <Leader>fh :HistoryCmds<CR>
 
-nnoremap <leader>fH <cmd>lua require('telescope.builtin').oldfiles()<cr>
+nnoremap <silent> <leader>fH <cmd>lua require('telescope.builtin').oldfiles()<cr>
 " nnoremap <silent> <Leader>fH :History<CR>
-nnoremap <leader>fS <cmd>lua require('telescope.builtin').search_history()<cr>
+nnoremap <silent> <leader>fS <cmd>lua require('telescope.builtin').search_history()<cr>
 " nnoremap <silent> <Leader>fS :HistorySearch<CR>
 nnoremap <silent> <Leader>fg <cmd>lua require('telescope.builtin').git_status()<cr>
 " nnoremap <silent> <Leader>fg :GFiles?<CR>
-nnoremap <leader>fc <cmd>lua require('telescope.builtin').git_commits()<cr>
+nnoremap <silent> <leader>fc <cmd>lua require('telescope.builtin').git_commits()<cr>
 " nnoremap <silent> <Leader>fc :Commits<CR>
-nnoremap <leader>fC <cmd>lua require('telescope.builtin').git_bcommits()<cr>
+nnoremap <silent> <leader>fC <cmd>lua require('telescope.builtin').git_bcommits()<cr>
 " nnoremap <silent> <Leader>fC :BCommits<CR>
-nnoremap <leader>fm <cmd>lua require('telescope.builtin').marks()<cr>
+nnoremap <silent> <leader>fm <cmd>lua require('telescope.builtin').marks()<cr>
 " nnoremap <silent> <Leader>fm :Marks<CR>
-nnoremap <leader>fM <cmd>lua require('telescope.builtin').keymaps()<cr>
+nnoremap <silent> <leader>fM <cmd>lua require('telescope.builtin').keymaps()<cr>
 " nnoremap <silent> <Leader>fM :Maps<CR>
 
-nnoremap <leader>fs <cmd>lua require('telescope.builtin').spell_suggest()<cr>
+nnoremap <silent> <leader>fs <cmd>lua require('telescope.builtin').spell_suggest()<cr>
 
-nnoremap <leader>fr <cmd>lua require('telescope.builtin').resume()<cr>
+nnoremap <silent> <leader>fr <cmd>lua require('telescope.builtin').resume()<cr>
 
 nnoremap <silent> <leader>bd :BD<CR>
 
-" start search from current dir
-" nnoremap <leader>fd <cmd>lua require('telescope.builtin')
+" start file search in current dir
+" nnoremap <silent> <leader>fd <cmd>lua require('telescope.builtin')
 "       \ .find_files({
 "       \   cwd = require'telescope.utils'.buffer_dir()
 "       \ })<cr>
 nnoremap <silent> <Leader>fd :Files <C-R>=expand('%:h')<CR><CR>
 
 " Rg current word under cursor
-" nnoremap <leader>rw <cmd>lua require('telescope.builtin')
+" nnoremap <silent> <leader>rw <cmd>lua require('telescope.builtin')
 "       \ .grep_string({
 "       \   only_sort_text = true,
 "       \   word_match = '-w',
 "       \ })<cr>
 nnoremap <silent> <Leader>rw :RgLines <C-R><C-W><CR>
+
 " Rg with any params (filetypes)
-nnoremap <leader>rf :RG **/*.
+nnoremap <silent> <leader>rf :RG **/*.
+
 " Rg with dir autocomplete
-nnoremap <leader>rd :RGdir<Space>
+nnoremap <silent> <leader>rd :RGdir<Space>
+
+" Only search NON-test files defined in .ripgreprc
+nnoremap <silent> <leader>rt :RG --type-not test -g '!{cypress,test,*mocks*,__test__}'<CR>
+
+" Only search test files defined in .ripgreprc
+nnoremap <silent> <leader>rT :RG --type test<CR>
+
 " Search by file path/names AND file contents
-" nnoremap <Leader>ra :Rg<CR>
+nnoremap <silent> <Leader>ra :Rg<CR>
 
 " Search lines in _all_ buffers with smart-case (this only does the current buffer???)
 " command! -bang -nargs=* BLines
@@ -3171,11 +3285,25 @@ function! RipgrepFzf(filepaths, fullscreen)
   call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
 endfunction
 
+" Change to git project directory
+nnoremap <silent> <Leader>fI :FZFCd ~/code<CR>
+nnoremap <silent> <Leader>fi :FZFCd!<CR>
+command! -bang -bar -nargs=? -complete=dir FZFCd
+	\ call fzf#run(fzf#wrap(
+	\ {'source': 'find '..( empty("<args>") ? ( <bang>0 ? "~" : "." ) : "<args>" ) ..
+	\ ' -type d -maxdepth 1', 'sink': 'cd'}))
+
+" redefine :Rg to all arg passing
+" command! -bang -nargs=* Rg
+"   \ call fzf#vim#grep(
+"   \ "rg --column --line-number --no-heading --color=always --smart-case " .
+"   \ <q-args>, 1, fzf#vim#with_preview(), <bang>0)
+
 " filter by anything
 " :RG **/*.ts
 " :RG -tweb (INCLUDE 'web' type from .ripgreprc)
 " :RG -Ttest (EXCLUDE 'test' type from .ripgreprc)
-command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
+" command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 " autocomplete dirs
 command! -nargs=* -bang -complete=dir RGdir call RipgrepFzf(<q-args>, <bang>0)
 
@@ -3237,6 +3365,59 @@ function! s:FzfFallback()
 endfunction
 tnoremap <c-space> <c-\><c-n>c:call <sid>FzfFallback()<cr>
 
+" FZF JUMPS/CHANGES
+function GoTo(jumpline)
+  let values = split(a:jumpline, ":")
+  echo "e ".values[0]
+  call cursor(str2nr(values[1]), str2nr(values[2]))
+  execute "normal! zvzz"
+endfunction
+
+function GetLine(bufnr, lnum)
+  let lines = getbufline(a:bufnr, a:lnum)
+  if len(lines)>0
+    return trim(lines[0])
+  else
+    return ''
+  endif
+endfunction
+
+function! Jumps()
+  " Get jumps with filename added
+  let jumps = map(reverse(copy(getjumplist()[0])),
+    \ { key, val -> extend(val, {'name': expand('#'.(val.bufnr)) }) })
+
+  let jumptext = map(copy(jumps), { index, val ->
+      \ (val.name).':'.(val.lnum).':'.(val.col+1).': '.GetLine(val.bufnr, val.lnum) })
+
+  call fzf#run(fzf#vim#with_preview(fzf#wrap({
+        \ 'source': jumptext,
+        \ 'column': 1,
+        \ 'options': ['--delimiter', ':', '--bind', 'alt-a:select-all,alt-d:deselect-all', '--preview-window', '+{2}-/2'],
+        \ 'sink': function('GoTo')})))
+endfunction
+command! Jumps call Jumps()
+
+function! Changes()
+  let changes  = reverse(copy(getchangelist()[0]))
+
+  let offset = &lines / 2 - 3
+  let changetext = map(copy(changes), { index, val ->
+      \ expand('%').':'.(val.lnum).':'.(val.col+1).': '.GetLine(bufnr('%'), val.lnum) })
+
+  call fzf#run(fzf#vim#with_preview(fzf#wrap({
+        \ 'source': changetext,
+        \ 'column': 1,
+        \ 'options': ['--delimiter', ':', '--bind', 'alt-a:select-all,alt-d:deselect-all', '--preview-window', '+{2}-/2'],
+        \ 'sink': function('GoTo')})))
+endfunction
+command! Changes call Changes()
+
+nnoremap <silent> <leader>fj :Jumps<CR>
+" mnemonic 'moDified'
+nnoremap <silent> <leader>fD :Changes<CR>
+" FZF JUMPS/CHANGES
+
 " Fzf display mappings
 nmap <tab><tab> <plug>(fzf-maps-n)
 xmap <tab><tab> <plug>(fzf-maps-x)
@@ -3297,19 +3478,24 @@ function! g:FzfFilesSource()
   endif
 endfunction
 
+" :e a new file and include a directory that doesn't exist, create it
+augroup Mkdir
+  autocmd!
+  autocmd BufWritePre * call mkdir(expand("<afile>:p:h"), "p")
+augroup END
+
 " Search and replace in file/line (selection or word)
 " or use: Visual select > dgn > n(skip) or .(repeat)
-vnoremap <leader>rs "9y:%s/<c-r>9/<c-r>9/g<left><left>
-nnoremap <leader>rs viw"9y:%s/<c-r>9/<c-r>9/g<left><left>
-vnoremap <leader>rl "9y:s/<c-r>9/<c-r>9/g<left><left>
-nnoremap <leader>rl viw"9y:s/<c-r>9/<c-r>9/g<left><left>
-nnoremap <leader>dw y:%s/\<<c-r>"\>//g<cr>
-" vnoremap <leader>dw y:%s/\<<c-r>"\>//g<cr>
+vnoremap <leader>rs "9y:%s/<c-r>9//g<left><left>
+" nnoremap <leader>rs viw"9y:%s/<c-r>9//g<left><left>
+nnoremap <leader>rs :%s/\<<C-r>=expand("<cword>")<CR>\>/
+vnoremap <leader>rl "9y:s/<c-r>9//g<left><left>
+nnoremap <leader>rl viw"9y:s/<c-r>9//g<left><left>
 
 nmap cg* *Ncgn
 nnoremap g. /\V<C-r>"<CR>cgn<C-a><Esc>
 
-" Find and Replace in all files
+" Find and Replace in *all* files
 function! FindAndReplace( ... )
   if a:0 != 2
     echo "Need two arguments"
@@ -3319,8 +3505,6 @@ function! FindAndReplace( ... )
   execute printf('argdo %%substitute/%s/%s/g | update', a:1, a:2)
 endfunction
 command! -nargs=+ FindAndReplaceAll call FindAndReplace(<f-args>)
-" nmap  S  :%s//g<LEFT><LEFT>
-" nmap <expr>  M  ':%s/' . @/ . '//g<LEFT><LEFT>'
 
 " Disable tmux navigator when zooming the Vim pane
 let g:tmux_navigator_disable_when_zoomed = 1

@@ -29,7 +29,20 @@ set -g status-left "#[fg=${black},bg=${blue},bold] #S #[fg=${blue},bg=${bg_dark}
 
 # set -g status-right '#{?#{music_status},♫ #{music_status} #{artist}: #{track} |,""} #(gitmux "#{pane_current_path}") | #{docker_status} | #{kcontext}#{kpod} #{pomodoro_status}'
 # set -g status-right '♫ #{music_status} #{artist}: #{track} | #(gitmux "#{pane_current_path}") | #{docker_status} | #{kcontext}#{kpod} #{pomodoro_status}'
+# tm_tunes="#{?#{tm_tunes_present},#{track} #{artist},}"
+# set -g status-right $tm_tunes
+
+# tm_tunes="#{?#{tm_tunes_present},♫ #{artist}: #{track} |,}"
+# tm_tunes="#{?#{tm_tunes_present},♫ #{track} #{artist},}"
+# set -g status-right $tm_tunes
+# spotify_playing="#{track}"
+# spotify_track="♫ #{music_status} #{artist}: #{track} |"
+# set -g status-right '#{?#{spotify_playing},♫ #{music_status} #{artist}: #{track} |,""} #{docker_status} | #{kcontext}#{kpod} #{pomodoro_status}'
+# set -g status-right '#{?#{spotify_playing},#{spotify_track},} #{docker_status} | #{kcontext}#{kpod} #{pomodoro_status}'
 set -g status-right '♫ #{music_status} #{artist}: #{track} | #{docker_status} | #{kcontext}#{kpod} #{pomodoro_status}'
+
+# #{?COND,A,B}
+# set -g status-right '#{?#{track},♫ #{music_status} #{artist}: #{track} |, hi}'
 
 setw -g window-status-activity-style "underscore,fg=${fg_dark},bg=${bg_dark}"
 setw -g window-status-separator ""

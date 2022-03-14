@@ -88,7 +88,7 @@
 	whitespace-error-style = 22 reverse
 [fetch]
 	prune = true
-	pruneTags = true
+	; pruneTags = true ; my workplace is being dumb with tags
 [help]
 	autoCorrect = prompt
 [include]

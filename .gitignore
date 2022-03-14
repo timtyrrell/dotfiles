@@ -14,3 +14,4 @@ tags
 .env.prd.*
 .env.stg.*
 algo/
+*.bak

@@ -50,11 +50,15 @@ autoload colors; colors
 bindkey -v
 bindkey -M vicmd '^r' history-incremental-search-backward
 bindkey -M viins '^r' history-incremental-search-backward
+
+# https://github.com/zsh-users/zsh-autosuggestions#key-bindings
 bindkey  "^[[H"   beginning-of-line # Home key
 bindkey  "^[[F"   end-of-line # End key
-# https://github.com/zsh-users/zsh-autosuggestions#key-bindings
-bindkey '^ ' autosuggest-accept # ctrl + space to accept the current suggestion. right arrow or EOL, also works
-bindkey '^x' autosuggest-execute # ctrl + x to execute the current suggestion
+# bindkey '^ '      autosuggest-accept # ctrl + space to accept the current suggestion. right arrow or EOL, also works
+bindkey '^x'      autosuggest-execute # ctrl + x to execute the current suggestion
+bindkey '^ '      forward-char
+bindkey '^n'      forward-word
+bindkey '^p'      backward-word
 
 # remove normal/insert mode switch delay
 export KEYTIMEOUT=5
@@ -115,20 +119,38 @@ HISTSIZE=10000000
 SAVEHIST=10000000
 
 # options https://gist.github.com/mattmc3/c490d01751d6eb80aa541711ab1d54b1
-setopt inc_append_history      # write to the history file immediately, not when the shell exits
-setopt always_to_end
-setopt extendedglob            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of filename
+# changing dirs
 setopt auto_cd                 # if a command isn't valid, but is a directory, cd to that dir
-setopt nonomatch               # tell zsh to pass the unevaluated argument like bash
-setopt interactivecomments     # Allow comments even in interactive shells.
+
+# completions
+setopt always_to_end           # move cursor to the end of a completed word
+setopt glob_dots               # include dotfiles when globbing
+
+# expansion/globbing
+setopt extendedglob            # Treat the ‘#’, ‘~’ and ‘^’ characters as part of filename
+
+# history
+setopt hist_expire_dups_first  # expire a duplicate event first when trimming history
 setopt hist_ignore_all_dups    # Delete old recorded entry if new entry is a duplicate
 setopt hist_ignore_dups        # don't record an event that was just recorded again
 setopt hist_ignore_space       # don't record an event starting with a space
+setopt hist_no_store           # don't store history commands
 setopt hist_reduce_blanks      # remove superfluous blanks from each command line being added to the history list
 setopt hist_save_no_dups       # don't write a duplicate event to the history file
-# setopt share_history         # Share history between all sessions.
-setopt prompt_subst            # parameter expansion, command substitution and arithmetic expansion are performed in prompts
+setopt inc_append_history      # write to the history file immediately, not when the shell exits
+# setopt share_history         # Share history between all sessions
+
+# input/output
+setopt interactive_comments     # Allow comments even in interactive shells
+
+# job control
 setopt auto_resume             # attempt to resume existing job before creating a new process (vim!)
+setopt rc_quotes               # allow 'Henry''s Garage' instead of 'Henry'\''s Garage'
+unsetopt rm_star_silent        # ask for confirmation for `rm *' or `rm path/*'
+
+# prompting
+setopt nonomatch               # tell zsh to pass the unevaluated argument like bash
+setopt prompt_subst            # parameter expansion, command substitution and arithmetic expansion are performed in prompts
 
 # don't append failed command to ~/.zsh_history
 zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }
@@ -229,7 +251,7 @@ export FZF_DEFAULT_OPTS="
 --color=info:#7aa2f7,prompt:#7dcfff,pointer:#7dcfff
 --color=marker:#9ece6a,spinner:#9ece6a,header:#9ece6a
 --color=gutter:#1a1b26
---prompt='∼ ' --pointer='▶' --marker='✓'
+--prompt='> ' --pointer='▶' --marker='✓'
 --header '$FZF_HEADER_DEFAULT'
 --bind 'ctrl-s:select-all'
 --bind 'alt-d:deselect-all'
