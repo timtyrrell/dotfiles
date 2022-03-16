@@ -45,13 +45,6 @@ alias kns='kubens'
 # python
 alias pactivate='source $(poetry env info --path)/bin/activate'
 
-# safe
-alias safeauth="safe auth ldap"
-alias safedev="safe target blah dev"
-alias safetst="safe target blah tst"
-alias safestg="safe target blah stg"
-alias safeprd="safe target blah prd"
-
 # https://qmacro.org/autodidactics/2021/08/06/tmux-output-formatting/
 # 1. Open a popup
 # 2. Show you all the docker images on your system in an FZF menu

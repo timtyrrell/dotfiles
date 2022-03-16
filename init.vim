@@ -493,6 +493,7 @@ cabbrev wqa! use :xa!
 let g:python3_host_prog = '/usr/local/bin/python3'
 let g:loaded_python_provider = 0
 let g:loaded_perl_provider = 0
+let g:loaded_ruby_provider=0
 " let g:loaded_node_provider = 1
 
 call plug#begin('~/.config/nvim/plugged')
@@ -772,9 +773,6 @@ let g:netrw_nogx = 1 " disable netrw's gx mapping.
 let g:openbrowser_default_search = 'duckduckgo'
 nmap gx <Plug>(openbrowser-smart-search)
 vmap gx <Plug>(openbrowser-smart-search)
-Plug 'tyru/open-browser-github.vim'
-nnoremap <leader>ogp <cmd>OpenGithubPullReq<cr>
-nnoremap <leader>ogj <cmd>OpenGithubProject<cr>
 
 " vim .dsl syntax https://github.com/vim/vim/pull/8764
 " Plug 'shuntaka9576/preview-swagger.nvim', { 'build': 'yarn install' }
@@ -1039,7 +1037,7 @@ nnoremap <silent><Leader>ge :Gedit <bar> only<CR>
 " :Gedit main:file.js to open file version in another branch
 " :Gedit " go back to normal file from read-only view in Gstatus window
 
-nmap <leader>go :Git commit<cr>
+nmap <leader>gi :Git commit<cr>
 
 nmap <leader>gr :Gread<cr>:update<cr>
 " :Gread main:file.js to replace file from one in another branch
@@ -1067,6 +1065,9 @@ nnoremap <Leader>Gb :.GBrowse<CR>
 vnoremap <Leader>GB :GBrowse!<CR>
 " Copy current line url to clipboard
 nnoremap <Leader>GB :.GBrowse!<CR>
+
+" open project
+nnoremap <Leader>go <cmd>GBrowse main<cr>
 
 " Add <cfile> to index and save
 nnoremap <silent><Leader>gw <cmd>Gwrite<CR>
@@ -1448,7 +1449,7 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 " typescript fork of 'ianding1/leetcode.vim'
 " Plug 'briemens/leetcode.vim'
 Plug 'mbledkowski/neuleetcode.vim'
-let g:leetcode_solution_filetype='typescript'
+let g:leetcode_solution_filetype='javascript'
 let g:leetcode_username='timtyrrell'
 let g:leetcode_browser='firefox'
 let g:leetcode_problemset='algorithms'
@@ -1576,20 +1577,6 @@ set shada=!,'0,f0,<50,s10,h
 " augroup END
 
 lua << EOF
-
--- diff with clipboard
-function _G.compare_to_clipboard()
-  local ftype = vim.api.nvim_eval("&filetype")
-  vim.cmd("vsplit")
-  vim.cmd("enew")
-  vim.cmd("normal! P")
-  vim.cmd("setlocal buftype=nowrite")
-  vim.cmd("set filetype="..ftype)
-  vim.cmd("diffthis")
-  vim.cmd([[execute "normal! \<C-w>h"]])
-  vim.cmd("diffthis")
-end
--- :call v:lua.compare_to_clipboard()<CR>
 
 -- fold settings
 vim.wo.foldmethod = "expr"
