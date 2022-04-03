@@ -305,6 +305,11 @@ xnoremap . :norm.<CR>
 " run macro over visual lines (using qq to record)
 xnoremap Q :'<,'>:normal @q<CR>
 
+" https://www.reddit.com/r/neovim/comments/tsol2n/why_macros_are_so_slow_compared_to_emacs/
+" overload @ key to execute the macro avoiding any auto command that may be triggred during insert mode or text change
+" :noautocmd normal 10000@q
+xnoremap @ :<C-U>execute "noautocmd '<,'>norm! " . v:count1 . "@" . getcharstr()<cr>
+
 " backup/undo management
 set nobackup
 set nowritebackup
@@ -493,7 +498,7 @@ cabbrev wqa! use :xa!
 let g:python3_host_prog = '/usr/local/bin/python3'
 let g:loaded_python_provider = 0
 let g:loaded_perl_provider = 0
-let g:loaded_ruby_provider=0
+let g:loaded_ruby_provider = 0
 " let g:loaded_node_provider = 1
 
 call plug#begin('~/.config/nvim/plugged')
@@ -711,6 +716,7 @@ let g:indent_blankline_use_treesitter = v:true
 set list listchars=tab:→\ ,space:⋅,trail:•,nbsp:␣,extends:▶,precedes:◀
 " extends:⟩,precedes:⟨,tab:│\ ,eol:, tab:<->
 let g:indent_blankline_char = '▏'
+" let g:indent_blankline_char_blankline = '┆'
 " let g:indent_blankline_char_list = ['|', '¦', '┆', '┊']
 let g:indent_blankline_filetype_exclude = [ 'startify', 'NvimTree', 'vim-plug' ]
 let g:indent_blankline_buftype_exclude = ['terminal']
@@ -798,10 +804,9 @@ set grepprg=rg\ --vimgrep\ --no-heading
 set grepformat=%f:%l:%c:%m
 
 " grep word under cursor in entire project into quickfix
-" nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
+nnoremap <leader><bs> :Ack! <C-R><C-W><CR>
 " grep word under cursor all buffers in current window into quickfix
-nnoremap <leader><bs> :AckWindow! <C-R><C-W><CR>
-nnoremap <space><bs> :Ack! <C-R><C-W><CR>
+nnoremap <space><bs> :AckWindow! <C-R><C-W><CR>
 
 " enhanced matchit
 let g:loaded_matchit = 1
@@ -828,6 +833,7 @@ nmap <leader><leader> :HopWord<cr>
 vmap <leader><leader> :HopWord<cr>
 nmap <leader>/ :HopPattern<cr>
 
+" Plug 'ggandor/leap.nvim'
 Plug 'ggandor/lightspeed.nvim'
 " nmap <expr> f reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_f" : "f"
 " nmap <expr> F reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_F" : "F"
@@ -899,9 +905,12 @@ Plug 'mogelbrod/vim-jsonpath'
 " :JsonPath: Echoes the path to the identifier under the cursor.
 " :JsonPath path.to.prop
 
+" try https://github.com/kana/vim-altr/blob/master/doc/altr.txt ?
 Plug 'tpope/vim-projectionist'
-Plug 'tpope/vim-apathy'
+
 "gf support
+Plug 'tpope/vim-apathy'
+
 Plug 'tpope/vim-rails'
 let g:loaded_ruby_provider = 0 " use language server instead
 Plug 'tpope/vim-rake'
@@ -997,7 +1006,6 @@ nmap <leader>dvh :DiffviewFileHistory<cr>
 nmap <leader>dvo :DiffviewOpen<cr>
 nmap <leader>dvc :DiffviewClose<cr>
 nmap <leader>dvt :DiffviewToggleFiles<cr>
-nmap <leader>dvf :DiffviewFocusFiles<cr>
 nmap <leader>dvr :DiffviewRefresh<cr>
 
 " git
@@ -1010,24 +1018,24 @@ Plug 'tpope/vim-fugitive' |
 let g:fugitive_pty = 0
 
 " Fugitive mapping
-nmap <leader>gb :Git blame<cr>
-nmap <leader>gB :%Git blame<cr>
-nmap <leader>gd :Gdiff<cr>
+nnoremap <leader>gb :Git blame<cr>
+nnoremap <leader>gB :%Git blame<cr>
+nnoremap <leader>gd :Gdiff<cr>
 
 " list names of changes files in quickfix
 nnoremap <silent><leader>gt <cmd>Git difftool --name-only<CR>
 " list all locations of changed files in quickfix
 nnoremap <silent><leader>gT <cmd>Git difftool<CR>
 
-" Location list no jump log of current file and general commit log (gL)
+" git history log of current file
 nnoremap <silent><Leader>gl <cmd>0Git log<CR>
+" git history log of repo
 nnoremap <silent><Leader>gL <cmd>Git log<CR>
 
-nmap <leader>gc :Gclog<cr>
-nmap <leader>gC :Gclog -- %<cr>
-" :0Glog " see history of current file
+nnoremap <leader>gc :Gclog<cr>
+vnoremap <leader>gc :Gclog<cr>
+nnoremap <leader>gC :Gclog -- %<cr>
 " nmap <leader>gL :Gclog -100<cr>
-" G log to see commits
 " 'o' to see diff, 'O' to open in new tab
 " coo to checkout and switch to that commit
 
@@ -1037,21 +1045,19 @@ nnoremap <silent><Leader>ge :Gedit <bar> only<CR>
 " :Gedit main:file.js to open file version in another branch
 " :Gedit " go back to normal file from read-only view in Gstatus window
 
-nmap <leader>gi :Git commit<cr>
-
-nmap <leader>gr :Gread<cr>:update<cr>
+nnoremap <leader>gr :Gread<cr>:update<cr>
 " :Gread main:file.js to replace file from one in another branch
 
-nmap <leader>gg :Ggrep
-" Grepping git trees and commits messages. '!' to run it async.
 " git grep 'foo bar' [branch/SHA]
 " git log --grep='foobar' to search commit messages
 " git log -Sfoobar (when 'foobar' was added/removed)
-nnoremap <Leader>g/ :Ggrep! -Hnri --quiet<Space>
+nnoremap <leader>gg :Gcgrep! -q<space>
+nnoremap <Leader>g/ :Gcgrep! -Hnri --quiet<Space>
 nnoremap <Leader>g? :Git! log --grep=
 " nnoremap <Leader>gS :Git! log -S<Space>
-nnoremap <Leader>g* :Ggrep! -Hnri --quiet <C-r>=expand("<cword>")<CR><CR>
+nnoremap <Leader>g* :Gcgrep! -Hnri --quiet <C-r>=expand("<cword>")<CR><CR>
 
+nnoremap <silent><leader>gi <cmd>Git commit<CR>
 nnoremap <silent><Leader>gP <cmd>Git push<CR>
 nnoremap <silent><Leader>gp <cmd>Git pull<CR>
 nnoremap <silent><Leader>gf <cmd>Git fetch<CR>
@@ -1232,6 +1238,7 @@ Plug 'rlch/github-notifications.nvim'
 
 Plug 'kyazdani42/nvim-web-devicons' " for file icons, nvim-tree and others
 
+" try https://github.com/nvim-neo-tree/neo-tree.nvim ?
 Plug 'kyazdani42/nvim-tree.lua'
 nnoremap <silent> <leader>ee :NvimTreeFindFile<CR>
 nnoremap <silent> <leader>et :NvimTreeToggle<CR>
@@ -1476,15 +1483,14 @@ noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
 noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
             \<Cmd>lua require('hlslens').start()<CR>
 
-call wilder#enable_cmdline_enter()
 call wilder#setup({'modes': [':', '/', '?']})
 
-cmap <expr> <Tab> wilder#in_context() ? wilder#next() : '\<Tab>'
-cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : '\<S-Tab>'
-cmap <expr> <c-j> wilder#in_context() ? wilder#next() : '\<c-j>'
-cmap <expr> <c-k> wilder#in_context() ? wilder#previous() : '\<c-k>'
+cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
+cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
+cmap <expr> <c-j> wilder#in_context() ? wilder#next() : "\<c-j>"
+cmap <expr> <c-k> wilder#in_context() ? wilder#previous() : "\<c-k>"
 
-" '-I' to not respect .gitignore, '-H' show hidden files
+" '-I' to ignore respect .gitignore, '-H' show hidden files
 call wilder#set_option('pipeline', [
       \   wilder#branch(
       \     wilder#python_file_finder_pipeline({
@@ -1503,7 +1509,7 @@ call wilder#set_option('pipeline', [
       \       }),
       \     }),
       \     wilder#cmdline_pipeline({
-      \       'fuzzy': 1,
+      \       'fuzzy': 2,
       \       'fuzzy_filter': wilder#lua_fzy_filter(),
       \     }),
       \     [
@@ -1708,7 +1714,6 @@ require('nvim-tree').setup {
   disable_netrw       = false,
   hijack_netrw        = false,
   ignore_ft_on_setup  = {"startify"},
-  auto_close          = true,
   hijack_cursor       = true,
   diagnostics = {
     enable = true,
@@ -2037,8 +2042,9 @@ local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
 parser_config.markdown.filetype_to_parsername = "octo"
 
 require('numb').setup {
-   show_numbers = true, -- Enable 'number' for the window while peeking
-   show_cursorline = true -- Enable 'cursorline' for the window while peeking
+   show_numbers = true,
+   show_cursorline = true,
+   centered_peeking = true
 }
 
 require('nvim-treesitter.configs').setup {
@@ -2768,6 +2774,14 @@ nmap <silent> <leader>tp :TestLast<CR>
 nmap <silent> <leader>tv :TestVisit<CR>
 nmap <silent> <leader>ts :TestSuite<CR>
 
+" automatically run tests when a test file or its alternate application file is saved
+" augroup test
+"   autocmd!
+"   autocmd BufWrite * if test#exists() |
+"     \   TestFile |
+"     \ endif
+" augroup END
+
 augroup move_these_to_ftplugin
   " :help ftplugin
   autocmd!
@@ -2873,10 +2887,10 @@ inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
 "       \ coc#refresh()
 " inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
+" function! s:check_back_space() abort
+"   let col = col('.') - 1
+"   return !col || getline('.')[col - 1]  =~# '\s'
+" endfunction
 
 " Use <c-space> to trigger completion
 inoremap <silent><expr> <c-space> coc#refresh()
@@ -2914,18 +2928,21 @@ nmap <silent> <space>gi <Plug>(coc-implementation)
 nmap <silent> <space>gu <Plug>(coc-references-used)
 nmap <silent> <space>go <Plug>(coc-refactor)
 
+nmap <space>cf <Plug>(coc-fix-current)
 nmap <space>cn <Plug>(coc-rename)
 nmap <space>ce <Plug>(coc-codelens-action)
 nmap <space>ca <Plug>(coc-codeaction)
 nmap <space>cc <Plug>(coc-codeaction-cursor)
 nmap <space>cl <Plug>(coc-codeaction-line)
-nmap <space>cf <Plug>(coc-fix-current)
+" apply codeAction to the selected region. Ex: `<space>aap` for current paragraph
+vmap <space>cs <Plug>(coc-codeaction-selected)
+nmap <space>cs <Plug>(coc-codeaction-selected)
 
-nmap <space>co :CocOutline<cr>
-nmap <space>cki :CHI<cr>
-nmap <space>cko :CHO<cr>
-nmap <space>cs :CocSearch <C-R><C-W><CR>
-nmap <silent> <space>cr :<C-u>CocRestart<CR>
+nmap <space>co  <cmd>CocOutline<cr>
+nmap <space>cki <cmd>CHI<cr>
+nmap <space>cko <cmd>CHO<cr>
+nmap <space>cg  :<C-u>CocSearch -w <C-R><C-W><cr>
+nmap <space>cr  :<C-u>CocRestart<CR>
 
 " autocmd VimEnter,Tabnew *
 "   \ if empty(&buftype) | call CocActionAsync('showOutline', 1) | endif
@@ -2955,10 +2972,6 @@ command! -nargs=? Fold :call CocAction('fold', <f-args>)
 command! -nargs=0 OR :call CocActionAsync('runCommand', 'editor.action.organizeImport')
 command! -nargs=0 CHI :call CocActionAsync('runCommand', 'document.showIncomingCalls')
 command! -nargs=0 CHO :call CocActionAsync('runCommand', 'document.showOutgoingCalls')
-
-" apply codeAction to the selected region. Ex: `<space>aap` for current paragraph
-vmap <space>a <Plug>(coc-codeaction-selected)
-nmap <space>a <Plug>(coc-codeaction-selected)
 
 " Map function and class text objects
 xmap if <Plug>(coc-funcobj-i)

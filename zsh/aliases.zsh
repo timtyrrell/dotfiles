@@ -123,6 +123,17 @@ alias cannonball="git add . && git commit --amend -C HEAD && git push --force-wi
 alias cannonballyolo="git add . && HUSKY_SKIP_HOOKS=1 git commit --amend -C HEAD && git push --force-with-lease"
 alias fix='nvim +/HEAD `git diff --name-only | uniq`'
 
+# https://github.com/gennaro-tedesco/gh-f
+alias ghf='gh f'
+alias ghfp='gh f prs'
+alias ghfb='gh f branches'
+alias ghfk='gh f pick'
+alias ghfr='gh f runs'
+
+# https://github.com/rnorth/gh-combine-prs
+alias ghpr_combine='gh combine-prs --query "author:app/dependabot"'
+alias ghpr_combineyolo='gh combine-prs --query "author:app/dependabot" --skip-pr-check'
+
 # tmux alias
 alias tmux_plugins_install="~/.tmux/plugins/tpm/bin/install_plugins"
 alias tmux_plugins_update="~/.tmux/plugins/tpm/bin/update_plugins all"
@@ -144,5 +155,6 @@ alias brew-install="brew bundle install --global"
 alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
 alias brewup="brew update; brew upgrade; brew cleanup"
 alias crate-update="cargo install-update -a"
+alias ghu="gh extension upgrade --all"
 
 alias reload='source ~/.zshrc; echo -e "\n\u2699  \e[33mZSH config reloaded\e[0m \u2699"'

@@ -42,6 +42,8 @@ export LESS=FRX
 # telescope and less? https://github.com/nvim-telescope/telescope.nvim/issues/253#issuecomment-730071741
 # export LESS=iMRS
 
+export XDG_CONFIG_HOME=$HOME/.config
+
 # make with the pretty colors
 autoload colors; colors
 
