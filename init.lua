@@ -1,3 +1,9 @@
+local cmd = vim.cmd
+local g = vim.g
+local opt = vim.opt
+
+g.mapleader = ","
+
 vim.cmd [[packadd packer.nvim]]
 return require('packer').startup(function(use)
     use { -- neoclip {{{
