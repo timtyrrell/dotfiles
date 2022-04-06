@@ -1487,8 +1487,8 @@ call wilder#setup({'modes': [':', '/', '?']})
 
 cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
 cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
-cmap <expr> <c-j> wilder#in_context() ? wilder#next() : "\<c-j>"
-cmap <expr> <c-k> wilder#in_context() ? wilder#previous() : "\<c-k>"
+cmap <expr> <c-k> wilder#in_context() ? wilder#next() : "\<c-j>"
+cmap <expr> <c-j> wilder#in_context() ? wilder#previous() : "\<c-k>"
 
 " '-I' to ignore respect .gitignore, '-H' show hidden files
 call wilder#set_option('pipeline', [
@@ -1830,7 +1830,9 @@ require'marks'.setup {
 -- :MarksListAll - Fill the location list with all marks in all open buffers
 -- :MarksQFListAll
 
-require("twilight").setup {}
+require("twilight").setup {
+  twilight = { enabled = false },
+}
 require('zen-mode').setup {
   window = {
     backdrop = 0.95, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
@@ -3550,6 +3552,7 @@ let g:vim_markdown_new_list_item_indent = 0
 let g:vim_markdown_auto_insert_bullets = 1
 let g:vim_markdown_conceal = 0
 let g:vim_markdown_conceal_code_blocks = 0
+let g:vimwiki_conceal_pre = 1
 let g:vimwiki_hl_headers = 1 " highlight headers with different colors
 let g:vimwiki_hl_cb_checked = 2 " highlight completed tasks and line
 let g:vim_markdown_fenced_languages = ['viml=vim', 'bash=sh', 'javascript=js']
