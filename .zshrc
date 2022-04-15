@@ -134,13 +134,13 @@ setopt extendedglob            # Treat the ‘#’, ‘~’ and ‘^’ characte
 # history
 setopt hist_expire_dups_first  # expire a duplicate event first when trimming history
 setopt hist_ignore_all_dups    # Delete old recorded entry if new entry is a duplicate
+setopt hist_find_no_dups       # don't display a previously found event
 setopt hist_ignore_dups        # don't record an event that was just recorded again
 setopt hist_ignore_space       # don't record an event starting with a space
-setopt hist_no_store           # don't store history commands
 setopt hist_reduce_blanks      # remove superfluous blanks from each command line being added to the history list
 setopt hist_save_no_dups       # don't write a duplicate event to the history file
 setopt inc_append_history      # write to the history file immediately, not when the shell exits
-# setopt share_history         # Share history between all sessions
+setopt share_history         # Share history between all sessions
 
 # input/output
 setopt interactive_comments     # Allow comments even in interactive shells
@@ -159,9 +159,9 @@ zshaddhistory() { whence ${${(z)1}[1]} >| /dev/null || return 1 }
 
 # Bindings
 # external editor support
-autoload edit-command-line
-zle -N edit-command-line
+autoload edit-command-line; zle -N edit-command-line
 bindkey '^o' edit-command-line
+# bindkey '^e' edit-command-line
 # bindkey '^x^e' edit-command-line
 
 # Partial word history completion
@@ -196,7 +196,8 @@ fi
 # I have no idea why I have to unset this but otherwise I don't get LESS paging
 unset DELTA_PAGER
 export PAGER='less'
-export EDITOR='nvim'
+export EDITOR='nvim -u NORC'
+export VISUAL='nvim -u NORC'
 export MANPAGER='nvim +Man!'
 # export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 export MANWIDTH=999

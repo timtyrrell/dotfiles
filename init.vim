@@ -84,6 +84,10 @@
 " <C-d>   de-indent (move left) line one shiftwidth during insert mode
 " <C-R>a  pastes the contents of the `a` register
 " <C-R>"  pastes the contents of the unnamed register (last delete/yank/etc)
+"
+" zz center line on screen
+" zt move current line to top
+" zb move current line to bottom
 
 " send change arguments to blackhole registry
 nnoremap c "_c
@@ -516,6 +520,7 @@ let g:coc_global_extensions = [
           \ 'coc-dash-complete',
           \ 'coc-db',
           \ 'coc-docker',
+          \ 'coc-emmet',
           \ 'coc-emoji',
           \ 'coc-eslint',
           \ 'coc-just-complete',
@@ -564,6 +569,7 @@ map <leader>Bdt :BDelete this<CR>
 map <leader>Bdn :BDelete nameless<CR>
 
 " undo tree visualizer
+" switch to https://github.com/mbbill/undotree ?
 Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
 nmap <Leader>mt :MundoToggle<CR>
 let g:mundo_right=1
@@ -679,6 +685,7 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'windwp/nvim-ts-autotag'
 Plug 'nvim-treesitter/playground'
 " :TSHighlightCapturesUnderCursor
+" :TSNodeUnderCursor
 " R: Refreshes the playground view when focused or reloads the query when the query editor is focused.
 " o: Toggles the query editor when the playground is focused.
 " a: Toggles visibility of anonymous nodes.
@@ -718,8 +725,8 @@ set list listchars=tab:→\ ,space:⋅,trail:•,nbsp:␣,extends:▶,precedes:�
 let g:indent_blankline_char = '▏'
 " let g:indent_blankline_char_blankline = '┆'
 " let g:indent_blankline_char_list = ['|', '¦', '┆', '┊']
-let g:indent_blankline_filetype_exclude = [ 'startify', 'NvimTree', 'vim-plug' ]
-let g:indent_blankline_buftype_exclude = ['terminal']
+let g:indent_blankline_filetype_exclude = ['checkhealth', 'NvimTree', 'vim-plug', 'man', 'help', 'lspinfo', '']
+let g:indent_blankline_buftype_exclude = ['terminal', 'nofile', 'quickfix']
 let g:indent_blankline_bufname_exclude = ['README.md', '.*\.py']
 let g:indent_blankline_show_first_indent_level = v:true
 let g:indent_blankline_show_trailing_blankline_indent = v:false
@@ -766,7 +773,7 @@ nmap <leader>ms <Plug>MarkdownPreviewStop
 " https://github.com/edluffy/hologram.nvim
 
 " markdown preview in nvim popup
-Plug 'ellisonleao/glow.nvim', {'for': 'markdown'}
+Plug 'ellisonleao/glow.nvim', {'branch': 'main', 'for': 'markdown'}
 nmap <leader>mv :Glow<CR>
 let g:glow_binary_path = $HOME . '/bin'
 let g:glow_border = 'rounded'
@@ -841,6 +848,7 @@ Plug 'ggandor/lightspeed.nvim'
 " nmap <expr> T reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_T" : "T"
 
 Plug 'drmingdrmer/vim-toggle-quickfix'
+nmap <Leader>qq <Plug>window:quickfix:loop
 
 " quickfix item opening helper
 Plug 'yssl/qfenter'
@@ -1245,7 +1253,6 @@ nnoremap <silent> <leader>et :NvimTreeToggle<CR>
 nnoremap <silent> <leader>er :NvimTreeRefresh<CR>
 " NvimTreeOpen, NvimTreeClose, NvimTreeFocus, NvimTreeFindFileToggle, NvimTreeResize, NvimTreeCollapse
 " NvimTreeCollapseKeepBuffers
-let g:nvim_tree_indent_markers = 1 "0 by default, this option shows indent markers when folders are open
 let g:nvim_tree_git_hl = 1 "0 by default, will enable file highlight for git attributes (can be used without the icons).
 let g:nvim_tree_highlight_opened_files = 1
 
@@ -1616,6 +1623,14 @@ require('headlines').setup {
 require('terminal').setup {}
 require('pqf').setup {}
 
+require('nvim-tree').setup {
+  renderer = {
+    indent_markers = {
+      enable = false,
+    }
+  }
+}
+
 require('package-info').setup({
   autostart = true,
   package_manager = 'npm'
@@ -1652,6 +1667,7 @@ require('auto-session').setup {
   auto_session_enabled = true,
   auto_save_enabled = true,
   auto_restore_enabled = true,
+  -- auto_session_use_git_branch = true,
   auto_session_suppress_dirs = {'~/', '~/code'},
   pre_save_cmds = {"lua require'nvim-tree'.setup()", "tabdo NvimTreeClose", "BDelete! nameless", "BDelete! hidden", "BDelete glob=yode*"}
 }
@@ -1844,7 +1860,8 @@ require('zen-mode').setup {
   },
 }
 
-local actions = require('telescope.actions')
+local actions = require "telescope.actions"
+local action_layout = require "telescope.actions.layout"
 -- Global remapping
 ------------------------------
 -- https://github.com/nvim-telescope/telescope.nvim/blob/d0cf646f65746415294f570ec643ffd0101ca3ab/lua/telescope/mappings.lua
@@ -1863,18 +1880,18 @@ require('telescope').setup {
         ["<C-j>"] = actions.move_selection_next,
         ["<C-k>"] = actions.move_selection_previous,
         ["<esc>"] = actions.close,
-        -- [""]    = actions.toggle_preview,
-        ["<C-n"]  = require('telescope.actions').cycle_history_next,
-        ["<C-p>"] = require('telescope.actions').cycle_history_prev,
-        ['<c-d>'] = require('telescope.actions').delete_buffer,
+        ["<M-p>"] = action_layout.toggle_preview,
+        ["<C-n"]  = actions.cycle_history_next,
+        ["<C-p>"] = actions.cycle_history_prev,
+        ['<c-d>'] = actions.delete_buffer,
       },
       i = {
         ["<C-j>"] = actions.move_selection_next,
         ["<C-k>"] = actions.move_selection_previous,
-        -- [""]    = actions.toggle_preview,
-        ["<C-n"]  = require('telescope.actions').cycle_history_next,
-        ["<C-p>"] = require('telescope.actions').cycle_history_prev,
-        ['<c-d>'] = require('telescope.actions').delete_buffer,
+        ["<M-p>"] = action_layout.toggle_preview,
+        ["<C-n"]  = actions.cycle_history_next,
+        ["<C-p>"] = actions.cycle_history_prev,
+        ['<c-d>'] = actions.delete_buffer,
       },
     },
   },
@@ -1911,6 +1928,9 @@ require('telescope').setup {
     buffers = {
       ignore_current_buffer = true,
       sort_lastused = true,
+    },
+    colorscheme = {
+      enable_preview = true,
     },
   },
   extensions = {
@@ -2050,7 +2070,7 @@ require('numb').setup {
 }
 
 require('nvim-treesitter.configs').setup {
-  ensure_installed = "maintained",
+  ensure_installed = "all",
   -- ensure_installed = { "bash", "comment", "css", "graphql", "html", "javascript", "jsdoc", "json", "jsonc", "lua", "regex", "ruby", "tsx", "typescript" },
   highlight = {
     enable = true,
@@ -2200,9 +2220,6 @@ augroup end
 " endfunction
 
 " autocmd CheckHealth * call OnCheckHealth()
-
-" quickfix
-nmap <Leader>qq <Plug>window:quickfix:loop
 
 " Run PlugUpgrade and PlugUpdate every day automatically when entering Vim.
 function! OnVimEnter() abort
@@ -2898,7 +2915,7 @@ inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
 inoremap <silent><expr> <c-space> coc#refresh()
 
 " Use <cr> to confirm completion, this will select first item on <cr>
-" inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
@@ -2928,10 +2945,11 @@ nmap <silent> gr <Plug>(coc-references)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> <space>gi <Plug>(coc-implementation)
 nmap <silent> <space>gu <Plug>(coc-references-used)
+
 nmap <silent> <space>go <Plug>(coc-refactor)
+nmap <silent> <space>cn <Plug>(coc-rename)
 
 nmap <space>cf <Plug>(coc-fix-current)
-nmap <space>cn <Plug>(coc-rename)
 nmap <space>ce <Plug>(coc-codelens-action)
 nmap <space>ca <Plug>(coc-codeaction)
 nmap <space>cc <Plug>(coc-codeaction-cursor)
@@ -3494,8 +3512,12 @@ nnoremap <leader>rs :%s/\<<C-r>=expand("<cword>")<CR>\>/
 vnoremap <leader>rl "9y:s/<c-r>9//g<left><left>
 nnoremap <leader>rl viw"9y:s/<c-r>9//g<left><left>
 
+" searches for the word under my cursor and performs cgn
 nmap cg* *Ncgn
-nnoremap g. /\V<C-r>"<CR>cgn<C-a><Esc>
+" nnoremap g. /\V\C<C-r>"<CR>cgn<C-a><Esc>
+" improvement on the above line, support delete (dw, etc), and multiline operations (ie, dd, cip, etc).
+" searches for the text that I just replaced, jump to the next match and replace that with the new inserted text
+nnoremap c. :call setreg('/',substitute(@", '\%x00', '\\n', 'g'))<cr>:exec printf("norm %sgn%s", v:operator, v:operator != 'd' ? '<c-a>':'')<cr>
 
 " Find and Replace in *all* files
 function! FindAndReplace( ... )
@@ -3613,7 +3635,7 @@ nmap <Leader>wv :NV!<CR>
 nmap <Leader>wl :SearchNotes<CR>
 " filename search
 nmap <Leader>wf  :Files ~/Library/Mobile Documents/com~apple~CloudDocs/Documents/notes/<CR>
-" need to call this way when using vim-plug ondemand
+" need to call this way when using vim-plug on-demand
 nmap <Leader>wdn :VimwikiMakeDiaryNote<CR>
 " nmap <Leader>wdn <Plug>VimwikiMakeDiaryNote
 nmap <Leader>wdy <Plug>VimwikiMakeYesterdayDiaryNote

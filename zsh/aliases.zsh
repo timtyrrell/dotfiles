@@ -16,6 +16,8 @@ alias n='nvim'
 alias nn='nvim .'
 alias nm='nvim -u ~/.config/nvim/mini.vim'
 alias no='nvim -u NORC'
+alias nv='nvim -u ~/code/timtyrrell/dotfiles/init-nvim-lsp.vim'
+alias ndebug='nvim -V9myVim.log'
 alias nvim-startuptime='rm /tmp/vim.log; nvim --startuptime /tmp/vim.log -c "quit" && cat /tmp/vim.log'
 
 alias wl='watchman watch-list'
@@ -41,6 +43,10 @@ alias k='kubectl'
 alias kctx='kubectx'
 alias kc="kubecolor"
 alias kns='kubens'
+
+# kitty ssh: skitty hostname
+# to copy files on connect, edit: ~/.config/kitty/ssh.conf
+alias skitty=kitty +kitten ssh
 
 # python
 alias pactivate='source $(poetry env info --path)/bin/activate'
@@ -156,5 +162,6 @@ alias brew-outdated="brew update && echo 'OUTDATED:' && brew outdated"
 alias brewup="brew update; brew upgrade; brew cleanup"
 alias crate-update="cargo install-update -a"
 alias ghu="gh extension upgrade --all"
+alias zsh-update="zcomet self-update && zcomet update"
 
 alias reload='source ~/.zshrc; echo -e "\n\u2699  \e[33mZSH config reloaded\e[0m \u2699"'
