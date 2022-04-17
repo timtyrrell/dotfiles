@@ -27,6 +27,7 @@ Plug 'glepnir/lspsaga.nvim' " or https://github.com/ray-x/navigator.lua?
 " Plug 'folke/trouble.nvim'
 Plug 'simrat39/symbols-outline.nvim'
 Plug 'stevearc/aerial.nvim'
+Plug 'liuchengxu/vista.vim'
 
 " if i don't want to configure the LSP but test it
 " Plug 'VonHeikemen/lsp-zero.nvim'

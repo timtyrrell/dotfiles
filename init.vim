@@ -590,6 +590,9 @@ map <leader>rL <Plug>RestNvimLast
 " session management
 Plug 'rmagatti/auto-session'
 
+Plug 'shivamashtikar/tmuxjump.vim'
+" :TmuxJumpFile js & :TmuxJumpFirst js
+
 Plug 'preservim/vimux'
 let g:VimuxUseNearest = 1
 let g:VimuxOrientation = "v"
@@ -912,7 +915,7 @@ Plug 'tpope/vim-jdaddy'
 " ["x]gwij                Merge the JSON from the register into the innermost JSON.  Merging extends objects, concatenates strings and arrays, and adds numbers.
 " ["x]gwaj                Merge the JSON from the register into the outermost JSON.
 
-Plug 'mogelbrod/vim-jsonpath'
+Plug 'mogelbrod/vim-jsonpath', { 'on': 'JsonPath'}
 " :JsonPath: Echoes the path to the identifier under the cursor.
 " :JsonPath path.to.prop
 
@@ -973,25 +976,41 @@ Plug 'tpope/vim-speeddating'
 " try https://github.com/wellle/targets.vim ?
 " https://github.com/kana/vim-textobj-user/wiki
 Plug 'kana/vim-textobj-user'
-Plug 'kana/vim-textobj-line'
-" adds 'al' and 'il' motions for a line
+Plug 'kana/vim-textobj-line', { 'on': ['<Plug>(textobj-line-i', '<Plug>(textobj-line-a']}
+xmap ai <Plug>(textobj-line-a)
+omap ai <Plug>(textobj-line-a)
+xmap ii <Plug>(textobj-line-i)
+omap ii <Plug>(textobj-line-i)
 " 'il' ignores leading and trailing spaces. 'al' ignoes EOL
 
-Plug 'kana/vim-textobj-indent'
-" ai	<Plug>(textobj-indent-a)
-" ii	<Plug>(textobj-indent-i)
-" aI	<Plug>(textobj-indent-same-a)
-" iI	<Plug>(textobj-indent-same-i)
-Plug 'vimtaku/vim-textobj-keyvalue'
-" ak	<Plug>(textobj-key-a)
-" ik	<Plug>(textobj-key-i)
-" av	<Plug>(textobj-value-a)
-" iv	<Plug>(textobj-value-i)
+Plug 'kana/vim-textobj-indent', { 'on': ['<Plug>(textobj-indent-i', '<Plug>(textobj-indent-a', '<Plug>(textobj-indent-same-i', '<Plug>(textobj-indent-same-a']}
+xmap ai <Plug>(textobj-indent-a)
+omap ai <Plug>(textobj-indent-a)
+xmap ii <Plug>(textobj-indent-i)
+omap ii <Plug>(textobj-indent-i)
+xmap aI <Plug>(textobj-indent-same-a)
+omap aI <Plug>(textobj-indent-same-a)
+xmap iI <Plug>(textobj-indent-same-i)
+omap iI <Plug>(textobj-indent-same-i)
+
+Plug 'vimtaku/vim-textobj-keyvalue', {'on': ['<Plug>(textobj-key-a', '<Plug>(textobj-key-i', '<Plug>(textobj-value-a', '<Plug>(textobj-value-i']}
+xmap ak <Plug>(textobj-key-a)
+omap ak <Plug>(textobj-key-a)
+xmap ik <Plug>(textobj-key-i)
+omap ik <Plug>(textobj-key-i)
+xmap av <Plug>(textobj-value-a)
+omap av <Plug>(textobj-value-a)
+xmap iv <Plug>(textobj-value-i)
+omap iv <Plug>(textobj-value-i)
 
 " Plug 'Julian/vim-textobj-variable-segment'
 " iv and av for variable segments, snake_case, camelCase, etc
 
-Plug 'rhysd/vim-textobj-anyblock'
+Plug 'rhysd/vim-textobj-anyblock', { 'on': ['<Plug>(textobj-anyblock-i', '<Plug>(textobj-anyblock-a']}
+xmap ab <Plug>(textobj-anyblock-a)
+omap ab <Plug>(textobj-anyblock-a)
+xmap ib <Plug>(textobj-anyblock-i)
+omap ib <Plug>(textobj-anyblock-i
 " ib is a union of i(, i{, i[, i', i" and i<
 " ab is a union of a(, a{, a[, a', a" and a<
 
@@ -1012,7 +1031,7 @@ let g:codi#aliases = {
 Plug 'andrewradev/linediff.vim'
 " :Linediff
 
-Plug 'sindrets/diffview.nvim'
+Plug 'sindrets/diffview.nvim', { 'on': ['DiffviewFileHistory', 'DiffviewOpen']}
 nmap <leader>dvh :DiffviewFileHistory<cr>
 nmap <leader>dvo :DiffviewOpen<cr>
 nmap <leader>dvc :DiffviewClose<cr>
@@ -1241,7 +1260,7 @@ Plug 'fannheyward/telescope-coc.nvim'
 Plug 'norcalli/nvim-terminal.lua'
 " https://github.com/akinsho/toggleterm.nvim
 
-Plug 'mrjones2014/dash.nvim', { 'do': 'make install'}
+Plug 'mrjones2014/dash.nvim', { 'do': 'make install', 'on': ['Dash', 'DashWord']}
 
 Plug 'nvim-telescope/telescope-github.nvim'
 Plug 'rlch/github-notifications.nvim'
