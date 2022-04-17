@@ -89,6 +89,9 @@
 " zt move current line to top
 " zb move current line to bottom
 
+let base16colorspace=256
+set termguicolors
+
 " send change arguments to blackhole registry
 nnoremap c "_c
 nnoremap C "_C
@@ -742,17 +745,17 @@ augroup tmuxgroups
 augroup END
 Plug 'tmux-plugins/vim-tmux'
 " https://github.com/nvim-treesitter/nvim-treesitter/issues/1019#issuecomment-812976740
-let g:polyglot_disabled = [
-        \ 'bash', 'comment', 'css', 'graphql',
-        \ 'html', 'javascript', 'javascriptreact', 'jsdoc', 'json',
-        \ 'jsonc', 'jsx', 'lua', 'python', 'regex', 'rspec', 'ruby',
-        \ 'sh', 'svg', 'tmux', 'tsx', 'typescript', 'typescriptreact', 'yaml']
-Plug 'sheerun/vim-polyglot'
-" Plug 'sheerun/vim-polyglot', { 'commit': '2c5af8f' }
-let g:polyglot_disabled = ['sensible']
-let g:polyglot_disabled = ['ftdetect']
-let g:polyglot_disabled = ['autoindent']
-let g:markdown_fenced_languages = ['ruby', 'vim']
+" let g:polyglot_disabled = [
+"         \ 'bash', 'comment', 'css', 'graphql',
+"         \ 'html', 'javascript', 'javascriptreact', 'jsdoc', 'json',
+"         \ 'jsonc', 'jsx', 'lua', 'python', 'regex', 'rspec', 'ruby',
+"         \ 'sh', 'svg', 'tmux', 'tsx', 'typescript', 'typescriptreact', 'yaml']
+" Plug 'sheerun/vim-polyglot'
+" " Plug 'sheerun/vim-polyglot', { 'commit': '2c5af8f' }
+" let g:polyglot_disabled = ['sensible']
+" let g:polyglot_disabled = ['ftdetect']
+" let g:polyglot_disabled = ['autoindent']
+" let g:markdown_fenced_languages = ['ruby', 'vim']
 Plug 'z0mbix/vim-shfmt', { 'for': 'sh' }
 let g:shfmt_fmt_on_save = 1
 
@@ -1092,7 +1095,6 @@ augroup fugitive_ext
   autocmd!
   " Browse to the commit under my cursor
   autocmd FileType fugitiveblame nnoremap <buffer> <leader>Gb :execute ":GBrowse " . expand("<cword>")<cr>
-  " autocmd FileType vim-plug nnoremap <buffer> <silent> gx :call PlugGx()<cr>
 augroup END
 
 function! s:ToggleGitStatus() abort
@@ -1408,6 +1410,9 @@ nmap <Leader>wdc <Plug>CalendarV
 nmap <Leader>wdC <Plug>CalendarH
 
 Plug 'alok/notational-fzf-vim'
+let g:nv_search_paths = ['~/Documents/notes']
+let g:nv_create_note_key = 'ctrl-x'
+
 Plug 'ferrine/md-img-paste.vim'
 
 " horizontal lines for vimwiki
@@ -1490,89 +1495,88 @@ noremap <silent> n <Cmd>execute('normal! ' . v:count1 . 'n')<CR>
 noremap <silent> N <Cmd>execute('normal! ' . v:count1 . 'N')<CR>
             \<Cmd>lua require('hlslens').start()<CR>
 
-call wilder#setup({'modes': [':', '/', '?']})
+augroup lazy_load_wilder
+  autocmd!
+  autocmd CmdlineEnter * ++once call s:wilder_init()
+augroup END
 
-cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
-cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
-cmap <expr> <c-k> wilder#in_context() ? wilder#next() : "\<c-j>"
-cmap <expr> <c-j> wilder#in_context() ? wilder#previous() : "\<c-k>"
+function! s:wilder_init() abort
+  call wilder#setup({'modes': [':', '/', '?']})
 
-" '-I' to ignore respect .gitignore, '-H' show hidden files
-call wilder#set_option('pipeline', [
-      \   wilder#branch(
-      \     wilder#python_file_finder_pipeline({
-      \       'file_command': {_, arg -> stridx(arg, '.') != -1 ?
-      \         ['fd', '-tf', '-H', '-I', '-E', '.git', '-E', '.venv'] :
-      \         ['fd', '-tf']},
-      \       'dir_command': ['fd', '-td'],
-      \       'filters': ['cpsm_filter'],
-      \     }),
-      \     wilder#substitute_pipeline({
-      \       'pipeline': wilder#python_search_pipeline({
-      \         'skip_cmdtype_check': 1,
-      \         'pattern': wilder#python_fuzzy_pattern({
-      \           'start_at_boundary': 0,
-      \         }),
-      \       }),
-      \     }),
-      \     wilder#cmdline_pipeline({
-      \       'fuzzy': 2,
-      \       'fuzzy_filter': wilder#lua_fzy_filter(),
-      \     }),
-      \     [
-      \       wilder#check({_, x -> empty(x)}),
-      \       wilder#history(),
-      \     ],
-      \     wilder#python_search_pipeline({
-      \       'pattern': wilder#python_fuzzy_pattern({
-      \         'start_at_boundary': 0,
-      \       }),
-      \     }),
-      \   ),
-      \ ])
+  cmap <expr> <Tab> wilder#in_context() ? wilder#next() : "\<Tab>"
+  cmap <expr> <S-Tab> wilder#in_context() ? wilder#previous() : "\<S-Tab>"
+  cmap <expr> <c-k> wilder#in_context() ? wilder#next() : "\<c-j>"
+  cmap <expr> <c-j> wilder#in_context() ? wilder#previous() : "\<c-k>"
 
-let s:highlighters = [ wilder#lua_fzy_highlighter() ]
+  " '-I' to ignore respect .gitignore, '-H' show hidden files
+  call wilder#set_option('pipeline', [
+        \   wilder#branch(
+        \     wilder#python_file_finder_pipeline({
+        \       'file_command': {_, arg -> stridx(arg, '.') != -1 ?
+        \         ['fd', '-tf', '-H', '-I', '-E', '.git', '-E', '.venv'] :
+        \         ['fd', '-tf']},
+        \       'dir_command': ['fd', '-td'],
+        \       'filters': ['cpsm_filter'],
+        \     }),
+        \     wilder#substitute_pipeline({
+        \       'pipeline': wilder#python_search_pipeline({
+        \         'skip_cmdtype_check': 1,
+        \         'pattern': wilder#python_fuzzy_pattern({
+        \           'start_at_boundary': 0,
+        \         }),
+        \       }),
+        \     }),
+        \     wilder#cmdline_pipeline({
+        \       'fuzzy': 2,
+        \       'fuzzy_filter': wilder#lua_fzy_filter(),
+        \     }),
+        \     [
+        \       wilder#check({_, x -> empty(x)}),
+        \       wilder#history(),
+        \     ],
+        \     wilder#python_search_pipeline({
+        \       'pattern': wilder#python_fuzzy_pattern({
+        \         'start_at_boundary': 0,
+        \       }),
+        \     }),
+        \   ),
+        \ ])
 
-let s:popupmenu_renderer = wilder#popupmenu_renderer(wilder#popupmenu_border_theme({
-      \ 'reverse': 1,
-      \ 'border': 'rounded',
-      \ 'empty_message': wilder#popupmenu_empty_message_with_spinner(),
-      \ 'highlights': { 'accent': 'Statement'},
-      \ 'highlighter': s:highlighters,
-      \ 'left': [
-      \   ' ',
-      \   wilder#popupmenu_devicons(),
-      \   wilder#popupmenu_buffer_flags({
-      \     'flags': ' a + ',
-      \     'icons': {'+': '', 'a': '', 'h': ''},
-      \   }),
-      \ ],
-      \ 'right': [
-      \   ' ',
-      \   wilder#popupmenu_scrollbar(),
-      \ ],
-      \ }))
+  let s:highlighters = [ wilder#lua_fzy_highlighter() ]
 
-let s:wildmenu_renderer = wilder#wildmenu_renderer(
-      \ wilder#wildmenu_lightline_theme({
-      \   'highlighter': s:highlighters,
-      \   'highlights': { 'accent': 'Statement'},
-      \   'separator': ' · ',
-      \ }))
+  let s:popupmenu_renderer = wilder#popupmenu_renderer(wilder#popupmenu_border_theme({
+        \ 'reverse': 1,
+        \ 'border': 'rounded',
+        \ 'empty_message': wilder#popupmenu_empty_message_with_spinner(),
+        \ 'highlights': { 'accent': 'Statement'},
+        \ 'highlighter': s:highlighters,
+        \ 'left': [
+        \   ' ',
+        \   wilder#popupmenu_devicons(),
+        \   wilder#popupmenu_buffer_flags({
+        \     'flags': ' a + ',
+        \     'icons': {'+': '', 'a': '', 'h': ''},
+        \   }),
+        \ ],
+        \ 'right': [
+        \   ' ',
+        \   wilder#popupmenu_scrollbar(),
+        \ ],
+        \ }))
 
-call wilder#set_option('renderer', wilder#renderer_mux({
-      \ ':': s:popupmenu_renderer,
-      \ '/': s:popupmenu_renderer,
-      \ 'substitute': s:wildmenu_renderer,
-      \ }))
+  let s:wildmenu_renderer = wilder#wildmenu_renderer(
+        \ wilder#wildmenu_lightline_theme({
+        \   'highlighter': s:highlighters,
+        \   'highlights': { 'accent': 'Statement'},
+        \   'separator': ' · ',
+        \ }))
 
-" lazy way seems slower
-" call wilder#enable_cmdline_enter()
-" autocmd CmdlineEnter * ++once call s:wilder_init() | call s:wilder#main#start()
-" augroup my_wilder_init
-"   autocmd!
-"   autocmd CmdlineEnter * ++once call s:wilder_init()
-" augroup END
+  call wilder#set_option('renderer', wilder#renderer_mux({
+        \ ':': s:popupmenu_renderer,
+        \ '/': s:popupmenu_renderer,
+        \ 'substitute': s:wildmenu_renderer,
+        \ }))
+endfunction
 
 " mfussenegger/nvim-ts-hint-textobject
 " example: `vm` to visually display hints to select
@@ -1632,7 +1636,6 @@ require('nvim-tree').setup {
 }
 
 require('package-info').setup({
-  autostart = true,
   package_manager = 'npm'
 })
 -- Show package versions
@@ -2246,23 +2249,6 @@ augroup vimenterauto
   autocmd VimEnter * call OnVimEnter()
 augroup END
 
-" TODO use this to fix duplicate git org and repo name link
-" Press gx to open the GitHub URL for a plugin or a commit with the default browser.
-" function! s:plug_gx()
-"   let line = getline('.')
-"   let sha  = matchstr(line, '^  \X*\zs\x\{7,9}\ze ')
-"   let name = empty(sha) ? matchstr(line, '^[-x+] \zs[^:]\+\ze:')
-"                       \ : getline(search('^- .*:$', 'bn'))[2:-2]
-"   let uri  = get(get(g:plugs, name, {}), 'uri', '')
-"   if uri !~ 'github.com'
-"     return
-"   endif
-"   let repo = matchstr(uri, '[^:/]*/'.name)
-"   let url  = empty(sha) ? 'https://github.com/'.repo
-"                       \ : printf('https://github.com/%s/commit/%s', repo, sha)
-"   call netrw#BrowseX(url, 0)
-" endfunction
-
 function! PlugGx()
   let l:line = getline('.')
   let l:sha  = matchstr(l:line, '^  \X*\zs\x\{7,9}\ze ')
@@ -2285,23 +2271,28 @@ function! PlugGx()
     echo "NOPE"
   else
     let l:uri  = get(get(g:plugs, l:name, {}), 'uri', '')
-    if l:uri !~? 'github.com'
+    if l:uri !~ 'github.com'
       return
     endif
+    " this works but not as vim regex [^:\/]*\/nvim-treesitter(?!.*nvim-treesitter)
     let l:repo = matchstr(l:uri, '[^:/]*/'.l:name)
     let l:url  = empty(l:sha)
                 \ ? 'https://github.com/'.l:repo
                 \ : printf('https://github.com/%s/commit/%s', l:repo, l:sha)
     call netrw#BrowseX(l:url, 0)
   endif
-
 endfunction
 
-augroup PlugGx
-  autocmd!
-  autocmd BufRead,BufNewFile init.vim nnoremap <buffer> <silent> gx :call PlugGx()<cr>
-  autocmd FileType vim-plug nnoremap <buffer> <silent> gx :call PlugGx()<cr>
-augroup end
+" the `gx` above doesn't go to correct repo when org/repo name is the same
+function! s:open_plug_gh()
+  let line = getline('.')
+  let line = trim(line)
+  let plug_regex = '\vPlug [''"](.{-})[''"].*'
+  let path = substitute(line, plug_regex, '\1', '')
+  let url = 'https://github.com/' .. path
+  exec "!open '"..url.."'"
+endfunction
+nnoremap <Leader>gx :call <SID>open_plug_gh()<CR><CR>
 
 " JavaScript package.json
 function! PackageJsonGx() abort
@@ -2314,10 +2305,12 @@ function! PackageJsonGx() abort
   endif
 endfunction
 
-augroup PackageJsonGx
+augroup AutoGx
   autocmd!
+  autocmd BufRead,BufNewFile init.vim nnoremap <buffer> <silent> gx :call PlugGx()<cr>
+  autocmd FileType vim-plug nnoremap <buffer> <silent> gx :call PlugGx()<cr>
   autocmd BufRead,BufNewFile package.json nnoremap <buffer> <silent> gx :call PackageJsonGx()<cr>
-augroup END
+augroup end
 
 " Automatically install missing plugins on startup
 autocmd VimEnter *
@@ -2453,12 +2446,6 @@ endfunction
 
 command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
                 \ | diffthis | wincmd p | diffthis
-
-let base16colorspace=256
-" might as well play it safe, kids
-if has("termguicolors")
-  set termguicolors
-endif
 
 let g:tokyonight_style = "night"
 let g:tokyonight_italic_functions = 1
@@ -3569,6 +3556,23 @@ nnoremap <leader>bg :echo "hi<" . synIDattr(synID(line("."),col("."),1),"name") 
 \ . synIDattr(synID(line("."),col("."),0),"name") . "> lo<"
 \ . synIDattr(synIDtrans(synID(line("."),col("."),1)),"name") . ">"<cr>
 
+function! TabMessage(cmd)
+  redir => message
+  silent execute a:cmd
+  redir END
+  if empty(message)
+    echoerr "no output"
+  else
+    tabnew
+    setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted nomodified
+    silent put=message
+  endif
+endfunction
+
+" `:TabMessage message` to output :messages to new tab to copy
+" `:TabMessage ls` to output buffer list to new tab to copy
+command! -nargs=+ -complete=command TabMessage call TabMessage(<q-args>)
+
 " vimwiki & friends
 let g:vim_markdown_new_list_item_indent = 0
 let g:vim_markdown_auto_insert_bullets = 1
@@ -3625,9 +3629,6 @@ let g:vimwiki_list = [{
 " gln to toggle forward
 " glp to toggle back
 let g:coc_filetype_map = { 'vimwiki': 'markdown' } " register with coc-markdownlint
-
-let g:nv_search_paths = ['~/Documents/notes']
-let g:nv_create_note_key = 'ctrl-x'
 
 " default 'alok/notational-fzf-vim' search
 nmap <Leader>wv :NV!<CR>

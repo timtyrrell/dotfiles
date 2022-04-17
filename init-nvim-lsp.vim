@@ -22,9 +22,16 @@ Plug 'quangnguyen30192/cmp-nvim-ultisnips'
 
 Plug 'onsails/lspkind-nvim'
 Plug 'nvim-lua/lsp_extensions.nvim'
-Plug 'glepnir/lspsaga.nvim'
+Plug 'glepnir/lspsaga.nvim' " or https://github.com/ray-x/navigator.lua?
+" Plug 'kyazdani42/nvim-web-devicons'
+" Plug 'folke/trouble.nvim'
 Plug 'simrat39/symbols-outline.nvim'
 Plug 'stevearc/aerial.nvim'
+
+" if i don't want to configure the LSP but test it
+" Plug 'VonHeikemen/lsp-zero.nvim'
+
+" https://github.com/jose-elias-alvarez/null-ls.nvim
 
 " utils
 Plug 'windwp/nvim-autopairs'
