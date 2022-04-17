@@ -563,7 +563,6 @@ Plug 'AndrewRadev/undoquit.vim'
 "<c-w>u reopen windo
 "<c-w>U reopen tab with all windows
 
-" newer option
 Plug 'kazhala/close-buffers.nvim'
 map <leader>Bdo :BDelete other<CR>
 map <leader>Bdh :BDelete hidden<CR>
@@ -587,10 +586,10 @@ map <leader>rr <Plug>RestNvim
 map <leader>rp <Plug>RestNvimPreview
 map <leader>rL <Plug>RestNvimLast
 
-" session management
 Plug 'rmagatti/auto-session'
 
 Plug 'shivamashtikar/tmuxjump.vim'
+nmap <leader>jf :TmuxJumpFile<cr>
 " :TmuxJumpFile js & :TmuxJumpFirst js
 
 Plug 'preservim/vimux'
@@ -635,19 +634,6 @@ nmap <Leader>vf :call VimuxRunCommand("clear; node " . bufname("%"))<CR>
 " vnoremap <leader>rr :w !ruby<Enter>
 " vnoremap <leader>rp :w !python<Enter>
 
-" dbs
-Plug 'tpope/vim-dadbod'
-Plug 'kristijanhusak/vim-dadbod-ui'
-let g:db_ui_show_database_icon = 1
-let g:db_ui_use_nerd_fonts = 1
-let g:db_ui_force_echo_notifications = 1
-
-" testing
-Plug 'vim-test/vim-test'
-
-" debugging
-Plug 'mfussenegger/nvim-dap'
-
 Plug 'ThePrimeagen/harpoon'
 " left index finger
 nnoremap <silent>\f :lua require("harpoon.ui").toggle_quick_menu()<CR>
@@ -671,10 +657,20 @@ nnoremap <silent>\tk :lua require("harpoon.tmux").gotoTerminal(2)<CR>
 nnoremap <silent>\cj :lua require("harpoon.tmux").sendCommand(1, 1)<CR>
 nnoremap <silent>\ck :lua require("harpoon.tmux").sendCommand(1, 2)<CR>
 
+Plug 'tpope/vim-dadbod'
+Plug 'kristijanhusak/vim-dadbod-ui'
+let g:db_ui_show_database_icon = 1
+let g:db_ui_use_nerd_fonts = 1
+let g:db_ui_force_echo_notifications = 1
+
+" testing
+Plug 'vim-test/vim-test'
+
+" debugging
+Plug 'mfussenegger/nvim-dap'
 " Plug 'plytophogy/vim-virtualenv'
 " Plug 'PieterjanMontens/vim-pipenv'
 " Plug 'petobens/poet-v'
-" ?????????????
 " Figure out the system Python for Neovim.
 if exists("$VIRTUAL_ENV")
     let g:python3_host_prog=substitute(system("which -a python3 | head -n2 | tail -n1"), "\n", '', 'g')
@@ -702,21 +698,18 @@ Plug 'nvim-treesitter/playground'
 " F: Unfocuses the currently focused language.
 " <cr>: Go to current node in code buffer
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
-" Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+
 Plug 'mfussenegger/nvim-ts-hint-textobject'
+" example: `vm` to visually display hints to select
+omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
+vnoremap <silent> m :lua require('tsht').nodes()<CR>
+
+Plug 'mizlan/iswap.nvim'
+nmap <leader>sw <Plug>ISwapWith
 
 " use tree-sitter highlighting for spellchecker
 Plug 'lewis6991/spellsitter.nvim'
-
-Plug 'andrewradev/sideways.vim'
-nnoremap <A-Left> :SidewaysLeft<cr>
-nnoremap <A-Right> :SidewaysRight<cr>
-" cia - change an argument
-" daa - delete an argument
-omap aa <Plug>SidewaysArgumentTextobjA
-xmap aa <Plug>SidewaysArgumentTextobjA
-omap ia <Plug>SidewaysArgumentTextobjI
-xmap ia <Plug>SidewaysArgumentTextobjI
 
 Plug 'lukas-reineke/indent-blankline.nvim'
 " fix blank line color issue
@@ -877,11 +870,6 @@ Plug 'https://gitlab.com/yorickpeterse/nvim-pqf.git'
 Plug 'christoomey/vim-tmux-navigator'
 " If the tmux window is zoomed, keep it zoomed when moving from Vim to another pane
 let g:tmux_navigator_preserve_zoom = 1
-" simplify split navigation
-" map <C-j> <C-W>j
-" map <C-k> <C-W>k
-" map <C-h> <C-W>h
-" map <C-l> <C-W>l
 
 Plug 'christoomey/vim-system-copy'
 " cp for copying and cv for pasting
@@ -899,9 +887,6 @@ Plug 'tpope/vim-commentary'
 "gcc  - comment out line
 "gcap - comment out paragraph
 "gcgc - uncomment a set of adjacent commented lines
-
-" add viml/lua commenting support
-Plug 'suy/vim-context-commentstring',  { 'for': 'vim' }
 
 "Vim sugar for the UNIX shell commands
 Plug 'tpope/vim-eunuch'
@@ -977,10 +962,10 @@ Plug 'tpope/vim-speeddating'
 " https://github.com/kana/vim-textobj-user/wiki
 Plug 'kana/vim-textobj-user'
 Plug 'kana/vim-textobj-line', { 'on': ['<Plug>(textobj-line-i', '<Plug>(textobj-line-a']}
-xmap ai <Plug>(textobj-line-a)
-omap ai <Plug>(textobj-line-a)
-xmap ii <Plug>(textobj-line-i)
-omap ii <Plug>(textobj-line-i)
+xmap al <Plug>(textobj-line-a)
+omap al <Plug>(textobj-line-a)
+xmap il <Plug>(textobj-line-i)
+omap il <Plug>(textobj-line-i)
 " 'il' ignores leading and trailing spaces. 'al' ignoes EOL
 
 Plug 'kana/vim-textobj-indent', { 'on': ['<Plug>(textobj-indent-i', '<Plug>(textobj-indent-a', '<Plug>(textobj-indent-same-i', '<Plug>(textobj-indent-same-a']}
@@ -1006,11 +991,11 @@ omap iv <Plug>(textobj-value-i)
 " Plug 'Julian/vim-textobj-variable-segment'
 " iv and av for variable segments, snake_case, camelCase, etc
 
-Plug 'rhysd/vim-textobj-anyblock', { 'on': ['<Plug>(textobj-anyblock-i', '<Plug>(textobj-anyblock-a']}
-xmap ab <Plug>(textobj-anyblock-a)
-omap ab <Plug>(textobj-anyblock-a)
-xmap ib <Plug>(textobj-anyblock-i)
-omap ib <Plug>(textobj-anyblock-i
+" Plug 'rhysd/vim-textobj-anyblock', { 'on': ['<Plug>(textobj-anyblock-i', '<Plug>(textobj-anyblock-a']}
+" xmap ab <Plug>(textobj-anyblock-a)
+" omap ab <Plug>(textobj-anyblock-a)
+" xmap ib <Plug>(textobj-anyblock-i)
+" omap ib <Plug>(textobj-anyblock-i
 " ib is a union of i(, i{, i[, i', i" and i<
 " ab is a union of a(, a{, a[, a', a" and a<
 
@@ -1369,8 +1354,8 @@ nnoremap <leader>ve :VenterToggle<CR>
 Plug 'folke/zen-mode.nvim'
 nnoremap <leader>zm :ZenMode<CR>
 " treesitter focus on current scope
-Plug 'folke/twilight.nvim'
-nnoremap <leader>zt :Twilight<CR>
+" Plug 'folke/twilight.nvim'
+" nnoremap <leader>zt :Twilight<CR>
 
 Plug 'hoschi/yode-nvim'
 map  <leader>yc :YodeCreateSeditorFloating<CR>
@@ -1596,11 +1581,6 @@ function! s:wilder_init() abort
         \ 'substitute': s:wildmenu_renderer,
         \ }))
 endfunction
-
-" mfussenegger/nvim-ts-hint-textobject
-" example: `vm` to visually display hints to select
-omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
-vnoremap <silent> m :lua require('tsht').nodes()<CR>
 
 " nvim/shada is dumb with marks, don't save for new session
 " https://www.reddit.com/r/neovim/comments/q7bgwo/comment/hghwogp/?context=3
@@ -1868,9 +1848,9 @@ require'marks'.setup {
 -- :MarksListAll - Fill the location list with all marks in all open buffers
 -- :MarksQFListAll
 
-require("twilight").setup {
-  twilight = { enabled = false },
-}
+-- require("twilight").setup {
+--   twilight = { enabled = false },
+-- }
 require('zen-mode').setup {
   window = {
     backdrop = 0.95, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
@@ -2108,59 +2088,50 @@ require('nvim-treesitter.configs').setup {
   context_commentstring = {
     enable = true,
   },
-  -- textobjects = {
-  --   select = {
-  --     enable = true,
-  --     -- Automatically jump forward to textobj, similar to targets.vim
-  --     lookahead = true,
-  --     keymaps = {
-  --       -- You can use the capture groups defined in textobjects.scm
-  --       ["oc"] = "@class.outer",
-  --       ["ic"] = "@class.inner",
-  --       ["of"] = "@function.outer",
-  --       ["if"] = "@function.inner",
-  --       ["ob"] = "@block.outer",
-  --       ["ib"] = "@block.inner",
-  --       ["ol"] = "@loop.outer",
-  --       ["il"] = "@loop.inner",
-  --       ["os"] = "@statement.outer",
-  --       ["is"] = "@statement.inner",
-  --       ["oC"] = "@comment.outer",
-  --       ["iC"] = "@comment.inner",
-  --       ["om"] = "@call.outer",
-  --       ["im"] = "@call.inner",
-  --     },
-  --   },
-  -- swap = {
-  --   enable = true,
-  --   swap_next = {
-  --     ["<leader>a"] = "@parameter.inner",
-  --   },
-  --   swap_previous = {
-  --     ["<leader>A"] = "@parameter.inner",
-  --   },
-  -- },
-  -- move = {
-  --   enable = true,
-  --   set_jumps = true, -- whether to set jumps in the jumplist
-  --   goto_next_start = {
-  --     ["]m"] = "@function.outer",
-  --     ["]]"] = "@class.outer",
-  --   },
-  --   goto_next_end = {
-  --     ["]M"] = "@function.outer",
-  --     ["]["] = "@class.outer",
-  --   },
-  --   goto_previous_start = {
-  --     ["[m"] = "@function.outer",
-  --     ["[["] = "@class.outer",
-  --   },
-  --   goto_previous_end = {
-  --     ["[M"] = "@function.outer",
-  --     ["[]"] = "@class.outer",
-  --   },
-  -- },
--- },
+  textobjects = {
+    select = {
+      enable = true,
+      lookahead = true,
+      keymaps = {
+        ["ac"] = "@class.outer",
+        ["ic"] = "@class.inner",
+        ["af"] = "@function.outer",
+        ["if"] = "@function.inner",
+        ["ab"] = "@block.outer",
+        ["ib"] = "@block.inner",
+        ["aS"] = "@statement.outer",
+        ["iS"] = "@statement.inner",
+        ["aC"] = "@conditional.outer",
+        ["iC"] = "@conditional.inner",
+        ["aL"] = "@loop.outer",
+        ["iL"] = "@loop.inner",
+        ["am"] = "@call.outer",
+        ["im"] = "@call.inner",
+        ["iP"] = "@parameter.inner",
+        ["aP"] = "@parameter.outer",
+      },
+    },
+    move = {
+      enable = true,
+      set_jumps = true, -- set jumps in the jumplist
+      goto_next_start = {
+        ["]m"] = "@function.outer",
+        ["]]"] = "@class.outer",
+      },
+      goto_next_end = {
+        ["]M"] = "@function.outer",
+        ["]["] = "@class.outer",
+      },
+      goto_previous_start = {
+        ["[m"] = "@function.outer",
+        ["[["] = "@class.outer",
+      },
+      goto_previous_end = {
+        ["[M"] = "@function.outer",
+        ["[]"] = "@class.outer",
+      },
+    },
+  },
   playground = {
     enable = true,
     disable = {},
@@ -2998,16 +2969,6 @@ command! -nargs=? Fold :call CocAction('fold', <f-args>)
 command! -nargs=0 OR :call CocActionAsync('runCommand', 'editor.action.organizeImport')
 command! -nargs=0 CHI :call CocActionAsync('runCommand', 'document.showIncomingCalls')
 command! -nargs=0 CHO :call CocActionAsync('runCommand', 'document.showOutgoingCalls')
-
-" Map function and class text objects
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
 
 nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
 nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
