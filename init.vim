@@ -88,6 +88,13 @@
 " zz center line on screen
 " zt move current line to top
 " zb move current line to bottom
+"
+" Completion
+" <C-x><C-l> - whole lines
+" <C-x><C-n> - keywords in the current file
+" <C-x><C-i> - keywords in the current and included files
+" <C-x><C-f> - file names
+" <C-x><C-d> - function names
 
 let base16colorspace=256
 set termguicolors
@@ -249,11 +256,12 @@ augroup cmd_msg_cls
   autocmd CmdlineLeave : call timer_start(10000, funcref('s:empty_message'))
 augroup END
 
-augroup checktimegroup
-  autocmd!
-  " make it work with neovim
-  augroup FocusGained * :checktime
-augroup END
+" I have this in "randomstuff" augroup already?
+" augroup checktimegroup
+"   autocmd!
+"   " make it work with neovim
+"   augroup FocusGained * :checktime
+" augroup END
 
 " hide line showing switch in insert/normal mode
 set noshowmode
@@ -283,6 +291,7 @@ let g:did_load_filetypes = 0
 
 augroup numbertoggle
   autocmd!
+  " try nkakouros-original/numbers.nvim instead?
   autocmd BufEnter,FocusGained *.*,.* set relativenumber
   autocmd BufLeave,FocusLost   *.*,.* set norelativenumber
   " or by filetype
@@ -516,23 +525,22 @@ Plug 'neoclide/coc.nvim', {'branch': 'master', 'do': 'yarn install --frozen-lock
            \ Plug 'antoinemadec/coc-fzf' |
            \ Plug 'wellle/tmux-complete.vim' " coc completion from open tmux panes
 let g:coc_enable_locationlist = 0
+          " \ 'coc-dash-complete',
+          " \ 'coc-just-complete',
 let g:coc_global_extensions = [
           \ 'coc-coverage',
           \ 'coc-css',
           \ 'coc-cssmodules',
-          \ 'coc-dash-complete',
           \ 'coc-db',
           \ 'coc-docker',
           \ 'coc-emmet',
           \ 'coc-emoji',
           \ 'coc-eslint',
-          \ 'coc-just-complete',
           \ 'coc-git',
           \ 'coc-html',
           \ 'coc-import-cost',
           \ 'coc-jest',
           \ 'coc-json',
-          \ 'coc-just-complete',
           \ 'coc-lists',
           \ 'coc-lua',
           \ 'coc-markdownlint',
@@ -571,7 +579,6 @@ map <leader>Bdt :BDelete this<CR>
 map <leader>Bdn :BDelete nameless<CR>
 
 " undo tree visualizer
-" switch to https://github.com/mbbill/undotree ?
 Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
 nmap <Leader>mt :MundoToggle<CR>
 let g:mundo_right=1
@@ -701,7 +708,6 @@ Plug 'JoosepAlviste/nvim-ts-context-commentstring'
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 
 Plug 'mfussenegger/nvim-ts-hint-textobject'
-" example: `vm` to visually display hints to select
 omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
 vnoremap <silent> m :lua require('tsht').nodes()<CR>
 
@@ -762,23 +768,6 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'rondale-sc/vim-spacejam' "removes trailing whitespace on save
 let g:spacejam_filetypes = '*'
 
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
-let g:mkdp_browser = 'Chrome'
-let g:mkdp_auto_start = 0
-let g:mkdp_filetypes = ['markdown']
-nmap <leader>mp <Plug>MarkdownPreview
-nmap <leader>ms <Plug>MarkdownPreviewStop
-" display images in neovim
-" https://github.com/edluffy/hologram.nvim
-
-" markdown preview in nvim popup
-Plug 'ellisonleao/glow.nvim', {'branch': 'main', 'for': 'markdown'}
-nmap <leader>mv :Glow<CR>
-let g:glow_binary_path = $HOME . '/bin'
-let g:glow_border = 'rounded'
-let g:glow_width = 120
-" q to quit, :Glow for current filepath
-
 Plug 'weirongxu/plantuml-previewer.vim'
 Plug 'tyru/open-browser.vim'
 let g:netrw_nogx = 1 " disable netrw's gx mapping.
@@ -816,8 +805,8 @@ nnoremap <space><bs> :AckWindow! <C-R><C-W><CR>
 
 " enhanced matchit
 let g:loaded_matchit = 1
-Plug 'andymass/vim-matchup'
-let g:matchup_matchparen_offscreen = {'method': 'popup'}
+" Plug 'andymass/vim-matchup'
+" let g:matchup_matchparen_offscreen = {'method': 'popup'}
 " ---------------------------------------------~
 "  LHS   RHS                   Mode   Module
 " -----------------------------------------------~
@@ -839,8 +828,8 @@ nmap <leader><leader> :HopWord<cr>
 vmap <leader><leader> :HopWord<cr>
 nmap <leader>/ :HopPattern<cr>
 
-" Plug 'ggandor/leap.nvim'
-Plug 'ggandor/lightspeed.nvim'
+Plug 'ggandor/leap.nvim'
+" Plug 'ggandor/lightspeed.nvim'
 " nmap <expr> f reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_f" : "f"
 " nmap <expr> F reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_F" : "F"
 " nmap <expr> t reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_t" : "t"
@@ -849,23 +838,13 @@ Plug 'ggandor/lightspeed.nvim'
 Plug 'drmingdrmer/vim-toggle-quickfix'
 nmap <Leader>qq <Plug>window:quickfix:loop
 
-" quickfix item opening helper
-Plug 'yssl/qfenter'
-let g:qfenter_keymap = {}
-let g:qfenter_keymap.vopen = ['<C-v>']
-let g:qfenter_keymap.hopen = ['<C-s>', '<C-x>']
-let g:qfenter_keymap.topen = ['<C-t>']
-
 Plug 'kevinhwang91/nvim-bqf'
-" https://github.com/kevinhwang91/nvim-bqf#function-table
 " zf - fzf in quickfix
 " zp - toggle full screen preview
 " zn or zN - create new quickfix list
 " < - previous quickfix list
 " > - next quickfix list
-
-" pretty qf
-Plug 'https://gitlab.com/yorickpeterse/nvim-pqf.git'
+" c-x (split)
 
 Plug 'christoomey/vim-tmux-navigator'
 " If the tmux window is zoomed, keep it zoomed when moving from Vim to another pane
@@ -915,7 +894,6 @@ let g:loaded_ruby_provider = 0 " use language server instead
 Plug 'tpope/vim-rake'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
-"automatically adjusts 'shiftwidth' and 'expandtab' heuristically based on the current file
 Plug 'tpope/vim-surround'
 "quoting/parenthesizing made simple
 " {{{
@@ -988,6 +966,7 @@ omap av <Plug>(textobj-value-a)
 xmap iv <Plug>(textobj-value-i)
 omap iv <Plug>(textobj-value-i)
 
+" Plug 'chaoren/vim-wordmotion'
 " Plug 'Julian/vim-textobj-variable-segment'
 " iv and av for variable segments, snake_case, camelCase, etc
 
@@ -1016,9 +995,11 @@ let g:codi#aliases = {
 Plug 'andrewradev/linediff.vim'
 " :Linediff
 
-Plug 'sindrets/diffview.nvim', { 'on': ['DiffviewFileHistory', 'DiffviewOpen']}
+Plug 'sindrets/diffview.nvim'
 nmap <leader>dvh :DiffviewFileHistory<cr>
 nmap <leader>dvo :DiffviewOpen<cr>
+nmap <leader>dvp :DiffviewOpen HEAD~2<cr>
+nmap <leader>dvm :DiffviewOpen origin/main...HEAD<cr>
 nmap <leader>dvc :DiffviewClose<cr>
 nmap <leader>dvt :DiffviewToggleFiles<cr>
 nmap <leader>dvr :DiffviewRefresh<cr>
@@ -1215,6 +1196,7 @@ Plug 'rcarriga/nvim-notify'
 Plug 'nvim-telescope/telescope.nvim'
 nnoremap <leader>te <cmd>Telescope<cr>
 
+Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'nvim-telescope/telescope-dap.nvim'
 Plug 'pwntester/octo.nvim'
@@ -1275,10 +1257,8 @@ Plug 'tpope/vim-scriptease'
 " :verbose hi jsTemplateString
 " :Messages load messages into quickfix
 
-" visiblity
-" TODO: try ? https://github.com/karb94/neoscroll.nvim
-Plug 'psliwka/vim-smoothie'
-let g:smoothie_base_speed = 30
+" smooth scroll
+Plug 'declancm/cinnamon.nvim'
 
 Plug 'Konfekt/FastFold'
 let g:fastfold_savehook = 1
@@ -1353,9 +1333,6 @@ nnoremap <leader>ve :VenterToggle<CR>
 " center current buffer only
 Plug 'folke/zen-mode.nvim'
 nnoremap <leader>zm :ZenMode<CR>
-" treesitter focus on current scope
-" Plug 'folke/twilight.nvim'
-" nnoremap <leader>zt :Twilight<CR>
 
 Plug 'hoschi/yode-nvim'
 map  <leader>yc :YodeCreateSeditorFloating<CR>
@@ -1417,6 +1394,25 @@ Plug 'alok/notational-fzf-vim'
 let g:nv_search_paths = ['~/Documents/notes']
 let g:nv_create_note_key = 'ctrl-x'
 
+
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
+let g:mkdp_browser = 'Chrome'
+let g:mkdp_auto_start = 0
+let g:mkdp_filetypes = ['markdown']
+nmap <leader>mp <Plug>MarkdownPreview
+nmap <leader>ms <Plug>MarkdownPreviewStop
+
+"
+" markdown preview in nvim popup
+Plug 'ellisonleao/glow.nvim', {'branch': 'main', 'for': 'markdown'}
+nmap <leader>mv :Glow<CR>
+let g:glow_binary_path = $HOME . '/bin'
+let g:glow_border = 'rounded'
+let g:glow_width = 120
+" q to quit, :Glow for current filepath
+
+" Plug 'ekickx/clipboard-image.nvim'
+" Plug 'edluffy/hologram.nvim'
 Plug 'ferrine/md-img-paste.vim'
 
 " horizontal lines for vimwiki
@@ -1471,19 +1467,19 @@ Plug 'antoinemadec/FixCursorHold.nvim'
 
 " typescript fork of 'ianding1/leetcode.vim'
 " Plug 'briemens/leetcode.vim'
-Plug 'mbledkowski/neuleetcode.vim'
-let g:leetcode_solution_filetype='javascript'
-let g:leetcode_username='timtyrrell'
-let g:leetcode_browser='firefox'
-let g:leetcode_problemset='algorithms'
-let g:leetcode_hide_paid_only=0
-let g:leetcode_hide_topics=0
-let g:leetcode_hide_companies=0
-nnoremap <leader>ll :LeetCodeList<cr>
-nnoremap <leader>lt :LeetCodeTest<cr>
-nnoremap <leader>ls :LeetCodeSubmit<cr>
-nnoremap <leader>li :LeetCodeSignIn<cr>
-nnoremap <leader>lr :LeetCodeReset<cr>
+" Plug 'mbledkowski/neuleetcode.vim'
+" let g:leetcode_solution_filetype='javascript'
+" let g:leetcode_username='timtyrrell'
+" let g:leetcode_browser='firefox'
+" let g:leetcode_problemset='algorithms'
+" let g:leetcode_hide_paid_only=0
+" let g:leetcode_hide_topics=0
+" let g:leetcode_hide_companies=0
+" nnoremap <leader>ll :LeetCodeList<cr>
+" nnoremap <leader>lt :LeetCodeTest<cr>
+" nnoremap <leader>ls :LeetCodeSubmit<cr>
+" nnoremap <leader>li :LeetCodeSignIn<cr>
+" nnoremap <leader>lr :LeetCodeReset<cr>
 
 call plug#end()
 
@@ -1603,6 +1599,10 @@ vim.o.foldtext = [[substitute(getline(v:foldstart),'\\t',repeat('\ ',&tabstop),'
 vim.wo.foldnestmax = 3
 vim.wo.foldminlines = 1
 
+require('cinnamon').setup({
+  centered = false,
+  always_scroll = true,
+})
 require('regexplainer').setup {}
 require('harpoon').setup {}
 require('yode-nvim').setup {}
@@ -1624,14 +1624,79 @@ require('headlines').setup {
   },
 }
 require('terminal').setup {}
-require('pqf').setup {}
-
 require('nvim-tree').setup {
   renderer = {
     indent_markers = {
       enable = false,
     }
   }
+}
+
+local cb = require'diffview.config'.diffview_callback
+require'diffview'.setup {
+  file_panel = {
+    height = 16,
+    width = 45,
+    position = "bottom",
+    listing_style = "list",
+  },
+  file_history_panel = {
+    width = 35,
+    height = 16,
+    log_options = {
+      max_count = 256,
+      no_merges = true,
+    },
+  },
+  key_bindings = {
+    view = {
+      ["]q"]            = cb("select_next_entry"),
+      ["[q"]            = cb("select_prev_entry"),
+      ["gf"]            = cb("goto_file_tab"),
+      ["<C-w><C-f>"]    = cb("goto_file_split"),
+      ["<C-w>gf"]       = cb("goto_file"),            -- Open the file in a new split in previous tabpage
+      ["<leader>ee"]    = cb("focus_files"),
+      ["<leader>et"]    = cb("toggle_files"),
+    },
+    file_panel = {
+      ["<cr>"]          = cb("select_entry"),         -- Open the diff for the selected entry.
+      ["o"]             = cb("select_entry"),
+      ["-"]             = cb("toggle_stage_entry"),
+      ["S"]             = cb("stage_all"),
+      ["U"]             = cb("unstage_all"),
+      ["X"]             = cb("restore_entry"),
+      ["R"]             = cb("refresh_files"),
+      ["]q"]            = cb("select_next_entry"),
+      ["[q"]            = cb("select_prev_entry"),
+      ["gf"]            = cb("goto_file_tab"),
+      ["<C-w><C-f>"]    = cb("goto_file_split"),
+      ["<C-w>gf"]       = cb("goto_file"),            -- Open the file in a new split in previous tabpage
+      ["i"]             = cb("listing_style"),        -- Toggle between 'list' and 'tree' views
+      ["f"]             = cb("toggle_flatten_dirs"),  -- Flatten empty subdirectories in tree listing style.
+      ["<leader>ee"]    = cb("focus_files"),
+      ["<leader>et"]    = cb("toggle_files"),
+    },
+    file_history_panel = {
+      ["g!"]            = cb("options"),              -- Open the option panel
+      ["<C-A-d>"]       = cb("open_in_diffview"),     -- Open the entry under the cursor in a diffview
+      ["y"]             = cb("copy_hash"),            -- Copy the commit hash of the entry under the cursor
+      ["zR"]            = cb("open_all_folds"),
+      ["zM"]            = cb("close_all_folds"),
+      ["<cr>"]          = cb("select_entry"),         -- Open the diff for the selected entry.
+      ["o"]             = cb("select_entry"),
+      ["]q"]            = cb("select_next_entry"),
+      ["[q"]            = cb("select_prev_entry"),
+      ["gf"]            = cb("goto_file_tab"),
+      ["<C-w><C-f>"]    = cb("goto_file_split"),
+      ["<C-w>gf"]       = cb("goto_file"),            -- Open the file in a new split in previous tabpage
+      ["<leader>ee"]    = cb("focus_files"),
+      ["<leader>et"]    = cb("toggle_files"),
+    },
+    option_panel = {
+      ["<cr>"]          = cb("select"),
+      ["q"]             = cb("close"),
+    },
+  },
 }
 
 require('package-info').setup({
@@ -1669,7 +1734,7 @@ require('auto-session').setup {
   auto_session_enabled = true,
   auto_save_enabled = true,
   auto_restore_enabled = true,
-  -- auto_session_use_git_branch = true,
+  auto_session_use_git_branch = true,
   auto_session_suppress_dirs = {'~/', '~/code'},
   pre_save_cmds = {"lua require'nvim-tree'.setup()", "tabdo NvimTreeClose", "BDelete! nameless", "BDelete! hidden", "BDelete glob=yode*"}
 }
@@ -1708,7 +1773,7 @@ require('bqf').setup({
         drop = 'o', -- open item, close quickfix
         split = '<C-s>',
         vsplit = '<C-v>',
-        tabdrop = '<C-t>',
+        tabdrop = '',
         tab = 't',
         tabb = 'T', -- open item in new tab, keep current focus
         tabc = '',
@@ -1736,7 +1801,7 @@ require('nvim-tree').setup {
   diagnostics = {
     enable = true,
   },
-  update_to_buf_dir   = {
+  hijack_directories   = {
     enable = true,
     auto_open = false,
   },
@@ -1749,8 +1814,8 @@ require('nvim-tree').setup {
     custom = {} -- list of string that will not be shown
   },
   view = {
-    width = '20%',
-    auto_resize = true,
+    side = 'left',
+    width = 45,
     mappings = {
       list = {}
     }
@@ -1762,7 +1827,7 @@ require('nvim-tree').setup {
     },
     open_file = {
       quit_on_open = false,
-      resize_window = false,
+      resize_window = true,
       window_picker = {
         enable = false,
         chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
@@ -1799,11 +1864,12 @@ require('rest-nvim').setup({
   jump_to_request = false,
 })
 
-require'lightspeed'.setup {
+require('leap').set_default_keymaps()
+-- require'lightspeed'.setup {
   -- jump_to_unique_chars = false,
   -- safe_labels = {} ,
   -- repeat_ft_with_target_char = false,
-}
+-- }
 
 require('hop').setup()
 vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
@@ -1848,9 +1914,6 @@ require'marks'.setup {
 -- :MarksListAll - Fill the location list with all marks in all open buffers
 -- :MarksQFListAll
 
--- require("twilight").setup {
---   twilight = { enabled = false },
--- }
 require('zen-mode').setup {
   window = {
     backdrop = 0.95, -- shade the backdrop of the Zen window. Set to 1 to keep the same as Normal
@@ -1968,6 +2031,7 @@ require('telescope').setup {
     },
   }
 }
+require("telescope").load_extension("ui-select")
 
 -- local M = {}
 
@@ -2026,6 +2090,7 @@ require('telescope').load_extension('bookmarks')
 require("telescope").load_extension("emoji")
 require('telescope').load_extension('ghn')
 require('telescope').load_extension('env')
+require("telescope").load_extension("notify")
 
 -- require('telescope').load_extension('neoclip')
 -- require('neoclip').setup({
@@ -2160,21 +2225,25 @@ augroup randomstuff
   " Make it so that if files are changed externally (ex: changing git branches) update the vim buffers automatically
   autocmd FileChangedShellPost *
     \ echohl WarningMsg | echo "File changed on disk. Buffer reloaded." | echohl None
+
   " if highlighting on big files is bad, can do similiar:
   " autocmd FileType typescript syntax sync ccomment minlines=1500
 
   " set graphql filetype based on dir
   " autocmd BufRead,BufNewFile */schema/*.js set syntax=graphql
   " autocmd BufRead,BufNewFile */graphql/queries/*.js set syntax=graphql
+
   autocmd BufNewFile,BufRead .eslintrc,.prettierrc,.lintstagedrc set filetype=jsonc
   autocmd BufNewFile,BufRead *.build,.env* set filetype=sh
   autocmd BufNewFile,BufRead *.template set filetype=nginx
-  " per reddit, Vim doesn't have an autocommand for graphql files. You will have to manually add this line to your config - not sure if needed
+
+  " per reddit, Vim doesn't have an autocommand for graphql files, not sure if needed?
   autocmd BufRead,BufNewFile *.graphql,*.graphqls,*.gql setfiletype graphql
 augroup END
 
 augroup LastCursorPos
   autocmd!
+  " reopen files at your last edit position
   autocmd BufReadPost * if @% !~# "\.git[\/\\]COMMIT_EDITMSG$" && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
   " autocmd BufReadPost *
   "       \ if line("'\"") > 0 && line("'\"") <= line("$") |
@@ -2381,6 +2450,7 @@ augroup todo
                 \ )
 augroup END
 
+" remove all this and use Plug 'sindrets/diffview.nvim'?
 command! DiffHistory call s:view_git_history()
 
 function! s:view_git_history() abort
@@ -2691,7 +2761,6 @@ dap.adapters.chrome = {
 vim.fn.sign_define('DapBreakpoint', {text='🟥', texthl='', linehl='', numhl=''})
 vim.fn.sign_define('DapStopped', {text='🟢', texthl='', linehl='', numhl=''})
 
--- theHamsta/nvim-dap-virtual-text
 require("nvim-dap-virtual-text").setup()
 vim.g.dap_virtual_text = true
 
@@ -2879,11 +2948,11 @@ inoremap <expr> <C-k> pumvisible() ? "\<C-p>" : "\<C-k>"
 " <tab> /<s-tab> snippet mappings take precedence
 " inoremap <silent><expr> <TAB>
 "       \ pumvisible() ? "\<C-n>" :
-"       \ <SID>check_back_space() ? "\<TAB>" :
+"       \ CheckBackspace() ? "\<TAB>" :
 "       \ coc#refresh()
 " inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
-" function! s:check_back_space() abort
+" function! CheckBackspace() abort
 "   let col = col('.') - 1
 "   return !col || getline('.')[col - 1]  =~# '\s'
 " endfunction
@@ -2978,9 +3047,9 @@ vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(
 vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
 
 " Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
+nnoremap <silent> K :call ShowDocumentation()<CR>
 
-function! s:show_documentation()
+function! ShowDocumentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
   elseif (coc#rpc#ready())
@@ -3083,7 +3152,7 @@ augroup CocGroup
   " autocmd User CocLocationsChange ++nested call s:coc_qf_jump2loc(g:coc_jump_locations)
 
   " disable autocomplete for vimwiki, ctrl+space to trigger in insert mode
-  " autocmd FileType vimwiki let b:coc_suggest_disable = 1
+  autocmd filetype vimwiki,markdown  let b:coc_suggest_disable = 1
   " have snippets complete, only? mess with this: https://github.com/neoclide/coc.nvim/blob/804a007033bd9506edb9c62b4e7d2b36203ba479/doc/coc.txt#L908
 
   " close preview when completion is done
@@ -3229,7 +3298,8 @@ nnoremap <silent> <leader>rf :RG **/*.
 nnoremap <silent> <leader>rd :RGdir<Space>
 
 " Only search NON-test files defined in .ripgreprc
-nnoremap <silent> <leader>rt :RG --type-not test -g '!{cypress,test,*mocks*,__test__}'<CR>
+nnoremap <silent> <leader>rt :RG --type-not test<CR>
+" nnoremap <silent> <leader>rt :RG --type-not test -g '!{cypress,test,*mocks*,__test__,__tests__}'<CR>
 
 " Only search test files defined in .ripgreprc
 nnoremap <silent> <leader>rT :RG --type test<CR>

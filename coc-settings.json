@@ -62,7 +62,6 @@
   "semanticTokens.filetypes": ["*"],
   "hover.target": "float",
   "hover.autoHide": true,
-  "coc.source.file.ignorePatterns": [],
   "codeLens.enable": true,
   "codeLens.position": "eol",
   "codeLens.separator": "|->",

@@ -5,7 +5,7 @@
 web:*.{ts,tsx,js,jsx}
 
 --type-add
-test:*{_tests,_spec}.{ts,tsx,js,jsx}
+test:*{e2e,mocks,__tests__,_spec,__test__,test}.{ts,tsx,js,jsx}
 
 --glob=!.git/*
 --glob=!node_modules/*
