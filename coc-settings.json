@@ -193,5 +193,6 @@
   "react-refactor.produceClass": false,
   "coc.preferences.rootPatterns": [
     ".git"
-  ]
+  ],
+  "coc.preferences.enableMessageDialog": true
 }

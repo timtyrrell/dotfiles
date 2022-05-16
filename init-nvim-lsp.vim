@@ -8,6 +8,7 @@ Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
+Plug 'David-Kunz/cmp-npm'
 Plug 'andersevenrud/cmp-tmux'
 Plug 'lukas-reineke/cmp-rg'
 Plug 'hrsh7th/nvim-cmp'
@@ -17,6 +18,12 @@ Plug 'hrsh7th/nvim-cmp'
 " lsp snippets
 Plug 'SirVer/ultisnips'
 Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+
+" more cmp sources
+" Plug 'davidsierradz/cmp-conventionalcommits'
+" Plug 'dmitmel/cmp-cmdline-history'
+" Plug 'kristijanhusak/vim-dadbod-completion
+" Plug 'rcarriga/cmp-dap'
 
 Plug 'onsails/lspkind-nvim'
 Plug 'nvim-lua/lsp_extensions.nvim'
@@ -36,6 +43,7 @@ Plug 'lukas-reineke/lsp-format.nvim'
 " Plug 'VonHeikemen/lsp-zero.nvim'
 
 " https://github.com/jose-elias-alvarez/null-ls.nvim
+" Plug 'jose-elias-alvarez/nvim-lsp-ts-utils'
 
 " utils
 Plug 'windwp/nvim-autopairs'

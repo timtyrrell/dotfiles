@@ -17,3 +17,6 @@ ln -sv $DOTFILES/Brewfile ~/.Brewfile
 ln -sv $DOTFILES/KittyApprentice.conf ~/.config/kitty/themes/Apprentice.conf
 ln -sv $DOTFILES/pre-commit $DOTFILES/.git/hooks/pre-commit
 ln -sv $DOTFILES/tidy_config.txt ~/.config/tidy_config.txt
+ln -sv $DOTFILES/.tigrc ~/.tigrc
+ln -sv $DOTFILES/.ripgreprc ~/.ripgreprc
+ln -sv $DOTFILES/.rgignore ~/.rgignore

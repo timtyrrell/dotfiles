@@ -514,7 +514,7 @@ cabbrev wqa! use :xa!
 let g:python3_host_prog = '/usr/local/bin/python3'
 let g:loaded_python_provider = 0
 let g:loaded_perl_provider = 0
-let g:loaded_ruby_provider = 0
+let g:loaded_ruby_provider = 1 " use language server instead
 " let g:loaded_node_provider = 1
 
 call plug#begin('~/.config/nvim/plugged')
@@ -823,17 +823,7 @@ let g:loaded_matchit = 1
 " tab to exit enclosing character
 Plug 'abecodes/tabout.nvim'
 
-Plug 'phaazon/hop.nvim'
-nmap <leader><leader> :HopWord<cr>
-vmap <leader><leader> :HopWord<cr>
-nmap <leader>/ :HopPattern<cr>
-
 Plug 'ggandor/leap.nvim'
-" Plug 'ggandor/lightspeed.nvim'
-" nmap <expr> f reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_f" : "f"
-" nmap <expr> F reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_F" : "F"
-" nmap <expr> t reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_t" : "t"
-" nmap <expr> T reg_recording() . reg_executing() == "" ? "<Plug>Lightspeed_T" : "T"
 
 Plug 'drmingdrmer/vim-toggle-quickfix'
 nmap <Leader>qq <Plug>window:quickfix:loop
@@ -890,7 +880,6 @@ Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-apathy'
 
 Plug 'tpope/vim-rails'
-let g:loaded_ruby_provider = 0 " use language server instead
 Plug 'tpope/vim-rake'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
@@ -1205,6 +1194,9 @@ nnoremap <leader>ors <cmd>Octo review start<cr>
 nnoremap <leader>orr <cmd>Octo review resume<cr>
 nnoremap <leader>orb <cmd>Octo review submit<cr>
 
+Plug 'ldelossa/litee.nvim'
+Plug 'ldelossa/gh.nvim'
+
 Plug 'nvim-telescope/telescope-node-modules.nvim'
 nnoremap <leader>fn <cmd>Telescope node_modules list<cr>
 
@@ -1267,7 +1259,7 @@ let g:fastfold_savehook = 1
 
 " no recent updates, try this? https://github.com/edluffy/specs.nvim
 Plug 'danilamihailov/beacon.nvim'
-let g:beacon_ignore_filetypes = ['git', 'startify']
+let g:beacon_ignore_filetypes = ['git', 'startify', 'pr']
 let g:beacon_show_jumps = 0
 let g:beacon_ignore_buffers = ["Mundo"]
 let g:beacon_focus_gained = 1
@@ -1295,7 +1287,7 @@ let g:registers_window_border = "double"
 let g:registers_show_empty_registers = 0
 let g:registers_delay = 1000
 
-Plug 'chentau/marks.nvim'
+Plug 'chentoast/marks.nvim'
 
 " displays colors for words/hex
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
@@ -1394,7 +1386,6 @@ Plug 'alok/notational-fzf-vim'
 let g:nv_search_paths = ['~/Documents/notes']
 let g:nv_create_note_key = 'ctrl-x'
 
-
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
 let g:mkdp_browser = 'Chrome'
 let g:mkdp_auto_start = 0
@@ -1402,7 +1393,6 @@ let g:mkdp_filetypes = ['markdown']
 nmap <leader>mp <Plug>MarkdownPreview
 nmap <leader>ms <Plug>MarkdownPreviewStop
 
-"
 " markdown preview in nvim popup
 Plug 'ellisonleao/glow.nvim', {'branch': 'main', 'for': 'markdown'}
 nmap <leader>mv :Glow<CR>
@@ -1865,47 +1855,21 @@ require('rest-nvim').setup({
 })
 
 require('leap').set_default_keymaps()
--- require'lightspeed'.setup {
-  -- jump_to_unique_chars = false,
-  -- safe_labels = {} ,
-  -- repeat_ft_with_target_char = false,
--- }
-
-require('hop').setup()
-vim.api.nvim_set_keymap('n', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true })<cr>", {})
-vim.api.nvim_set_keymap('x', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
-vim.api.nvim_set_keymap('n', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true })<cr>", {})
-vim.api.nvim_set_keymap('x', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
-
-vim.api.nvim_set_keymap('o', 'f', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.AFTER_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
-vim.api.nvim_set_keymap('o', 'F', "<cmd>lua require'hop'.hint_char1({ direction = require'hop.hint'.HintDirection.BEFORE_CURSOR, current_line_only = true, inclusive_jump = true })<cr>", {})
 
 require'marks'.setup {
-  bookmark_0 = {
-    sign = "⚑",
-    virt_text = "FIX THIS"
-  },
+  default_mappings = false,
+  mappings = {
+    set = "m",
+    set_next = "m,",
+    toggle = "m;",
+    next = "m]",
+    prev = "m[",
+    preview = "m:",
+    delete = "d'",
+    delete_line = "d-",
+    delete_buf = "d<space>",
+  }
 }
-
--- mx              Set mark x
--- m,              Set the next available alphabetical (lowercase) mark
--- m;              Toggle the next available mark at the current line
--- dmx             Delete mark x
--- dm-             Delete all marks on the current line
--- dm<space>       Delete all marks in the current buffer
--- m]              Move to next mark
--- m[              Move to previous mark
--- m:              Preview mark. This will prompt you for a specific mark to
---                 preview; press <cr> to preview the next mark.
-
--- m[0-9]          Add a bookmark from bookmark group[0-9].
--- dm[0-9]         Delete all bookmarks from bookmark group[0-9].
--- m}              Move to the next bookmark having the same type as the bookmark under
---                 the cursor. Works across buffers.
--- m{              Move to the previous bookmark having the same type as the bookmark under
---                 the cursor. Works across buffers.
--- dm=             Delete the bookmark under the cursor.
---
 -- :MarksToggleSigns - Toggle signs in the buffer
 -- :MarksListBuf - Fill the location list with all marks in the current buffer
 -- :MarksQFListBuf
@@ -2085,6 +2049,13 @@ require('telescope').load_extension('gh')
 -- Telescope gh issues
 require('telescope').load_extension('coc')
 require("telescope").load_extension("git_worktree")
+require("git-worktree").setup({
+    -- change_directory_command = <str> -- default: "cd",
+    -- update_on_change = <boolean> -- default: true,
+    -- update_on_change_command = <str> -- default: "e .",
+    -- clearjumps_on_change = <boolean> -- default: true,
+    -- autopush = <boolean> -- default: false,
+})
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('bookmarks')
 require("telescope").load_extension("emoji")
@@ -2129,6 +2100,17 @@ require('octo').setup({
 -- treesitter markdown parser with octo buffers
 local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
 parser_config.markdown.filetype_to_parsername = "octo"
+
+require('litee.lib').setup({
+    tree = {
+        icon_set = "nerd"
+    },
+    panel = {
+        orientation = "left",
+        panel_size  = 50
+    }
+})
+require('litee.gh').setup()
 
 require('numb').setup {
    show_numbers = true,
@@ -2431,7 +2413,7 @@ function! MyHighlights() abort
     hi default link CocHintVirtualText LspDiagnosticsVirtualTextHint
     hi default link CocCodeLens LspCodeLens
     hi NormalFloat guifg=#c0caf5 guibg=#292e42
-    " chentau/marks.nvim
+    " chentoast/marks.nvim'
     hi MarkVirtTextHL cterm=bold ctermfg=15 ctermbg=9 gui=bold guifg=#ffffff guibg=#f00077
   end
 endfunction
