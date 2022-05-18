@@ -600,6 +600,14 @@ Plug 'shivamashtikar/tmuxjump.vim'
 nmap <leader>jf :TmuxJumpFile<cr>
 " :TmuxJumpFile js & :TmuxJumpFirst js
 
+" https://github.com/hkupty/iron.nvim ?
+" Plug 'metakirby5/codi.vim'
+Plug 'timtyrrell/codi.vim'
+let g:codi#aliases = {
+  \ 'javascriptreact': 'javascript',
+  \ 'typescriptreact': 'typescript',
+  \ }
+
 Plug 'preservim/vimux'
 let g:VimuxUseNearest = 1
 let g:VimuxOrientation = "v"
@@ -693,7 +701,7 @@ Plug 'David-Kunz/jester'
 " syntax
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'windwp/nvim-ts-autotag'
-Plug 'nvim-treesitter/playground'
+Plug 'nvim-treesitter/playground', { 'on': ['TSHighlightCapturesUnderCursor', 'TSNodeUnderCursor']}
 " :TSHighlightCapturesUnderCursor
 " :TSNodeUnderCursor
 " R: Refreshes the playground view when focused or reloads the query when the query editor is focused.
@@ -766,7 +774,8 @@ Plug 'AndrewRadev/splitjoin.vim'
 " gS to split a one-liner into multiple lines
 " gJ (with the cursor on the first line of a block) to join a block into a single-line statement.
 
-Plug 'rondale-sc/vim-spacejam' "removes trailing whitespace on save
+"removes trailing whitespace on save
+Plug 'rondale-sc/vim-spacejam'
 let g:spacejam_filetypes = '*'
 
 Plug 'weirongxu/plantuml-previewer.vim'
@@ -806,8 +815,8 @@ nnoremap <space><bs> :AckWindow! <C-R><C-W><CR>
 
 " enhanced matchit
 let g:loaded_matchit = 1
-" Plug 'andymass/vim-matchup'
-" let g:matchup_matchparen_offscreen = {'method': 'popup'}
+Plug 'andymass/vim-matchup'
+let g:matchup_matchparen_offscreen = {'method': 'popup'}
 " ---------------------------------------------~
 "  LHS   RHS                   Mode   Module
 " -----------------------------------------------~
@@ -824,6 +833,7 @@ let g:loaded_matchit = 1
 " tab to exit enclosing character
 Plug 'abecodes/tabout.nvim'
 
+" s 2char (nvim sneak)
 Plug 'ggandor/leap.nvim'
 
 Plug 'drmingdrmer/vim-toggle-quickfix'
@@ -882,6 +892,7 @@ Plug 'tpope/vim-apathy'
 
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rake'
+Plug 'tpope/vim-bundler'
 Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sleuth'
 Plug 'tpope/vim-surround'
@@ -974,13 +985,6 @@ Plug 'mlaursen/vim-react-snippets', { 'branch': 'main' }
 " review linenumber before jump
 Plug 'nacro90/numb.nvim'
 
-" Plug 'metakirby5/codi.vim'
-Plug 'timtyrrell/codi.vim'
-let g:codi#aliases = {
-  \ 'javascriptreact': 'javascript',
-  \ 'typescriptreact': 'typescript',
-  \ }
-
 " diff visual selections
 Plug 'andrewradev/linediff.vim'
 " :Linediff
@@ -999,9 +1003,11 @@ Plug 'tpope/vim-fugitive' |
            \ Plug 'tpope/vim-rhubarb' |
            \ Plug 'junegunn/gv.vim'
 
+" logs for entire repo
 nnoremap <leader>gv :GV<cr>
+" logs for entire repo, cleaned up
 nnoremap <leader>gV :GV --no-merges --first-parent -100<cr>
-" only list commits for current file
+" logs for current file
 nnoremap <leader>GV :GV! -100<cr>
 " gq or q exit
 
@@ -1027,7 +1033,7 @@ nnoremap <silent><leader>gt <cmd>Git difftool --name-only<CR>
 nnoremap <silent><leader>gT <cmd>Git difftool<CR>
 
 " git log/diffs of current file
-nnoremap <leader>gl :Gclog -- %<cr>
+nnoremap <leader>gl :Gclog -- % -100<cr>
 " git log/diffs of repo
 nnoremap <leader>gL :Gclog -100<cr>
 vnoremap <leader>gL :Gclog -100<cr>
@@ -1167,6 +1173,8 @@ nnoremap <leader>te <cmd>Telescope<cr>
 Plug 'nvim-telescope/telescope-ui-select.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 Plug 'nvim-telescope/telescope-dap.nvim'
+Plug 'nvim-telescope/telescope-github.nvim'
+
 Plug 'pwntester/octo.nvim'
 nnoremap <leader>opr <cmd>Octo pr list<cr>
 nnoremap <leader>ors <cmd>Octo review start<cr>
@@ -1180,10 +1188,7 @@ Plug 'nvim-telescope/telescope-node-modules.nvim'
 nnoremap <leader>fn <cmd>Telescope node_modules list<cr>
 
 Plug 'dhruvmanila/telescope-bookmarks.nvim'
-
 Plug 'xiyaowong/telescope-emoji.nvim'
-" Plug 'nvim-telescope/telescope-symbols.nvim'
-
 Plug 'TC72/telescope-tele-tabby.nvim'
 Plug 'LinArcX/telescope-env.nvim'
 
@@ -1191,7 +1196,6 @@ Plug 'LinArcX/telescope-env.nvim'
 " Plug 'AckslD/nvim-neoclip.lua'
 
 " Plug 'tami5/sql.nvim'
-" Plug 'nvim-telescope/telescope-frecency.nvim'
 
 Plug 'fannheyward/telescope-coc.nvim'
 
@@ -1199,9 +1203,6 @@ Plug 'norcalli/nvim-terminal.lua'
 " https://github.com/akinsho/toggleterm.nvim
 
 Plug 'mrjones2014/dash.nvim', { 'do': 'make install', 'on': ['Dash', 'DashWord']}
-
-Plug 'nvim-telescope/telescope-github.nvim'
-Plug 'rlch/github-notifications.nvim'
 
 Plug 'kyazdani42/nvim-web-devicons' " for file icons, nvim-tree and others
 
@@ -1218,9 +1219,10 @@ let g:nvim_tree_highlight_opened_files = 1
 " https://levelup.gitconnected.com/git-worktrees-the-best-git-feature-youve-never-heard-of-9cd21df67baf
 Plug 'ThePrimeagen/git-worktree.nvim'
 
-" regex explain - :ExplainPattern {pattern} or :ExplainPattern {register}
-Plug 'Houl/ExplainPattern'
+Plug 'MunifTanjim/nui.nvim'
 Plug 'bennypowers/nvim-regexplainer'
+" needs MunifTanjim/nui.nvim, also
+Plug 'vuki656/package-info.nvim'
 
 Plug 'tpope/vim-scriptease'
 " https://codeinthehole.com/tips/debugging-vim-by-example/#why-isn-t-syntax-highlighting-working-as-i-want
@@ -1236,7 +1238,6 @@ let g:fastfold_savehook = 1
 " Plug 'Jorengarenar/vim-syntaxMarkerFold' ?
 " Plug 'anuvyklack/pretty-fold.nvim'
 
-" no recent updates, try this? https://github.com/edluffy/specs.nvim
 Plug 'danilamihailov/beacon.nvim'
 let g:beacon_ignore_filetypes = ['git', 'startify', 'pr']
 let g:beacon_show_jumps = 0
@@ -1252,14 +1253,7 @@ if !&diff
       \ '\w*defx*\w',
       \ 'fzf',
       \]
-  " cursor to be highlighted when you jump to searches with n/N regardless of distance, use this mappings
-  " nmap <silent> n n:Beacon<cr>
-  " nmap <silent> N N:Beacon<cr>
-  " nmap <silent> * *:Beacon<cr>
-  " nmap <silent> # #:Beacon<cr>
 endif
-
-" Plug 'google/vim-searchindex'
 
 Plug 'tversteeg/registers.nvim', { 'branch': 'main' }
 let g:registers_window_border = "double"
@@ -1305,20 +1299,6 @@ nnoremap <leader>ve :VenterToggle<CR>
 Plug 'folke/zen-mode.nvim'
 nnoremap <leader>zm :ZenMode<CR>
 
-Plug 'hoschi/yode-nvim'
-map  <leader>yc :YodeCreateSeditorFloating<CR>
-map  <leader>yr :YodeCreateSeditorReplace<CR>
-nmap <leader>ybd :YodeBufferDelete<cr>
-imap <leader>ybd <esc>:YodeBufferDelete<cr>
-map  <leader>yd :BDelete glob=yode*<cr>
-
-" these commands fall back to overwritten keys when cursor is in split window
-" <c-w>w to move to float, next float, or back to main window
-map  <C-W>r :YodeLayoutShiftWinDown<CR>
-map  <C-W>R :YodeLayoutShiftWinUp<CR>
-map  <C-W>J :YodeLayoutShiftWinBottom<CR>
-map  <C-W>K :YodeLayoutShiftWinTop<CR>
-
 Plug 'voldikss/vim-browser-search'
 nmap <silent> <Leader>bs <Plug>SearchNormal
 vmap <silent> <Leader>bs <Plug>SearchVisual
@@ -1330,10 +1310,6 @@ let g:browser_search_engines = {
   \ 'stackoverflow':'https://stackoverflow.com/search?q=%s',
   \ }
 
-Plug 'MunifTanjim/nui.nvim'
-Plug 'vuki656/package-info.nvim'
-
-" monorepo
 Plug 'airblade/vim-rooter'
 " add git worktree to excludes
 let g:rooter_patterns = ['!.git/worktrees', '.git', 'Makefile']
@@ -1342,14 +1318,11 @@ let g:rooter_resolve_links = 1
 " to stop echo on change **KEEP ON**, echoes filename to cmdline
 let g:rooter_silent_chdir = 1
 
-" life
 Plug 'dstein64/vim-startuptime'
 " gf to go deeper
 " K for more info
 " Plug 'tweekmonster/startuptime.vim'
 
-" replace vimwiki?
-" Plug 'dkarter/bullets.vim'
 Plug 'vimwiki/vimwiki', { 'branch': 'dev', 'for': 'markdown', 'on': 'VimwikiMakeDiaryNote' }
 augroup load_vimwiki
   autocmd!
@@ -1394,7 +1367,6 @@ nnoremap <Leader>bc :CBcbox<CR>
 vnoremap <Leader>bc :CBcbox<CR>
 nnoremap <Leader>bl :CBline<CR>
 
-" scratch window
 Plug 'mtth/scratch.vim'
 " persist scratch file for project session
 let g:scratch_persistence_file = '.scratch.vim'
@@ -1414,6 +1386,9 @@ nmap <leader>sc <plug>(scratch-insert-clear)
 xmap <leader>sr <plug>(scratch-selection-reuse)
 xmap <leader>sC <plug>(scratch-selection-clear)
 
+" fix CursorHold perf bug
+Plug 'antoinemadec/FixCursorHold.nvim'
+
 " learning
 Plug 'folke/which-key.nvim'
 
@@ -1429,10 +1404,6 @@ Plug 'folke/which-key.nvim'
 " let g:hardtime_ignore_buffer_patterns = ['help', 'nofile', 'nowrite', 'man']
 " let g:hardtime_allow_different_key = 1
 " let g:hardtime_maxcount = 3
-
-" bugfix
-" fix CursorHold perf bug
-Plug 'antoinemadec/FixCursorHold.nvim'
 
 " typescript fork of 'ianding1/leetcode.vim'
 " Plug 'briemens/leetcode.vim'
@@ -1574,7 +1545,6 @@ require('cinnamon').setup({
 })
 require('regexplainer').setup {}
 require('harpoon').setup {}
-require('yode-nvim').setup {}
 require('tabout').setup {}
 require('nvim-web-devicons').setup {}
 require('which-key').setup {}
@@ -1945,27 +1915,21 @@ require('telescope').setup {
                                        -- the default case_mode is "smart_case"
     },
     dash = {
-      -- map filetype strings to the keywords you've configured for docsets in Dash
-      -- setting to false will disable filtering by filetype for that filetype
       fileTypeKeywords = {
-        startify = false,
-        TelescopePrompt = false,
+        TelescopePrompt = true,
         terminal = false,
-        -- a table of strings will search on multiple keywords
         javascript = { 'javascript', 'nodejs' },
         typescript = { 'typescript', 'javascript', 'nodejs' },
         typescriptreact = { 'typescript', 'javascript', 'react' },
         javascriptreact = { 'javascript', 'react' },
-        -- you can also do a string, for example,
-        -- bash = 'sh'
       },
     },
     bookmarks = {
-      -- Available: 'brave', 'google_chrome', 'safari', 'firefox', 'firefox_dev'
-      selected_browser = 'google_chrome',
+      selected_browser = 'chrome',
     },
     tele_tabby = {
       use_highlighter = true,
+      previewer = true,
     },
   }
 }
@@ -2033,7 +1997,6 @@ require("git-worktree").setup({
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('bookmarks')
 require("telescope").load_extension("emoji")
-require('telescope').load_extension('ghn')
 require('telescope').load_extension('env')
 require("telescope").load_extension("notify")
 
@@ -3046,22 +3009,29 @@ let g:coc_fzf_preview='right:50%'
 let g:coc_fzf_preview_fullscreen=0
 let g:coc_fzf_preview_toggle_key='\'
 
-nnoremap <silent><nowait> <space>za :<C-u>CocFzfList actions<CR>
-nnoremap <silent><nowait> <space>zd :<C-u>CocFzfList diagnostics --current-buf<CR>
-nnoremap <silent><nowait> <space>zD :<C-u>CocFzfList diagnostics<CR>
-nnoremap <silent><nowait> <space>zc :<C-u>CocFzfList commands<CR>
-nnoremap <silent><nowait> <space>ze :<C-u>CocFzfList extensions<CR>
-nnoremap <silent><nowait> <space>zl :<C-u>CocFzfList location<CR>
-nnoremap <silent><nowait> <space>zL :<C-u>CocFzfList<CR>
-nnoremap <silent><nowait> <space>zo :<C-u>CocFzfList outline<CR>
-nnoremap <silent><nowait> <space>zs :<C-u>CocFzfList symbols<CR>
-nnoremap <silent><nowait> <space>zS :<C-u>CocFzfList symbols <C-R><C-W><CR>
-nnoremap <silent><nowait> <space>zn :<C-u>CocFzfList snippets<CR>
-nnoremap <silent><nowait> <space>zv :<C-u>CocFzfList services<CR>
-nnoremap <silent><nowait> <space>zr :<C-u>CocFzfListResume<CR>
-nnoremap <silent><nowait> <space>zy :<C-u>CocFzfList yank<CR>
+" fannheyward/telescope-coc.nvim
+" mru
+" links
+" references
+" definitions
+" declarations
+" implementations
+" type_definitions
+" code_actions
+" line_code_actions
+nnoremap <silent><nowait> <space>za :Telescope coc file_code_actions<CR>
+nnoremap <silent><nowait> <space>zd :Telescope coc diagnostics<CR>
+nnoremap <silent><nowait> <space>zD :Telescope coc workspace_diagnostics<CR>
+nnoremap <silent><nowait> <space>zc :Telescope coc commands<CR>
+nnoremap <silent><nowait> <space>zl :Telescope coc locations<CR>
+nnoremap <silent><nowait> <space>zs :Telescope coc workspace_symbols<CR>
+nnoremap <silent><nowait> <space>zS :Telescope coc document_symbols<CR>
 
+nnoremap <silent><nowait> <space>zo :<C-u>CocFzfList outline<CR>
+" nnoremap <silent><nowait> <space>zS :<C-u>CocFzfList symbols <C-R><C-W><CR>
+" nnoremap <silent><nowait> <space>zy :<C-u>CocFzfList yank<CR>
 nnoremap <silent><nowait> <Leader>zf :call <SID>coc_qf_diagnostic()<CR>
+
 function! s:coc_qf_diagnostic() abort
   if !get(g:, 'coc_service_initialized', 0)
     return
