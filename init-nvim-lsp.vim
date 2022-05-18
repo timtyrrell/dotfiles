@@ -102,3 +102,14 @@ colorscheme tokyonight
 " }
 
 " vim.diagnostic.config(config)
+
+"toggle LSP diagnostics in Neovim 0.7
+"vim.g.diagnostics_active = true
+" vim.keymap.set('n', '<leader>d', function()
+"   vim.g.diagnostics_active = not vim.g.diagnostics_active
+"   if vim.g.diagnostics_active then
+"     vim.diagnostic.show()
+"   else
+"     vim.diagnostic.hide()
+"   end
+" end)

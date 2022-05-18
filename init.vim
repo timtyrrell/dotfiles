@@ -514,7 +514,8 @@ cabbrev wqa! use :xa!
 let g:python3_host_prog = '/usr/local/bin/python3'
 let g:loaded_python_provider = 0
 let g:loaded_perl_provider = 0
-let g:loaded_ruby_provider = 1 " use language server instead
+let g:loaded_ruby_provider = 0
+" let g:loaded_ruby_provider = 1 " use language server instead
 " let g:loaded_node_provider = 1
 
 call plug#begin('~/.config/nvim/plugged')
@@ -995,16 +996,29 @@ nmap <leader>dvr :DiffviewRefresh<cr>
 
 " git
 Plug 'tpope/vim-fugitive' |
-           \ Plug 'junegunn/gv.vim' |
-           \ Plug 'tpope/vim-rhubarb' | "GitHub extension for fugitive.vim
+           \ Plug 'tpope/vim-rhubarb' |
+           \ Plug 'junegunn/gv.vim'
+
+nnoremap <leader>gv :GV<cr>
+nnoremap <leader>gV :GV --no-merges --first-parent -100<cr>
+" only list commits for current file
+nnoremap <leader>GV :GV! -100<cr>
+" gq or q exit
 
 " https://github.com/tpope/vim-fugitive/issues/1446
 " fix older husky versions
 let g:fugitive_pty = 0
 
-" Fugitive mapping
 nnoremap <leader>gb :Git blame<cr>
 nnoremap <leader>gB :%Git blame<cr>
+" gq    close blame, then |:Gedit| to return to work tree version
+" <CR>  close blame, and jump to patch that added line (or directly to blob for boundary commit)
+" o     jump to patch or blob in horizontal split
+" O     jump to patch or blob in new tab
+" -     reblame at commit
+" ~     reblame at commit~[count]
+" P     reblame at commit^[count]
+
 nnoremap <leader>gd :Gdiff<cr>
 
 " list names of changes files in quickfix
@@ -1012,16 +1026,11 @@ nnoremap <silent><leader>gt <cmd>Git difftool --name-only<CR>
 " list all locations of changed files in quickfix
 nnoremap <silent><leader>gT <cmd>Git difftool<CR>
 
-" git history log of current file
-nnoremap <silent><Leader>gl <cmd>0Git log<CR>
-" git history log of repo
-nnoremap <silent><Leader>gL <cmd>Git log<CR>
-
-nnoremap <leader>gc :Gclog<cr>
-vnoremap <leader>gc :Gclog<cr>
-nnoremap <leader>gC :Gclog -- %<cr>
-" nmap <leader>gL :Gclog -100<cr>
-" 'o' to see diff, 'O' to open in new tab
+" git log/diffs of current file
+nnoremap <leader>gl :Gclog -- %<cr>
+" git log/diffs of repo
+nnoremap <leader>gL :Gclog -100<cr>
+vnoremap <leader>gL :Gclog -100<cr>
 " coo to checkout and switch to that commit
 
 " :Gedit is 'git checkout %' => reverts work tree file to index, be careful!
@@ -1042,10 +1051,10 @@ nnoremap <Leader>g? :Git! log --grep=
 " nnoremap <Leader>gS :Git! log -S<Space>
 nnoremap <Leader>g* :Gcgrep! -Hnri --quiet <C-r>=expand("<cword>")<CR><CR>
 
-nnoremap <silent><leader>gi <cmd>Git commit<CR>
-nnoremap <silent><Leader>gP <cmd>Git push<CR>
-nnoremap <silent><Leader>gp <cmd>Git pull<CR>
-nnoremap <silent><Leader>gf <cmd>Git fetch<CR>
+nnoremap <silent><leader>gc <cmd>Git commit<CR>
+nnoremap <silent><Leader>gP <cmd>Git -p push<CR>
+nnoremap <silent><Leader>gp <cmd>Git -p pull<CR>
+nnoremap <silent><Leader>gf <cmd>Git -p fetch<CR>
 
 " Open visual selection in browser
 vnoremap <Leader>Gb :GBrowse<CR>
@@ -1101,9 +1110,6 @@ nnoremap <leader>gS :0Git<CR>
 " cA                      Create a `squash!` commit for the commit under the cursor and edit the message.
 " crc                     Revert the commit under the cursor.
 " crn                     Revert the commit under the cursor in the index and work tree, but do not actually commit the changes.
-" :GV to open commit browser, git log options to the command, e.g. :GV -S foobar.
-" :GV! will only list commits that affected the current file
-" :GV? fills the location list with the revisions of the current file
 " :Gwrite[!] write the current file to the index and exits vimdiff mode.
 " HUNKS
 " do - `diffget` (obtain)
@@ -1149,33 +1155,6 @@ endfunction
 
 " display diff while in interactive rebase
 Plug 'hotwatermorning/auto-git-diff'
-
-Plug 'iberianpig/tig-explorer.vim'
-" open tig with Project root path
-nnoremap <Leader>tig :TigOpenProjectRootDir<CR>
-" open tig with current file
-nnoremap <Leader>tif :TigOpenCurrentFile<CR>
-" open tig grep with the word under the cursor
-nnoremap <Leader>tic :<C-u>:TigGrep<Space><C-R><C-W><CR>
-" open tig blame with current file
-nnoremap <Leader>tib :TigBlame<CR>
-
-" otherwise I lose what was open in the buffer...
-let g:tig_explorer_use_builtin_term=0
-
-let g:tig_explorer_keymap_edit_e  = 'e'
-let g:tig_explorer_keymap_edit    = '<C-o>'
-let g:tig_explorer_keymap_tabedit = '<C-t>'
-let g:tig_explorer_keymap_split   = '<C-s>'
-let g:tig_explorer_keymap_vsplit  = '<C-v>'
-
-let g:tig_explorer_keymap_commit_edit    = '<ESC>o'
-let g:tig_explorer_keymap_commit_tabedit = '<ESC>t'
-let g:tig_explorer_keymap_commit_split   = '<ESC>s'
-let g:tig_explorer_keymap_commit_vsplit  = '<ESC>v'
-" bclose.vim required for neovim and tig-explorer
-Plug 'rbgrouleff/bclose.vim'
-let g:bclose_no_plugin_maps = 1
 
 Plug 'kevinhwang91/nvim-hlslens'
 
@@ -1614,13 +1593,6 @@ require('headlines').setup {
   },
 }
 require('terminal').setup {}
-require('nvim-tree').setup {
-  renderer = {
-    indent_markers = {
-      enable = false,
-    }
-  }
-}
 
 local cb = require'diffview.config'.diffview_callback
 require'diffview'.setup {
@@ -1788,6 +1760,7 @@ require('nvim-tree').setup {
   hijack_netrw        = false,
   ignore_ft_on_setup  = {"startify"},
   hijack_cursor       = true,
+  reload_on_bufenter  = true,
   diagnostics = {
     enable = true,
   },
@@ -1829,10 +1802,6 @@ require('nvim-tree').setup {
     }
   }
 }
-
--- require'nvim-tree.events'.on_nvim_tree_ready(function ()
---   vim.cmd("NvimTreeRefresh")
--- end)
 
 require('rest-nvim').setup({
   -- Open request results in a horizontal split
@@ -1943,6 +1912,11 @@ require('telescope').setup {
     },
     live_grep = {
       only_sort_text = true,
+      -- https://www.reddit.com/r/neovim/comments/udx0fi/telescopebuiltinlive_grep_and_operator/
+      on_input_filter_cb = function(prompt)
+        -- AND operator for live_grep like how fzf handles spaces with wildcards in rg
+        return { prompt = prompt:gsub("%s", ".*") }
+      end,
       -- additional_args = function(opts)
       --   if opts.search_all == true then
       --       return {}
@@ -2316,6 +2290,7 @@ function! PlugGx()
       return
     endif
     " this works but not as vim regex [^:\/]*\/nvim-treesitter(?!.*nvim-treesitter)
+    " try this? https://github.com/junegunn/gv.vim/blob/master/plugin/gv.vim#L158-L171
     let l:repo = matchstr(l:uri, '[^:/]*/'.l:name)
     let l:url  = empty(l:sha)
                 \ ? 'https://github.com/'.l:repo

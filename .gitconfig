@@ -4,7 +4,7 @@
 	st = status
 	ci = commit
 	co = checkout
-  cob = "!f() { git checkout $(git show-ref --verify --quiet refs/heads/\"$1\" || echo '-b') \"$1\"; }; f"
+	cob = "!f() { git checkout $(git show-ref --verify --quiet refs/heads/\"$1\" || echo '-b') \"$1\"; }; f"
 	cp = cherry-pick
 	put = push origin HEAD
 	fixup = commit --fixup
@@ -13,8 +13,8 @@
 	br = branch
 	open = browse
 	pruneremote = remote prune origin
-	tree = log --graph --oneline --decorate --color --all
-	tr = log --graph --oneline --decorate --color
+	lg = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --graph
+	ll = log --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --first-parent --no-merges
 	add-untracked = !"git status --porcelain | awk '/\\?\\?/{ print $2 }' | xargs git add"
 	reset-authors = commit --amend --reset-author -CHEAD
 	rmbranch = !"git branch -d $(git branch --merged)"
