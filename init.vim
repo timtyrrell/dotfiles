@@ -116,10 +116,6 @@ nnoremap <leader>> V`]>
 " reselect pasted text. gv, reselects the last visual selection
 nnoremap gp `[v`]
 
-" first character of line, end of line
-" noremap H 0
-" noremap L $
-
 " scroll through time instead of space TODO (find non-mouse combo)
 " map <ScrollWheelUp> :later 10m<CR>
 " map <ScrollWheelDown> :earlier 10m<CR>
@@ -135,7 +131,7 @@ nnoremap gp `[v`]
 " vnoremap > >gv^
 " vnoremap < <gv^
 
-set shell=/usr/local/bin/zsh
+set shell=/usr/local/bin/bash
 
 set title "displays current file as vim title
 set visualbell "kills the bell
@@ -165,9 +161,6 @@ vnoremap <space><space> za
 set fillchars+=fold:\    " space
 " Open files without any folding
 set foldlevelstart=99
-
-" command line completion
-set wildmenu
 
 cnoremap <expr> <c-n> wildmenumode() ? "\<c-n>" : "\<down>"
 cnoremap <expr> <c-p> wildmenumode() ? "\<c-p>" : "\<up>"
@@ -220,7 +213,7 @@ let mapleader = ','
 " Numbered tab: 7gt
 nnoremap <leader>tc :tabclose<CR>
 nnoremap <leader>tn :tabnew<CR>
-nnoremap <leader>tl :tablast<CR>
+" nnoremap <leader>tl :tablast<CR>
 nnoremap <leader>to :tabonly<cr>
 nnoremap <leader>tm :tabmove<Space>
 nnoremap <leader>1 1gt
@@ -249,26 +242,16 @@ function! s:empty_message(timer)
   endif
 endfunction
 
-" deep dive into configuring groups, commands, etc
-" https://thevaluable.dev/vim-expert/
 augroup cmd_msg_cls
   autocmd!
   autocmd CmdlineLeave : call timer_start(10000, funcref('s:empty_message'))
 augroup END
-
-" I have this in "randomstuff" augroup already?
-" augroup checktimegroup
-"   autocmd!
-"   " make it work with neovim
-"   augroup FocusGained * :checktime
-" augroup END
 
 " hide line showing switch in insert/normal mode
 set noshowmode
 set noruler
 set splitright
 set splitbelow
-set autoread " do not prompt and reload file system changes
 set hidden " allows you to abandon a buffer without saving
 set smartindent " Keep indentation from previous line
 set showbreak=↳
@@ -332,7 +315,6 @@ set nowritebackup
 set noswapfile " Disable swapfile
 " setup persistent undo
 set undofile
-set undodir=~/.vim/undo
 
 " search highlighting/behavior
 set hlsearch
@@ -390,35 +372,27 @@ nmap <silent> <leader>sz :call FzfSpell()<CR>
 " keep windows same size when opening/closing splits
 set equalalways
 
-" only highlight cursorline in current active buffer, when not in insert mode
 augroup STUFFS
   autocmd!
   " resize panes the host window is resized
- " NvimTreeOpen, NvimTreeClose, NvimTreeFocus, NvimTreeFindFileToggle, and NvimTreeResize
   autocmd VimResume,VimResized, NvimTreeOpen, NvimTreeClose * wincmd =
   autocmd VimResized,VimResume * execute "normal! \<C-w>="
+
+" only highlight cursorline in current active buffer, when not in insert mode
   autocmd InsertLeave,WinEnter * set cursorline
   autocmd InsertEnter,WinLeave * set nocursorline
-  " source $MYVIMRC when saving $MYVIMRC
-  autocmd BufWritePost $MYVIMRC source $MYVIMRC
+
   " autocmd BufWritePost * if &diff | diffupdate | endif " update diff after save
-  " autocmd BufWritePre *.md CocCommand markdownlint.fixAll
-  " autocmd BufWritePost *.md CocCommand markdownlint.fixAll | echo 'hi'
-  " autocmd BufWritePost *.jsx,*.js CocCommand eslint.executeAutofix
-  autocmd FileType TelescopePrompt let b:coc_pairs_disabled = ["'"]
 
   " go back to previous tab when closing tab
   autocmd TabClosed * tabprevious
 augroup END
 
 "sessions
-" Don't save hidden and unloaded buffers in sessions
 set sessionoptions-=buffers
-" Don't persist options and mappings because it can corrupt sessions.
-set sessionoptions-=options
-" don't restore help windows
 set sessionoptions-=help
-" results with those ^: sessionoptions=blank,curdir,folds,tabpages,winsize
+set sessionoptions-=folds
+" results with those ^: sessionoptions=blank,curdir,tabpages,winsize
 
 " split windows
 nnoremap <C-w>- :new<cr>
@@ -480,7 +454,7 @@ set mouse=
 " bind '"\C-z":"fg\n"'
 
 " format json
-nnoremap <silent> <Leader>jj :set ft=json<CR>:%!python -m json.tool<CR>
+nnoremap <silent> <Leader>jj :set ft=json<CR>:%!jq .<CR>
 
 " format html
 " nnoremap <silent> <Leader>ti :%!tidy -config ~/.config/tidy_config.txt %<CR>
@@ -583,11 +557,6 @@ map <leader>Bdn :BDelete nameless<CR>
 Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
 nmap <Leader>mt :MundoToggle<CR>
 let g:mundo_right=1
-
-augroup mundoauto
-  autocmd!
-  autocmd User vim-mundo echom 'vim-mundo is now loaded!'
-augroup END
 
 Plug 'NTBBloodbath/rest.nvim'
 map <leader>rr <Plug>RestNvim
@@ -739,7 +708,7 @@ set list listchars=tab:→\ ,space:⋅,trail:•,nbsp:␣,extends:▶,precedes:�
 let g:indent_blankline_char = '▏'
 " let g:indent_blankline_char_blankline = '┆'
 " let g:indent_blankline_char_list = ['|', '¦', '┆', '┊']
-let g:indent_blankline_filetype_exclude = ['checkhealth', 'NvimTree', 'vim-plug', 'man', 'help', 'lspinfo', '']
+let g:indent_blankline_filetype_exclude = ['checkhealth', 'NvimTree', 'vim-plug', 'man', 'help', 'lspinfo', '', 'GV', 'git']
 let g:indent_blankline_buftype_exclude = ['terminal', 'nofile', 'quickfix']
 let g:indent_blankline_bufname_exclude = ['README.md', '.*\.py']
 let g:indent_blankline_show_first_indent_level = v:true
@@ -761,6 +730,7 @@ Plug 'tmux-plugins/vim-tmux'
 "         \ 'html', 'javascript', 'javascriptreact', 'jsdoc', 'json',
 "         \ 'jsonc', 'jsx', 'lua', 'python', 'regex', 'rspec', 'ruby',
 "         \ 'sh', 'svg', 'tmux', 'tsx', 'typescript', 'typescriptreact', 'yaml']
+Plug 'tpope/vim-sensible'
 " Plug 'sheerun/vim-polyglot'
 " " Plug 'sheerun/vim-polyglot', { 'commit': '2c5af8f' }
 " let g:polyglot_disabled = ['sensible']
@@ -834,6 +804,7 @@ let g:matchup_matchparen_offscreen = {'method': 'popup'}
 Plug 'abecodes/tabout.nvim'
 
 " s 2char (nvim sneak)
+" `s{char}<enter>` is the same as `f{char}`, but works over multiple lines.
 Plug 'ggandor/leap.nvim'
 
 Plug 'drmingdrmer/vim-toggle-quickfix'
@@ -985,31 +956,38 @@ Plug 'mlaursen/vim-react-snippets', { 'branch': 'main' }
 " review linenumber before jump
 Plug 'nacro90/numb.nvim'
 
-" diff visual selections
-Plug 'andrewradev/linediff.vim'
-" :Linediff
-
-Plug 'sindrets/diffview.nvim'
-nmap <leader>dvh :DiffviewFileHistory<cr>
-nmap <leader>dvo :DiffviewOpen<cr>
-nmap <leader>dvp :DiffviewOpen HEAD~2<cr>
-nmap <leader>dvm :DiffviewOpen origin/main...HEAD<cr>
-nmap <leader>dvc :DiffviewClose<cr>
-nmap <leader>dvt :DiffviewToggleFiles<cr>
-nmap <leader>dvr :DiffviewRefresh<cr>
-
 " git
 Plug 'tpope/vim-fugitive' |
            \ Plug 'tpope/vim-rhubarb' |
            \ Plug 'junegunn/gv.vim'
 
+" 1. Run :G mergetool.
+" 2. (If you need a diff view, run :Gvdiffsplit! or any other variant.)
+" 3. Resolve the conflicts, then write and stage the result with :Gwrite.
+" 4. (Close other windows, if any, with <C-w><C-o>.)
+" 5. Go to the next quickfix entry with ]q or :cnext.
+
+" Fugitive Conflict Resolution
+" nnoremap <leader>gd :Gvdiff<CR>
+" nnoremap gdh :diffget //2<CR> (left key)
+" nnoremap gdl :diffget //3<CR> (right key)
+" jump conflicts: ]c [c
+"
+" When I'm in a 3-way diff and hit ,ga, vim opens a new tab and diffs the file in the active window against the common ancestor. When I'm done reading the diff, I just :tabclose and I'm right back to where I was.
+" nnoremap <leader>ga :tab sp \| Gvedit :1 \| windo diffthis<CR>
+
 " logs for entire repo
 nnoremap <leader>gv :GV<cr>
 " logs for entire repo, cleaned up
-nnoremap <leader>gV :GV --no-merges --first-parent -100<cr>
+nnoremap <leader>gV :GV --first-parent -100<cr>
+" nnoremap <leader>gV :GV --no-merges --first-parent -100<cr>
 " logs for current file
 nnoremap <leader>GV :GV! -100<cr>
 " gq or q exit
+" O opens a new tab instead
+" gb for :GBrowse
+" ]] and [[ to move between commits
+" . to start command-line with :Git [CURSOR] SHA à la fugitive
 
 " https://github.com/tpope/vim-fugitive/issues/1446
 " fix older husky versions
@@ -1125,16 +1103,45 @@ nnoremap <leader>gS :0Git<CR>
 " put changed file names from previous commit into the quickfix list
 command -nargs=? -bar Gshow call setqflist(map(systemlist("git show --pretty='' --name-only <args>"), '{"filename": v:val, "lnum": 1}'))
 
-" command line mergetool
-Plug 'christoomey/vim-conflicted'
-" `git conflicted` or `git mergetool` to open
-" `:GitNextConflict` go to next file
-" `dgu` - diffget from the upstream version
-" `dgl` - diffget from the local version
-" [c and ]c to navigate conflicts in file
+Plug 'whiteinge/diffconflicts'
+" Convert a file containing Git conflict markers into a two-way diff.
+nmap <silent> <leader>dcc :DiffConflicts<cr>
+" Open a new tab containing the merge base and the local and remote version
+nmap <silent> <leader>dcs :DiffConflictsShowHistory<cr>
+" Call both DiffConflicts and DiffConflictsShowHistory
+nmap <silent> <leader>dcb :DiffConflictsWithHistory<cr>
+" " Refresh the diff
+nmap <silent> <leader>dcu :diffupdate<cr>
+" :cq to skip file
+nmap <silent> <leader>dcs :cq<cr>
+
+" Toggle diff view on the left, center, or right windows
+" nmap <silent> <leader>dfl :call difftoggle#DiffToggle(1)<cr>
+" nmap <silent> <leader>dfm :call difftoggle#DiffToggle(2)<cr>
+" nmap <silent> <leader>dfr :call difftoggle#DiffToggle(3)<cr>
+
+" Toggle ignoring whitespace
+" nmap <silent> <leader>dw :call iwhitetoggle#IwhiteToggle()<CR>
+
+" Find merge conflict markers
+" map <leader>dc /\v^[<=>]{7}( .*\|$)<cr>
+
+" Use a (usually) better diff algorithm.
+set diffopt+=indent-heuristic
 
 " disable showing '------' for empty line in difftool
 set fillchars+=diff:╱
+
+Plug 'sindrets/diffview.nvim'
+nmap <leader>dvo :DiffviewOpen<cr>
+nmap <leader>dvp :DiffviewOpen HEAD~1<cr>
+nmap <leader>dvm :DiffviewOpen origin/main...HEAD<cr>
+nmap <leader>dvf :DiffviewFileHistory<cr>
+nmap <leader>dvh :DiffviewFileHistory --range=origin..HEAD<cr>
+
+" diff visual selections
+Plug 'andrewradev/linediff.vim'
+" :Linediff
 
 Plug 'rhysd/git-messenger.vim'
 " <Leader>gm
@@ -1181,8 +1188,8 @@ nnoremap <leader>ors <cmd>Octo review start<cr>
 nnoremap <leader>orr <cmd>Octo review resume<cr>
 nnoremap <leader>orb <cmd>Octo review submit<cr>
 
-Plug 'ldelossa/litee.nvim'
-Plug 'ldelossa/gh.nvim'
+" Plug 'ldelossa/litee.nvim'
+" Plug 'ldelossa/gh.nvim'
 
 Plug 'nvim-telescope/telescope-node-modules.nvim'
 nnoremap <leader>fn <cmd>Telescope node_modules list<cr>
@@ -1324,10 +1331,6 @@ Plug 'dstein64/vim-startuptime'
 " Plug 'tweekmonster/startuptime.vim'
 
 Plug 'vimwiki/vimwiki', { 'branch': 'dev', 'for': 'markdown', 'on': 'VimwikiMakeDiaryNote' }
-augroup load_vimwiki
-  autocmd!
-  autocmd! User Vimwiki echom 'Vimwiki is now loaded!'
-augroup END
 
 Plug 'mattn/calendar-vim'
 let g:calendar_no_mappings=0
@@ -1425,7 +1428,6 @@ call plug#end()
 
 " Unhighlight search results
 map <Leader><space> :nohl<cr>
-" nmap <silent> <BS>  :nohlsearch<CR>
 
 " do not jump from item on * search
 nnoremap * *``<Cmd>lua require('hlslens').start()<CR>
@@ -1522,12 +1524,6 @@ endfunction
 " https://www.reddit.com/r/neovim/comments/q7bgwo/comment/hghwogp/?context=3
 set shada=!,'0,f0,<50,s10,h
 
-" don't open on blank dir (startify)
-" augroup NvimTreeConfig
-"   au!
-"   au BufEnter * if isdirectory(expand('%')) | exec("cd " . expand('%')) | exec('NvimTreeOpen') | endif
-" augroup END
-
 lua << EOF
 
 -- fold settings
@@ -1564,69 +1560,75 @@ require('headlines').setup {
 }
 require('terminal').setup {}
 
-local cb = require'diffview.config'.diffview_callback
-require'diffview'.setup {
+local actions = require("diffview.config").actions
+require("diffview").setup {
   file_panel = {
-    height = 16,
-    width = 45,
-    position = "bottom",
     listing_style = "list",
+    win_config = {
+      height = 16,
+      width = 45,
+      position = "bottom",
+    },
   },
   file_history_panel = {
-    width = 35,
-    height = 16,
     log_options = {
       max_count = 256,
       no_merges = true,
     },
+    win_config = {
+      width = 35,
+      height = 16,
+    },
   },
   key_bindings = {
     view = {
-      ["]q"]            = cb("select_next_entry"),
-      ["[q"]            = cb("select_prev_entry"),
-      ["gf"]            = cb("goto_file_tab"),
-      ["<C-w><C-f>"]    = cb("goto_file_split"),
-      ["<C-w>gf"]       = cb("goto_file"),            -- Open the file in a new split in previous tabpage
-      ["<leader>ee"]    = cb("focus_files"),
-      ["<leader>et"]    = cb("toggle_files"),
+      ["]q"]            = actions.select_next_entry,
+      ["[q"]            = actions.select_prev_entry,
+      ["gf"]            = actions.goto_file_tab,
+      ["<C-w><C-f>"]    = actions.goto_file_split,
+      ["<C-w>gf"]       = actions.goto_file,            -- Open the file in a new split in previous tabpage
+      ["<leader>ee"]    = actions.focus_files,
+      ["<leader>et"]    = actions.toggle_files,
     },
     file_panel = {
-      ["<cr>"]          = cb("select_entry"),         -- Open the diff for the selected entry.
-      ["o"]             = cb("select_entry"),
-      ["-"]             = cb("toggle_stage_entry"),
-      ["S"]             = cb("stage_all"),
-      ["U"]             = cb("unstage_all"),
-      ["X"]             = cb("restore_entry"),
-      ["R"]             = cb("refresh_files"),
-      ["]q"]            = cb("select_next_entry"),
-      ["[q"]            = cb("select_prev_entry"),
-      ["gf"]            = cb("goto_file_tab"),
-      ["<C-w><C-f>"]    = cb("goto_file_split"),
-      ["<C-w>gf"]       = cb("goto_file"),            -- Open the file in a new split in previous tabpage
-      ["i"]             = cb("listing_style"),        -- Toggle between 'list' and 'tree' views
-      ["f"]             = cb("toggle_flatten_dirs"),  -- Flatten empty subdirectories in tree listing style.
-      ["<leader>ee"]    = cb("focus_files"),
-      ["<leader>et"]    = cb("toggle_files"),
+      ["<cr>"]          = actions.select_entry,         -- Open the diff for the selected entry.
+      ["o"]             = actions.select_entry,
+      ["-"]             = actions.toggle_stage_entry,
+      ["S"]             = actions.stage_all,
+      ["U"]             = actions.unstage_all,
+      ["X"]             = actions.restore_entry,
+      ["R"]             = actions.refresh_files,
+      ["L"]             = actions.open_commit_log,
+      ["]q"]            = actions.select_next_entry,
+      ["[q"]            = actions.select_prev_entry,
+      ["gf"]            = actions.goto_file_tab,
+      ["<C-w><C-f>"]    = actions.goto_file_split,
+      ["<C-w>gf"]       = actions.goto_file,            -- Open the file in a new split in previous tabpage
+      ["i"]             = actions.listing_style,        -- Toggle between 'list' and 'tree' views
+      ["f"]             = actions.toggle_flatten_dirs,  -- Flatten empty subdirectories in tree listing style.
+      ["<leader>ee"]    = actions.focus_files,
+      ["<leader>et"]    = actions.toggle_files,
     },
     file_history_panel = {
-      ["g!"]            = cb("options"),              -- Open the option panel
-      ["<C-A-d>"]       = cb("open_in_diffview"),     -- Open the entry under the cursor in a diffview
-      ["y"]             = cb("copy_hash"),            -- Copy the commit hash of the entry under the cursor
-      ["zR"]            = cb("open_all_folds"),
-      ["zM"]            = cb("close_all_folds"),
-      ["<cr>"]          = cb("select_entry"),         -- Open the diff for the selected entry.
-      ["o"]             = cb("select_entry"),
-      ["]q"]            = cb("select_next_entry"),
-      ["[q"]            = cb("select_prev_entry"),
-      ["gf"]            = cb("goto_file_tab"),
-      ["<C-w><C-f>"]    = cb("goto_file_split"),
-      ["<C-w>gf"]       = cb("goto_file"),            -- Open the file in a new split in previous tabpage
-      ["<leader>ee"]    = cb("focus_files"),
-      ["<leader>et"]    = cb("toggle_files"),
+      ["g!"]            = actions.options,              -- Open the option panel
+      ["<C-A-d>"]       = actions.open_in_diffview,     -- Open the entry under the cursor in a diffview
+      ["y"]             = actions.copy_hash,            -- Copy the commit hash of the entry under the cursor
+      ["L"]             = actions.open_commit_log,
+      ["zR"]            = actions.open_all_folds,
+      ["zM"]            = actions.close_all_folds,
+      ["<cr>"]          = actions.select_entry,         -- Open the diff for the selected entry.
+      ["o"]             = actions.select_entry,
+      ["]q"]            = actions.select_next_entry,
+      ["[q"]            = actions.select_prev_entry,
+      ["gf"]            = actions.goto_file_tab,
+      ["<C-w><C-f>"]    = actions.goto_file_split,
+      ["<C-w>gf"]       = actions.goto_file,            -- Open the file in a new split in previous tabpage
+      ["<leader>ee"]    = actions.focus_files,
+      ["<leader>et"]    = actions.toggle_files,
     },
     option_panel = {
-      ["<cr>"]          = cb("select"),
-      ["q"]             = cb("close"),
+      ["<cr>"]          = actions.select_entry,
+      ["q"]             = actions.close,
     },
   },
 }
@@ -1760,7 +1762,6 @@ require('nvim-tree').setup {
     },
     open_file = {
       quit_on_open = false,
-      resize_window = true,
       window_picker = {
         enable = false,
         chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890",
@@ -1794,6 +1795,17 @@ require('rest-nvim').setup({
 })
 
 require('leap').set_default_keymaps()
+require('leap').setup {
+  case_insensitive = false,
+  special_keys = {
+    repeat_search = '<enter>',
+    next_match    = ';',
+    prev_match    = ',',
+    next_group    = '<space>',
+    prev_group    = '<tab>',
+    eol           = '<space>',
+  },
+}
 
 require'marks'.setup {
   default_mappings = false,
@@ -2038,16 +2050,34 @@ require('octo').setup({
 local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
 parser_config.markdown.filetype_to_parsername = "octo"
 
-require('litee.lib').setup({
-    tree = {
-        icon_set = "nerd"
-    },
-    panel = {
-        orientation = "left",
-        panel_size  = 50
-    }
-})
-require('litee.gh').setup()
+-- require('litee.lib').setup({
+--     tree = {
+--         icon_set = "nerd"
+--     },
+--     panel = {
+--         orientation = "left",
+--         panel_size  = 50
+--     }
+-- })
+-- require('litee.gh').setup({
+--     icon_set    = "nerd",
+--     -- remap the arrow keys to resize any litee.nvim windows.
+--     map_resize_keys = false,
+--     -- do not map any keys inside any gh.nvim buffers.
+--     disable_keymaps = false,
+--     -- defines keymaps in gh.nvim buffers.
+--     keymaps = {
+--         open = "<CR>",
+--         expand = "zo",
+--         collapse = "zc",
+--         goto_issue = "gd",
+--         details = "d",
+--         submit_comment = "<C-s>",
+--         actions = "<C-a>",
+--         resolve_thread = "<C-r>",
+--         goto_web = "gx"
+--     },
+--   })
 
 require('numb').setup {
    show_numbers = true,
@@ -2140,6 +2170,7 @@ EOF
 
 augroup randomstuff
   autocmd!
+  "Check if any buffers were changed outside of Vim
   autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if !bufexists("[Command Line]") | checktime | endif
   " Make it so that if files are changed externally (ex: changing git branches) update the vim buffers automatically
   autocmd FileChangedShellPost *
@@ -2158,17 +2189,14 @@ augroup randomstuff
 
   " per reddit, Vim doesn't have an autocommand for graphql files, not sure if needed?
   autocmd BufRead,BufNewFile *.graphql,*.graphqls,*.gql setfiletype graphql
-augroup END
 
-augroup LastCursorPos
-  autocmd!
   " reopen files at your last edit position
   autocmd BufReadPost * if @% !~# "\.git[\/\\]COMMIT_EDITMSG$" && line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
   " autocmd BufReadPost *
   "       \ if line("'\"") > 0 && line("'\"") <= line("$") |
   "       \   exe "normal! g`\"" |
   "       \ endif
-augroup end
+augroup END
 
 " how to automatically rename things based on filetype
 " autocmd BufWritePre *.js exec '%s/class=/className=/eg'
@@ -2222,11 +2250,7 @@ function! OnVimEnter() abort
   endif
 endfunction
 
-augroup vimenterauto
-  autocmd!
-  autocmd VimEnter * call OnVimEnter()
-augroup END
-
+" `gx` to open vim-plug plugin on github.com
 function! PlugGx()
   let l:line = getline('.')
   let l:sha  = matchstr(l:line, '^  \X*\zs\x\{7,9}\ze ')
@@ -2273,7 +2297,7 @@ function! s:open_plug_gh()
 endfunction
 nnoremap <Leader>gx :call <SID>open_plug_gh()<CR><CR>
 
-" JavaScript package.json
+" `gx` to open package.json lib on npmjs.com
 function! PackageJsonGx() abort
   let l:line = getline('.')
   let l:package = matchlist(l:line, '\v"(.*)": "(.*)"')
@@ -2284,36 +2308,9 @@ function! PackageJsonGx() abort
   endif
 endfunction
 
-augroup AutoGx
-  autocmd!
-  autocmd BufRead,BufNewFile init.vim nnoremap <buffer> <silent> gx :call PlugGx()<cr>
-  autocmd FileType vim-plug nnoremap <buffer> <silent> gx :call PlugGx()<cr>
-  autocmd BufRead,BufNewFile package.json nnoremap <buffer> <silent> gx :call PackageJsonGx()<cr>
-augroup end
-
-" Automatically install missing plugins on startup
-autocmd VimEnter *
-  \  if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
-  \|   PlugInstall --sync | q
-  \| endif
-  " fzf plug help browser
-  function! s:plug_help_sink(line)
-    let dir = g:plugs[a:line].dir
-   for pat in ['doc/*.txt', 'README.md']
-     let match = get(split(globpath(dir, pat), "\n"), 0, '')
-     if len(match)
-       execute 'tabedit' match
-      return
-    endif
-  endfor
-  tabnew
-  execute 'Explore' dir
-endfunction
-
-command! PlugHelp call fzf#run(fzf#wrap({ 'source': sort(keys(g:plugs)), 'sink': function('s:plug_help_sink')}))
-  " PlugDiff commit preview browsing
-  let g:plug_pwindow='vertical botright split'
-  function! s:scroll_preview(down)
+" PlugDiff commit preview browsing
+let g:plug_pwindow='vertical botright split'
+function! s:scroll_preview(down)
   silent! wincmd P
   if &previewwindow
     execute 'normal!' a:down ? "\<c-d>" : "\<c-u>"
@@ -2330,10 +2327,35 @@ function! s:setup_extra_keys()
   nmap <silent> <buffer> <c-k> <c-p>o
 endfunction
 
-augroup PlugDiffExtra
+augroup LibGroup
   autocmd!
+  autocmd BufRead,BufNewFile init.vim nnoremap <buffer> <silent> gx :call PlugGx()<cr>
+  autocmd BufRead,BufNewFile package.json nnoremap <buffer> <silent> gx :call PackageJsonGx()<cr>
+  autocmd FileType vim-plug nnoremap <buffer> <silent> gx :call PlugGx()<cr>
   autocmd FileType vim-plug call s:setup_extra_keys()
-augroup END
+  autocmd VimEnter * call OnVimEnter()
+" Automatically install missing plugins on startup
+  autocmd VimEnter *
+    \  if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+    \|   PlugInstall --sync | q
+    \| endif
+augroup end
+
+" fzf plug help browser
+function! s:plug_help_sink(line)
+  let dir = g:plugs[a:line].dir
+  for pat in ['doc/*.txt', 'README.md']
+    let match = get(split(globpath(dir, pat), "\n"), 0, '')
+    if len(match)
+      execute 'tabedit' match
+      return
+    endif
+  endfor
+  tabnew
+  execute 'Explore' dir
+endfunction
+
+command! PlugHelp call fzf#run(fzf#wrap({ 'source': sort(keys(g:plugs)), 'sink': function('s:plug_help_sink')}))
 
 " https://gist.github.com/romainl/379904f91fa40533175dfaec4c833f2f
 function! MyHighlights() abort
@@ -2359,15 +2381,11 @@ endfunction
 augroup MyColors
   autocmd!
   autocmd ColorScheme * call MyHighlights()
-augroup END
-
 " https://github.com/trapd00r/vim-syntax-todo/blob/master/syntax/todo.vim
-augroup todo
-    autocmd!
-    autocmd Syntax * call matchadd(
-                \ 'Search',
-                \ '\v\W\zs<(NOTE|INFO|TODO|FIXME|CHANGED|BUG|HACK|LEARNINGS|TECH|IMPACT)>'
-                \ )
+  autocmd Syntax * call matchadd(
+              \ 'Search',
+              \ '\v\W\zs<(NOTE|INFO|TODO|FIXME|CHANGED|BUG|HACK|LEARNINGS|TECH|IMPACT)>'
+              \ )
 augroup END
 
 " remove all this and use Plug 'sindrets/diffview.nvim'?
@@ -2759,14 +2777,6 @@ nmap <silent> <leader>tp :TestLast<CR>
 nmap <silent> <leader>tv :TestVisit<CR>
 nmap <silent> <leader>ts :TestSuite<CR>
 
-" automatically run tests when a test file or its alternate application file is saved
-" augroup test
-"   autocmd!
-"   autocmd BufWrite * if test#exists() |
-"     \   TestFile |
-"     \ endif
-" augroup END
-
 augroup move_these_to_ftplugin
   " :help ftplugin
   autocmd!
@@ -2792,9 +2802,9 @@ nnoremap <leader>dpc :lua require('dap-python').test_class()<CR>
 vnoremap <leader>dps <ESC>:lua require('dap-python').debug_selection()<CR>
 
 " dap node
-nnoremap <leader>da  :lua require'debugHelper'.attachToNode()<CR>
-nnoremap <leader>dA  :lua require'debugHelper'.attachToRemote()<CR>
-nnoremap <leader>dc  :lua require'debugHelper'.attachToChrome()<CR>
+nnoremap <leader>dan :lua require'debugHelper'.attachToNode()<CR>
+nnoremap <leader>dar :lua require'debugHelper'.attachToRemote()<CR>
+nnoremap <leader>dac :lua require'debugHelper'.attachToChrome()<CR>
 
 " nvim-dap
 nnoremap <leader>dt  :lua require'dap'.toggle_breakpoint()<CR>
@@ -3029,8 +3039,8 @@ nnoremap <silent><nowait> <space>zS :Telescope coc document_symbols<CR>
 
 nnoremap <silent><nowait> <space>zo :<C-u>CocFzfList outline<CR>
 " nnoremap <silent><nowait> <space>zS :<C-u>CocFzfList symbols <C-R><C-W><CR>
-" nnoremap <silent><nowait> <space>zy :<C-u>CocFzfList yank<CR>
-nnoremap <silent><nowait> <Leader>zf :call <SID>coc_qf_diagnostic()<CR>
+nnoremap <silent><nowait> <space>zy :<C-u>CocFzfList yank<CR>
+nnoremap <silent><nowait> <leader>zf :call <SID>coc_qf_diagnostic()<CR>
 
 function! s:coc_qf_diagnostic() abort
   if !get(g:, 'coc_service_initialized', 0)
@@ -3084,6 +3094,11 @@ augroup CocGroup
 
   " close preview when completion is done
   autocmd CompleteDone * if pumvisible() == 0 | pclose | endif
+
+  " autocmd BufWritePre *.md CocCommand markdownlint.fixAll
+  " autocmd BufWritePost *.md CocCommand markdownlint.fixAll | echo 'hi'
+  " autocmd BufWritePost *.jsx,*.js CocCommand eslint.executeAutofix
+  autocmd FileType TelescopePrompt let b:coc_pairs_disabled = ["'"]
 
   " make sure to kill coc pid when closing nvim (not sure if needed)
   autocmd VimLeavePre * if get(g:, 'coc_process_pid', 0)
@@ -3261,21 +3276,14 @@ command! -bang -nargs=+ -complete=dir AgDir call fzf#vim#ag_raw(<q-args>, <bang>
 command! -bang -nargs=* AgWord call fzf#vim#ag(<q-args>, '--word-regexp', <bang>0)
 
 " filter search by a passed in query (exact match)
-function! RipgrepFzf(filepaths, fullscreen)
+" TODO doesn't work passing in a <, for example
+function! RipgrepFzfExact(filepaths, fullscreen)
   let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case --with-filename -e ''%s'' ' . a:filepaths . ' || true'
   let initial_command = printf(command_fmt, '')
   let reload_command = printf(command_fmt, '{q}')
   let spec = {'options': ['--phony', '--bind', 'change:reload:'.reload_command]}
   call fzf#vim#grep(initial_command, 1, fzf#vim#with_preview(spec), a:fullscreen)
 endfunction
-
-" Change to git project directory
-nnoremap <silent> <Leader>fI :FZFCd ~/code<CR>
-nnoremap <silent> <Leader>fi :FZFCd!<CR>
-command! -bang -bar -nargs=? -complete=dir FZFCd
-	\ call fzf#run(fzf#wrap(
-	\ {'source': 'find '..( empty("<args>") ? ( <bang>0 ? "~" : "." ) : "<args>" ) ..
-	\ ' -type d -maxdepth 1', 'sink': 'cd'}))
 
 " redefine :Rg to all arg passing
 " command! -bang -nargs=* Rg
@@ -3289,7 +3297,15 @@ command! -bang -bar -nargs=? -complete=dir FZFCd
 " :RG -Ttest (EXCLUDE 'test' type from .ripgreprc)
 " command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 " autocomplete dirs
-command! -nargs=* -bang -complete=dir RGdir call RipgrepFzf(<q-args>, <bang>0)
+command! -nargs=* -bang -complete=dir RGdir call RipgrepFzfExact(<q-args>, <bang>0)
+
+" Change to git project directory
+nnoremap <silent> <Leader>fI :FZFCd ~/code<CR>
+nnoremap <silent> <Leader>fi :FZFCd!<CR>
+command! -bang -bar -nargs=? -complete=dir FZFCd
+	\ call fzf#run(fzf#wrap(
+	\ {'source': 'find '..( empty("<args>") ? ( <bang>0 ? "~" : "." ) : "<args>" ) ..
+	\ ' -type d -maxdepth 1', 'sink': 'cd'}))
 
 "FZF Buffer Delete
 function! s:list_buffers()

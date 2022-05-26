@@ -78,13 +78,14 @@
 	algorithm = patience
 	compactionHeuristic = true
 	colorMoved = default
+	tool = vimdiff
 [delta]
 	commit-decoration-style = bold yellow box ul
 	file-style = bold yellow ul
 	hunk-header-decoration-style = yellow box
 	line-numbers = true
-	minus-color = normal "#340001"
-	plus-color = syntax "#012800"
+	; minus-color = normal "#340001"
+	; plus-color = syntax "#012800"
 	whitespace-error-style = 22 reverse
 [fetch]
 	prune = true
@@ -101,15 +102,13 @@
 [merge]
 	conflictstyle = zdiff3
 	summary = true
-	tool = nvim +Conflicted
+	tool = diffconflicts
 [merge "bundlelock"]
 	name = lock Gemfile
 	driver = bundle install
 [merge "bundle"]
 	name = bundle
 	driver = bundle
-[mergetool "vim-conflicted"]
-	cmd = nvim +Conflicted
 [pull]
 	rebase = true
 [push]
@@ -143,3 +142,12 @@
 [blame]
 	markUnblamableLines = true
 	markIgnoredLines = true
+[mergetool]
+	keepBackup = false
+[mergetool "fugitive"]
+	cmd = nvim -c \"Git\" \"mergetool\"
+[mergetool "diffconflicts"]
+	cmd = nvim -c DiffConflicts \"$MERGED\" \"$BASE\" \"$LOCAL\" \"$REMOTE\"
+	trustExitCode = true
+[mergetool "vimdiff1"]
+	hideResolved = true
