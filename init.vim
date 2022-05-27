@@ -2963,11 +2963,11 @@ endfunction
 " nmap <space> :<C-u>CocCommand tsserver.organizeImports<cr>
 " nmap <space> :<C-u>CocCommand tsserver.findAllFileReferences<cr>
 command! -nargs=0 Prettier :CocCommand prettier.formatFile
-command! -nargs=0 Format :call CocActionAsync('format')
-command! -nargs=? Fold :call CocAction('fold', <f-args>)
-command! -nargs=0 OR :call CocActionAsync('runCommand', 'editor.action.organizeImport')
-command! -nargs=0 CHI :call CocActionAsync('runCommand', 'document.showIncomingCalls')
-command! -nargs=0 CHO :call CocActionAsync('runCommand', 'document.showOutgoingCalls')
+command! -nargs=0 Format   :call CocActionAsync('format')
+command! -nargs=? Fold     :call CocAction('fold', <f-args>)
+command! -nargs=0 OR       :call CocActionAsync('runCommand', 'editor.action.organizeImport')
+command! -nargs=0 CHI      :call CocActionAsync('runCommand', 'document.showIncomingCalls')
+command! -nargs=0 CHO      :call CocActionAsync('runCommand', 'document.showOutgoingCalls')
 
 nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
 nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
